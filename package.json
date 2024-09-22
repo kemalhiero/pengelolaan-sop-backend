@@ -1,0 +1,22 @@
+{
+  "name": "pengelolaan-sop-backend",
+  "version": "1.0.0",
+  "description": "Tugas Akhir Pengelolaan SOP di Departemen Sistem Informasi Universitas Andalas berbasis website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node --env-file=.env --watch src/index.js",
+    "start": "node --env-file=.env src/index.js"
+  },
+  "keywords": [
+    "sop",
+    "unand"
+  ],
+  "author": "kemalhiero",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mariadb": "^3.3.1",
+    "sequelize": "^6.37.3"
+  }
+}
