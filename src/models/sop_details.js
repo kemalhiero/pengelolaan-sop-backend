@@ -17,8 +17,8 @@ const sop_details = sequelize.define('sop_details' ,
             type: DataTypes.STRING(50),
             allowNull: false
         },
-        sop_name: {
-            type: DataTypes.STRING(100),
+        version: {
+            type: DataTypes.SMALLINT.UNSIGNED,
             allowNull: false
         },
         revision_date: {
@@ -29,9 +29,9 @@ const sop_details = sequelize.define('sop_details' ,
             type: DataTypes.DATE,
             allowNull: false,
         },
-        version: {
-            type: DataTypes.SMALLINT.UNSIGNED,
-            allowNull: false
+        is_approved: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
         },
         status: {
             type: DataTypes.ENUM('processing', 'approved'),

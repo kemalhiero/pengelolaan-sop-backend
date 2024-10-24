@@ -3,18 +3,14 @@ const { DataTypes } = require('sequelize');
 
 const drafter = sequelize.define('drafter' ,
     {
-        id_drafter: {
+        id_sop_detail: {
             type: DataTypes.INTEGER.UNSIGNED,
             primaryKey: true,
-            autoIncrement: true,
-            allowNull: false
-        },
-        id_org: {
-            type: DataTypes.TINYINT.UNSIGNED,
             allowNull: false
         },
         id_user: {
             type: DataTypes.STRING(15),
+            primaryKey: true,
             allowNull: false
         },
     }, {

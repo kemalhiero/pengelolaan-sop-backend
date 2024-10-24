@@ -34,7 +34,7 @@ const sop_step = sequelize.define('sop_step' ,
             type: DataTypes.TINYINT.UNSIGNED,
             allowNull: false,
         },
-        completeness: {
+        fittings: {
             type: DataTypes.STRING(200),
             allowNull: false,
         },

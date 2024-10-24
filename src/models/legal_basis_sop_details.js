@@ -3,18 +3,14 @@ const { DataTypes } = require('sequelize');
 
 const legal_basis_sop_details = sequelize.define('legal_basis_sop_details' ,
     {
-        id_lbsd: {
-            type: DataTypes.INTEGER.UNSIGNED,
-            primaryKey: true,
-            autoIncrement: true,
-            allowNull: false
-        }, 
         id_sop_detail: {
             type: DataTypes.INTEGER.UNSIGNED,
+            primaryKey: true,
             allowNull: false
         },
         id_legal: {
             type: DataTypes.SMALLINT.UNSIGNED,
+            primaryKey: true,
             allowNull: false
         },
     }, {

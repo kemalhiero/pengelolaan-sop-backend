@@ -9,8 +9,9 @@ const law_types = sequelize.define('law_types' ,
             autoIncrement: true,
             allowNull: false
         }, 
-        law_types: {
+        law_type: {
             type: DataTypes.STRING(100),
+            unique: true,
             allowNull: false
         },
         description: {

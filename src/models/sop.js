@@ -22,6 +22,10 @@ const sop = sequelize.define('sop' ,
             allowNull: false,
             defaultValue: DataTypes.NOW,
         },
+        is_active: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false
+        },
     }, {
         freezeTableName: true,
         timestamps: false,

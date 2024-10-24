@@ -5,6 +5,11 @@ const port = process.env.PORT
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+const cors = require('cors');
+app.use(cors());
+
+// router
+app.use('/api/lawtype', require('./routes/lawTypeRoute'));
 
 app.get('/', (req, res) => {
   res.send('Bismillah wisuda tahun ini!')
