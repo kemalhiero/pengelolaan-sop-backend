@@ -1,6 +1,8 @@
 const sequelize = require("../config/db.js");
 const { DataTypes } = require('sequelize');
 
+
+
 const law_types = sequelize.define('law_types' ,
     {
         id_law_type: {
@@ -22,5 +24,8 @@ const law_types = sequelize.define('law_types' ,
         timestamps: false,
     }
 );
+
+// const modelLegal = require('./legal_basis.js');
+// law_types.hasMany(modelLegal, {foreignKey: 'id_law_type'});
 
 module.exports = law_types;

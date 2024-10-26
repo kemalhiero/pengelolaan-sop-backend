@@ -9,6 +9,7 @@ const cors = require('cors');
 app.use(cors());
 
 // router
+app.use('/api/law', require('./routes/legalBasisRoute'));
 app.use('/api/lawtype', require('./routes/lawTypeRoute'));
 
 app.get('/', (req, res) => {

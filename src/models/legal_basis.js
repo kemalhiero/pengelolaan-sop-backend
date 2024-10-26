@@ -18,7 +18,7 @@ const legal_basis = sequelize.define('legal_basis' ,
             allowNull: false
         },
         year: {
-            type: DataTypes.DATEONLY,
+            type: DataTypes.SMALLINT,
             allowNull: false
         },
         about: {
@@ -30,5 +30,8 @@ const legal_basis = sequelize.define('legal_basis' ,
         timestamps: false,
     }
 );
+
+// const modelLawTypes = require('./law_types.js');
+// legal_basis.belongsTo(modelLawTypes);
 
 module.exports = legal_basis;
