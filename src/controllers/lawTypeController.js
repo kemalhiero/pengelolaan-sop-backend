@@ -1,4 +1,4 @@
-const modelLawType = require('../models/law_types');
+import modelLawType from '../models/law_types.js';
 
 const addLawType = async (req, res) => {
     try {
@@ -86,6 +86,6 @@ const updateLawType = async (req, res) => {
     }
 }
 
-module.exports = {
+export {
     addLawType, getLawType, deleteLawType, updateLawType
 }

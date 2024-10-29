@@ -1,9 +1,9 @@
-const { Sequelize } = require('sequelize');
-const { env } = require('node:process');
+import { Sequelize } from 'sequelize';
+import { env } from 'node:process';
 
 const sequelize = new Sequelize(env.DB_NAME, env.DB_USERNAME, env.DB_PASSWORD, {
     host: 'localhost',
     dialect: 'mariadb'
 });
 
-module.exports = sequelize;
+export default sequelize;

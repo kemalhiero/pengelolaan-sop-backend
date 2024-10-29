@@ -1,5 +1,5 @@
-const sequelize = require("../config/db.js");
-const { DataTypes } = require('sequelize');
+import sequelize from "../config/db.js";
+import { DataTypes } from 'sequelize';
 
 const sop_step_implementer = sequelize.define('sop_step_implementer' ,
     {
@@ -22,4 +22,4 @@ const sop_step_implementer = sequelize.define('sop_step_implementer' ,
     }
 );
 
-module.exports = sop_step_implementer;
+export default sop_step_implementer;

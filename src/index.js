@@ -1,16 +1,23 @@
-const express = require('express')
+import express, { urlencoded, json } from 'express';
 const app = express()
 const port = process.env.PORT
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(urlencoded({ extended: true }));
+app.use(json());
 
-const cors = require('cors');
+import cors from 'cors';
 app.use(cors());
 
+// relasi antar tabel
+import './models/db_association.js'
+
 // router
-app.use('/api/law', require('./routes/legalBasisRoute'));
-app.use('/api/lawtype', require('./routes/lawTypeRoute'));
+import legalBasisRoute from './routes/legalBasisRoute.js';
+import lawTypeRoute from './routes/lawTypeRoute.js';
+
+app
+  .use('/api/law', legalBasisRoute)
+  .use('/api/lawtype', lawTypeRoute);
 
 app.get('/', (req, res) => {
   res.send('Bismillah wisuda tahun ini!')

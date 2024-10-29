@@ -1,10 +1,11 @@
-const router = require('express').Router();
-const legalController = require('../controllers/legalBasisController')
+import { Router } from 'express';
+import * as legalBasisController from '../controllers/legalBasisController.js';
 
+const router = Router();
 router.route('/')
-    .get(legalController.getLegal)
-    .post(legalController.addLegal)
-    .patch(legalController.updateLegal)
-    .delete(legalController.deleteLegal)
+    .get(legalBasisController.getLegal)
+    .post(legalBasisController.addLegal)
+    .patch(legalBasisController.updateLegal)
+    .delete(legalBasisController.deleteLegal);
 
-module.exports = router;
+export default router;

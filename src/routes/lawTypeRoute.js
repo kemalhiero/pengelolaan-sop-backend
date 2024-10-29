@@ -1,10 +1,11 @@
-const router = require('express').Router();
-const lawTypeController = require('../controllers/lawTypeController');
+import { Router } from 'express';
+import * as lawTypeController from '../controllers/lawTypeController.js';
 
+const router = Router();
 router.route('/')
     .get(lawTypeController.getLawType)
     .post(lawTypeController.addLawType)
     .delete(lawTypeController.deleteLawType)
     .patch(lawTypeController.updateLawType)
 
-module.exports = router;
+export default router;

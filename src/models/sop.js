@@ -1,5 +1,5 @@
-const sequelize = require("../config/db.js");
-const { DataTypes } = require('sequelize');
+import sequelize from "../config/db.js";
+import { DataTypes } from 'sequelize';
 
 const sop = sequelize.define('sop' ,
     {
@@ -32,4 +32,4 @@ const sop = sequelize.define('sop' ,
     }
 );
 
-module.exports = sop;
+export default sop;

@@ -1,5 +1,5 @@
-const sequelize = require("../config/db.js");
-const { DataTypes } = require('sequelize');
+import sequelize from "../config/db.js";
+import { DataTypes } from 'sequelize';
 
 const equipment = sequelize.define('equipment' ,
     {
@@ -27,4 +27,4 @@ const equipment = sequelize.define('equipment' ,
     }
 );
 
-module.exports = equipment;
+export default equipment;

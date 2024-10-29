@@ -1,5 +1,5 @@
-const sequelize = require("../config/db.js");
-const { DataTypes } = require('sequelize');
+import sequelize from "../config/db.js";
+import { DataTypes } from 'sequelize';
 
 const feedback = sequelize.define('feedback' ,
     {
@@ -34,4 +34,4 @@ const feedback = sequelize.define('feedback' ,
     }
 );
 
-module.exports = feedback;
+export default feedback;

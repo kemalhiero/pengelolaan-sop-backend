@@ -1,17 +1,27 @@
-const sequelize = require("../config/db.js");
-const { DataTypes } = require('sequelize');
+import sequelize from "../config/db.js";
+import { DataTypes } from 'sequelize';
+import modelSopDetail from './sop_details.js';
+import modelUser  from './users.js';
 
 const drafter = sequelize.define('drafter' ,
     {
         id_sop_detail: {
             type: DataTypes.INTEGER.UNSIGNED,
             primaryKey: true,
-            allowNull: false
+            allowNull: false,
+            references: {
+                model: modelSopDetail,
+                key: 'id_sop_detail'
+            }
         },
         id_user: {
             type: DataTypes.STRING(15),
             primaryKey: true,
-            allowNull: false
+            allowNull: false,
+            references: {
+                model: modelUser,
+                key: 'id_user'
+            }
         },
     }, {
         freezeTableName: true,
@@ -19,4 +29,4 @@ const drafter = sequelize.define('drafter' ,
     }
 );
 
-module.exports = drafter;
+export default drafter;

@@ -1,5 +1,5 @@
-const sequelize = require("../config/db.js");
-const { DataTypes } = require('sequelize');
+import sequelize from "../config/db.js";
+import { DataTypes } from 'sequelize';
 
 const implement_qualification = sequelize.define('implement_qualification' ,
     {
@@ -23,4 +23,4 @@ const implement_qualification = sequelize.define('implement_qualification' ,
     }
 );
 
-module.exports = implement_qualification;
+export default implement_qualification;

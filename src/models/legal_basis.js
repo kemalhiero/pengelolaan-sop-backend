@@ -1,5 +1,5 @@
-const sequelize = require("../config/db.js");
-const { DataTypes } = require('sequelize');
+import sequelize from "../config/db.js";
+import { DataTypes } from 'sequelize';
 
 const legal_basis = sequelize.define('legal_basis' ,
     {
@@ -31,7 +31,4 @@ const legal_basis = sequelize.define('legal_basis' ,
     }
 );
 
-// const modelLawTypes = require('./law_types.js');
-// legal_basis.belongsTo(modelLawTypes);
-
-module.exports = legal_basis;
+export default legal_basis;

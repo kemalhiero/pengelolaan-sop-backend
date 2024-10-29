@@ -1,7 +1,5 @@
-const sequelize = require("../config/db.js");
-const { DataTypes } = require('sequelize');
-
-
+import sequelize from "../config/db.js";
+import { DataTypes } from 'sequelize';
 
 const law_types = sequelize.define('law_types' ,
     {
@@ -25,7 +23,4 @@ const law_types = sequelize.define('law_types' ,
     }
 );
 
-// const modelLegal = require('./legal_basis.js');
-// law_types.hasMany(modelLegal, {foreignKey: 'id_law_type'});
-
-module.exports = law_types;
+export default law_types;
