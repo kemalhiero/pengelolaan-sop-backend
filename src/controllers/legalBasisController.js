@@ -55,7 +55,17 @@ const getLegal = async (req, res) => {
 
 const deleteLegal = async (req, res) => {
     try {
-        
+        const {id} = req.query;
+        const legal = await modelLegal.findByPk(id);
+
+        if (!legal) return res.status(404).json({message: 'data tidak ditemukan'});
+
+        await legal.destroy();
+
+        return res.status(200).json({
+            message: 'sukes menghapus data',
+        });
+
     } catch (error) {
         console.error(error);
         return res.status(500).json({
@@ -66,6 +76,19 @@ const deleteLegal = async (req, res) => {
 
 const updateLegal = async (req, res) => {
     try {
+        const {id} = req.query;
+        const {id_law_type, number, year, about} = req.body;
+        const legal = await modelLegal.findByPk(id);
+
+        if (!legal) return res.status(404).json({message: 'data tidak ditemukan'});
+
+        await legal.update({
+            id_law_type, number, year, about
+        })
+
+        return res.status(200).json({
+            message: 'sukes memperbarui data',
+        });
         
     } catch (error) {
         console.error(error);
