@@ -23,7 +23,6 @@ const organization = sequelize.define('organization' ,
         },
         org_about: {
             type: DataTypes.STRING(300),
-            allowNull: false
         },
         id_org_parent: {
             type: DataTypes.TINYINT.UNSIGNED,

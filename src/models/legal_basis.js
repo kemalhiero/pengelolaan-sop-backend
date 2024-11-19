@@ -14,15 +14,23 @@ const legal_basis = sequelize.define('legal_basis' ,
             allowNull: false
         }, 
         number: {
-            type: DataTypes.TINYINT.UNSIGNED,
-            allowNull: false
+            type: DataTypes.SMALLINT.UNSIGNED,
+            allowNull: false,
+            validate: {
+                min: 1,
+                max: 999
+            }
         },
         year: {
-            type: DataTypes.SMALLINT,
-            allowNull: false
+            type: DataTypes.SMALLINT.UNSIGNED,
+            allowNull: false,
+            validate: {
+                min: 1945,
+                max: new Date().getFullYear(),
+            }
         },
         about: {
-            type: DataTypes.STRING(300),
+            type: DataTypes.STRING(500),
             allowNull: false
         },
     }, {

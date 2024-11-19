@@ -75,7 +75,7 @@ const deleteOrg = async (req, res) => {
             message: error.message,
         });        
     }
-}
+};
 
 const updateOrg = async (req, res) => {
     try {
@@ -103,8 +103,8 @@ const updateOrg = async (req, res) => {
             message: error.message,
         });        
     }
-}
+};
 
 export {
     addOrg, getOrg, deleteOrg, updateOrg
-}
+};

@@ -27,16 +27,17 @@ const getLegal = async (req, res) => {
             attributes: ['id_legal', 'number', 'year', 'about'],
             include: {
                 model: modelLawType,
-                attributes: ['law_type'],
+                attributes: ['id_law_type', 'law_type'],
             }
         });
 
         // Flatten the response so that law_type is not nested
         const flattenedLegal = legal.map(item => ({
-            id_legal: item.id_legal,
+            id: item.id_legal,
             number: item.number,
             year: item.year,
             about: item.about,
+            id_law_type: item.law_type.id_law_type,  // Flatten law_type
             law_type: item.law_type.law_type,  // Flatten law_type
         }));
 

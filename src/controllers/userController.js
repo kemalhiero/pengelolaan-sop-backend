@@ -5,8 +5,6 @@ const regisUser = async (req, res) => {
     try {
         const {} = req.body;
 
-
-
         res.status(200).json({
             message: 'sukses regis user'
         });
@@ -60,6 +58,4 @@ const getPic = async (req, res) => {
     }
 };
 
-
-
-export { regisUser, loginUser };
+export { regisUser, loginUser, getPic };

@@ -24,7 +24,13 @@ const addLawType = async (req, res) => {
 
 const getLawType = async (req, res) => {
     try {
-        const lawType = await modelLawType.findAll();
+        const lawType = await modelLawType.findAll({
+            attributes: [
+                ['id_law_type', 'id'], // mengganti nama kolom 'id_law_type' menjadi 'id'
+                'law_type',             // mengambil kolom 'law_type'
+                'description'           // mengambil kolom 'description'
+            ]
+        });
 
         return res.status(200).json({
             message: 'sukes mendapat data',
