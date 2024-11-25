@@ -1,7 +1,7 @@
 import modelUser from '../models/users.js';
 import modelRole from '../models/roles.js';
 
-const regisUser = async (req, res) => {
+const regisUser = async (req, res, next) => {
     try {
         const {} = req.body;
 
@@ -10,14 +10,11 @@ const regisUser = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 };
 
-const loginUser = async (req, res) => {
+const loginUser = async (req, res, next) => {
     try {
         const {} = req.body;
 
@@ -28,34 +25,36 @@ const loginUser = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 };
 
-const getPic = async (req, res) => {
+const getEmploye = async (req, res, next) => {
     try {
         const pic = await modelUser.findAll({
-            attributes: ['id_user', 'identitiy_number', 'name'],
+            attributes: ['id_user', 'identity_number', 'name'],
             include: {
                 model: modelRole,
-                where: { role_name: 'pj' }
+                attributes: ['role_name'],
+                // where: { role_name: 'pj' }
             }
-        })
+        });
+
+        const data = pic.map(item => ({
+            id: item.id_user,
+            identity_number: item.identity_number,
+            name: item.name,
+            role: item.role.role_name
+        }));
 
         res.status(200).json({
             message: 'sukses login',
-            data: pic
+            data
         });
 
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 };
 
-export { regisUser, loginUser, getPic };
+export { regisUser, loginUser, getEmploye };

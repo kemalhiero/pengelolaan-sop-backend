@@ -15,7 +15,8 @@ const sop = sequelize.define('sop' ,
         },
         name: {
             type: DataTypes.STRING(100),
-            allowNull: false
+            allowNull: false,
+            unique: true
         },
         creation_date: {
             type: DataTypes.DATE,

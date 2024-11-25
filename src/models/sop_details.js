@@ -13,7 +13,7 @@ const sop_details = sequelize.define('sop_details' ,
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false
         },
-        sop_number: {
+        number: {
             type: DataTypes.STRING(50),
             allowNull: false
         },
@@ -22,12 +22,10 @@ const sop_details = sequelize.define('sop_details' ,
             allowNull: false
         },
         revision_date: {
-            type: DataTypes.DATE,
-            allowNull: false,
+            type: DataTypes.DATE
         },
         effective_date: {
-            type: DataTypes.DATE,
-            allowNull: false,
+            type: DataTypes.DATE
         },
         is_approved: {
             type: DataTypes.BOOLEAN,
@@ -38,24 +36,19 @@ const sop_details = sequelize.define('sop_details' ,
             allowNull: false,
         },
         warning: {
-            type: DataTypes.STRING(100),
-            allowNull: false,
+            type: DataTypes.STRING(100)
         },
         section: {
             type: DataTypes.STRING(100),
-            allowNull: false,
         },
-        sop_description: {
+        description: {
             type: DataTypes.STRING(500),
-            allowNull: false,
         },
         implementer: {
-            type: DataTypes.STRING(100),
-            allowNull: false,
+            type: DataTypes.STRING(100)
         },
         position_of_the_person_in_charge: {
-            type: DataTypes.STRING(50),
-            allowNull: false,
+            type: DataTypes.STRING(50)
         },
     }, {
         freezeTableName: true,

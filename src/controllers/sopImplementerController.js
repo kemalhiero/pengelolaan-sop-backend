@@ -1,6 +1,6 @@
 import modelSopImplementer from '../models/sop_step_implementer.js';
 
-const getImplementer = async (req, res) => {
+const getImplementer = async (req, res, next) => {
     try {
         const implementer = await modelSopImplementer.findAll({
             attributes: [
@@ -16,10 +16,7 @@ const getImplementer = async (req, res) => {
         });
         
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 }
 

@@ -1,27 +1,24 @@
 import modelLegal from '../models/legal_basis.js';
 import modelLawType from '../models/law_types.js';
 
-const addLegal = async (req, res) => {
+const addLegal = async (req, res, next) => {
     try {
         const {id_law_type, number, year, about} = req.body;
 
         await modelLegal.create({
             id_law_type, number, year, about
-        })
+        });
 
         res.status(200).json({
             message: 'sukses menambahkan data'
         });
 
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 }
 
-const getLegal = async (req, res) => {
+const getLegal = async (req, res, next) => {
     try {
         const legal = await modelLegal.findAll({
             attributes: ['id_legal', 'number', 'year', 'about'],
@@ -47,10 +44,7 @@ const getLegal = async (req, res) => {
         });
         
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 }
 
@@ -68,10 +62,7 @@ const deleteLegal = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 }
 
@@ -92,10 +83,7 @@ const updateLegal = async (req, res) => {
         });
         
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 }
 

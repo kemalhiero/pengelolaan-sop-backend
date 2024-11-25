@@ -18,14 +18,11 @@ const addOrg = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 };
 
-const getOrg = async (req, res) => {
+const getOrg = async (req, res, next) => {
     try {
         const organization = await modelOrganization.findAll({
             attributes: {exclude: ['person_in_charge']},
@@ -49,10 +46,7 @@ const getOrg = async (req, res) => {
             data: flattenedData,
         })
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 };
 
@@ -98,10 +92,7 @@ const updateOrg = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            message: error.message,
-        });        
+        next(error);       
     }
 };
 

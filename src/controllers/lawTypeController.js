@@ -1,6 +1,6 @@
 import modelLawType from '../models/law_types.js';
 
-const addLawType = async (req, res) => {
+const addLawType = async (req, res, next) => {
     try {
 
         const { law_type, description } = req.body;
@@ -15,14 +15,11 @@ const addLawType = async (req, res) => {
         });
         
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 }
 
-const getLawType = async (req, res) => {
+const getLawType = async (req, res, error) => {
     try {
         const lawType = await modelLawType.findAll({
             attributes: [
@@ -38,14 +35,11 @@ const getLawType = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 }
 
-const deleteLawType = async (req, res) => {
+const deleteLawType = async (req, res, next) => {
     try {
         const {id} = req.query;
         const lawType = await modelLawType.findByPk(id);
@@ -61,14 +55,11 @@ const deleteLawType = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 }
 
-const updateLawType = async (req, res) => {
+const updateLawType = async (req, res, next) => {
     try {
         const {id} = req.query;
         const {law_type, description} = req.body;
@@ -85,10 +76,7 @@ const updateLawType = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 }
 
