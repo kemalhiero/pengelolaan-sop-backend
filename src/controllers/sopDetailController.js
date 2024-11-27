@@ -1,5 +1,6 @@
 import modelSopDetail from '../models/sop_details.js';
 import modelSop from '../models/sop.js';
+import modelOrganization from '../models/organization.js';
 
 const addSop = async (req, res, next) => {
     try {
@@ -28,4 +29,40 @@ const addSop = async (req, res, next) => {
     }
 };
 
-export { addSop };
+const getAllSop = async (req, res, next) => {
+    try {
+        const dataSop = await modelSopDetail.findAll({
+            attributes: ['number', 'is_approved', 'status', 'version'],
+            include: [
+                {
+                    model: modelSop,
+                    attributes: ['name', 'is_active'],
+                    include: {
+                        model: modelOrganization,
+                        attributes: ['org_name']
+                    }
+                }, 
+                
+            ] 
+        });
+
+        const data = dataSop.map(item => ({
+            name: item.sop.name,
+            is_active: item.sop.is_active,
+            number: item.number,
+            version: item.version,
+            is_approved: item.is_approved,
+            status: item.status,
+            org_name: item.sop.organization.org_name,
+        }));
+
+        return res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export { addSop, getAllSop };
