@@ -18,7 +18,6 @@ import sopImplementer from './routes/sopImplementerRoute.js'
 import organizationRoute from './routes/organizationRoute.js';
 import userRoute from './routes/userRoute.js';
 import sopRoute from './routes/sopRoute.js';
-import sopDetailRoute from './routes/sopDetailRoute.js';
 import drafterRoute from './routes/drafterRoute.js';
 
 app
@@ -28,7 +27,6 @@ app
   .use('/api/drafter', drafterRoute)
   .use('/api/lawtype', lawTypeRoute)
   .use('/api/org', organizationRoute)
-  .use('/api/sopdetail', sopDetailRoute)
   .use('/api/implementer', sopImplementer);
 
 app.get('/', (req, res) => {

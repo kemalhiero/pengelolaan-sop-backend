@@ -3,21 +3,21 @@ import { DataTypes } from 'sequelize';
 
 const sop_details = sequelize.define('sop_details' ,
     {
-        id_sop_detail: {
+        id_sop_detail: {        // data awal yang dimasukkan
             type: DataTypes.INTEGER.UNSIGNED,
             primaryKey: true,
             autoIncrement: true,
             allowNull: false
         }, 
-        id_sop: {
+        id_sop: {               //
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false
         },
-        number: {
+        number: {               //
             type: DataTypes.STRING(50),
             allowNull: false
         },
-        version: {
+        version: {              //
             type: DataTypes.SMALLINT.UNSIGNED,
             allowNull: false
         },
@@ -27,11 +27,11 @@ const sop_details = sequelize.define('sop_details' ,
         effective_date: {
             type: DataTypes.DATE
         },
-        is_approved: {
+        is_approved: {          //
             type: DataTypes.BOOLEAN,
             allowNull: false,
         },
-        status: {
+        status: {               //
             type: DataTypes.ENUM('processing', 'approved'),
             allowNull: false,
         },
@@ -41,7 +41,7 @@ const sop_details = sequelize.define('sop_details' ,
         section: {
             type: DataTypes.STRING(100),
         },
-        description: {
+        description: {          // bisa tapi tidak wajib saat di awal
             type: DataTypes.STRING(500),
         },
         implementer: {

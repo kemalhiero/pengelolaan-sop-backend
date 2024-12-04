@@ -19,7 +19,7 @@ const addLawType = async (req, res, next) => {
     }
 }
 
-const getLawType = async (req, res, error) => {
+const getLawType = async (req, res, next) => {
     try {
         const lawType = await modelLawType.findAll({
             attributes: [

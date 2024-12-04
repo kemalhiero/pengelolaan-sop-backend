@@ -56,8 +56,8 @@ modelStepImplementer.hasMany(modelStep, { foreignKey: 'id_sop_implementer' });
 modelStep.belongsTo(modelStepImplementer,{ foreignKey: 'id_sop_implementer' });
 
 // relasi many to many
-modelUser.belongsToMany(modelSopDetails, { through: modelDrafter });
-modelSopDetails.belongsToMany(modelUser, { through: modelDrafter });
+modelUser.belongsToMany(modelSopDetails, { through: modelDrafter, foreignKey: 'id_user' });
+modelSopDetails.belongsToMany(modelUser, { through: modelDrafter, foreignKey: 'id_sop_detail' });
 
 modelLegal.belongsToMany(modelSopDetails, { through: modelLegalBasisSopDetail });
 modelSopDetails.belongsToMany(modelLegal, { through: modelLegalBasisSopDetail });
