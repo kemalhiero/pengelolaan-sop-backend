@@ -12,22 +12,30 @@ app.use(cors());
 import './models/db_association.js';
 
 // router
-import legalBasisRoute from './routes/legalBasisRoute.js';
-import lawTypeRoute from './routes/lawTypeRoute.js';
-import sopImplementer from './routes/sopImplementerRoute.js'
-import organizationRoute from './routes/organizationRoute.js';
-import userRoute from './routes/userRoute.js';
 import sopRoute from './routes/sopRoute.js';
+import userRoute from './routes/userRoute.js';
+import recordRoute from './routes/recordRoute.js';
 import drafterRoute from './routes/drafterRoute.js';
+import lawTypeRoute from './routes/lawTypeRoute.js';
+import equipmentRoute from './routes/equipmentRoute.js';
+import legalBasisRoute from './routes/legalBasisRoute.js';
+import relatedSopRoute from './routes/relatedSopRoute.js';
+import implementerRoute from './routes/implementerRoute.js';
+import organizationRoute from './routes/organizationRoute.js';
+import ImplementQualificationRoute from './routes/ImplementQualificationRoute.js';
 
 app
   .use('/api/sop', sopRoute)
   .use('/api/user', userRoute)
+  .use('/api/record', recordRoute)
   .use('/api/law', legalBasisRoute)
   .use('/api/drafter', drafterRoute)
   .use('/api/lawtype', lawTypeRoute)
   .use('/api/org', organizationRoute)
-  .use('/api/implementer', sopImplementer);
+  .use('/api/equipment', equipmentRoute)
+  .use('/api/relatedsop', relatedSopRoute)
+  .use('/api/implementer', implementerRoute)
+  .use('/api/iq', ImplementQualificationRoute);
 
 app.get('/', (req, res) => {
   res.send('Bismillah wisuda tahun ini!')

@@ -1,9 +1,10 @@
 import sequelize from "../config/db.js";
 import { DataTypes } from 'sequelize';
-import modelLegalBasis from './legal_basis.js';
 import modelSopDetail from './sop_details.js';
+import modelSopImplementer from './sop_step_implementer.js';
 
-const legal_basis_sop_details = sequelize.define('legal_basis_sop_details' ,
+
+const sop_detail_implementer = sequelize.define('sop_detail_implementer',
     {
         id_sop_detail: {
             type: DataTypes.INTEGER.UNSIGNED,
@@ -14,19 +15,20 @@ const legal_basis_sop_details = sequelize.define('legal_basis_sop_details' ,
                 key: 'id_sop_detail'
             }
         },
-        id_legal: {
-            type: DataTypes.SMALLINT.UNSIGNED,
+        id_sop_implementer: {
+            type: DataTypes.TINYINT.UNSIGNED,
             primaryKey: true,
             allowNull: false,
             references: {
-                model: modelLegalBasis,
-                key: 'id_legal'
+                model: modelSopImplementer,
+                key: 'id_sop_implementer'
             }
         },
-    }, {
+    },
+    {
         freezeTableName: true,
         timestamps: false,
     }
 );
 
-export default legal_basis_sop_details;
+export default sop_detail_implementer;

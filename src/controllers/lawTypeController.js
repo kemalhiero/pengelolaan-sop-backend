@@ -10,8 +10,8 @@ const addLawType = async (req, res, next) => {
             description
         })
 
-        res.status(200).json({
-            message: 'success menambahkan data'
+        res.status(201).json({
+            message: 'sukses menambahkan data'
         });
         
     } catch (error) {
@@ -30,7 +30,7 @@ const getLawType = async (req, res, next) => {
         });
 
         return res.status(200).json({
-            message: 'sukes mendapat data',
+            message: 'sukses mendapat data',
             data: lawType,
         });
 
@@ -51,7 +51,7 @@ const deleteLawType = async (req, res, next) => {
         await lawType.destroy();
 
         return res.status(200).json({
-            message: 'sukes menghapus data',
+            message: 'sukses menghapus data',
         });
 
     } catch (error) {
@@ -72,7 +72,7 @@ const updateLawType = async (req, res, next) => {
         );
 
         return res.status(200).json({
-            message: 'sukes memperbarui data',
+            message: 'sukses memperbarui data',
         });
 
     } catch (error) {

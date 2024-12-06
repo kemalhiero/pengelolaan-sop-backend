@@ -44,9 +44,6 @@ const sop_details = sequelize.define('sop_details' ,
         description: {          // bisa tapi tidak wajib saat di awal
             type: DataTypes.STRING(500),
         },
-        implementer: {
-            type: DataTypes.STRING(100)
-        },
         position_of_the_person_in_charge: {
             type: DataTypes.STRING(50)
         },

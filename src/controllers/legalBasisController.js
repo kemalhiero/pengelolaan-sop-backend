@@ -1,22 +1,24 @@
 import modelLegal from '../models/legal_basis.js';
 import modelLawType from '../models/law_types.js';
+import modelSopDetail from '../models/sop_details.js';
+import modelLegalBasisSopDetail from '../models/legal_basis_sop_details.js';
 
 const addLegal = async (req, res, next) => {
     try {
-        const {id_law_type, number, year, about} = req.body;
+        const { id_law_type, number, year, about } = req.body;
 
         await modelLegal.create({
             id_law_type, number, year, about
         });
 
-        res.status(200).json({
+        res.status(201).json({
             message: 'sukses menambahkan data'
         });
 
     } catch (error) {
         next(error);
     }
-}
+};
 
 const getLegal = async (req, res, next) => {
     try {
@@ -39,54 +41,79 @@ const getLegal = async (req, res, next) => {
         }));
 
         return res.status(200).json({
-            message: 'sukes mendapat data',
+            message: 'sukses mendapat data',
             data: flattenedLegal,
         });
-        
+
     } catch (error) {
         next(error);
     }
-}
+};
 
 const deleteLegal = async (req, res) => {
     try {
-        const {id} = req.query;
+        const { id } = req.query;
         const legal = await modelLegal.findByPk(id);
 
-        if (!legal) return res.status(404).json({message: 'data tidak ditemukan'});
+        if (!legal) return res.status(404).json({ message: 'data tidak ditemukan' });
 
         await legal.destroy();
 
         return res.status(200).json({
-            message: 'sukes menghapus data',
+            message: 'sukses menghapus data',
         });
 
     } catch (error) {
         next(error);
     }
-}
+};
 
 const updateLegal = async (req, res) => {
     try {
-        const {id} = req.query;
-        const {id_law_type, number, year, about} = req.body;
+        const { id } = req.query;
+        const { id_law_type, number, year, about } = req.body;
         const legal = await modelLegal.findByPk(id);
 
-        if (!legal) return res.status(404).json({message: 'data tidak ditemukan'});
+        if (!legal) return res.status(404).json({ message: 'data tidak ditemukan' });
 
         await legal.update({
             id_law_type, number, year, about
         })
 
         return res.status(200).json({
-            message: 'sukes memperbarui data',
+            message: 'sukses memperbarui data',
         });
-        
+
     } catch (error) {
         next(error);
     }
-}
+};
+
+const addSopLegal = async (req, res, next) => {
+    try {
+        const {id_sop_detail, id_legal} = req.body;
+
+        const sopDetail = await modelSopDetail.findByPk(id_sop_detail);
+        const legal = await modelLegal.findByPk(id_legal);
+
+        if (!sopDetail || !legal) {
+            const error = new Error('Data dasar hukum atau sop detail tidak ditemukan');
+            error.status = 404;
+            throw error;
+        };
+        
+        await modelLegalBasisSopDetail.create({
+            id_sop_detail, id_legal
+        });
+
+        return res.status(200).json({
+            message: 'sukses menambahkan data',
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 
 export {
-    addLegal, getLegal, deleteLegal, updateLegal
+    addLegal, getLegal, deleteLegal, updateLegal, addSopLegal
 }

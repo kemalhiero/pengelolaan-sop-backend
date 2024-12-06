@@ -3,6 +3,9 @@ import * as drafterController from '../controllers/drafterController.js';
 
 const router = Router();
 router.route('/')
-    .post(drafterController.addDrafter)
+    .get(drafterController.getDrafter)
+    
+router.route('/sop')
+    .post(drafterController.addSopDrafter)
 
 export default router;

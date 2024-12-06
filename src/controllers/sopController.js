@@ -2,6 +2,7 @@ import modelSop from '../models/sop.js';
 import modelSopDetail from '../models/sop_details.js';
 import modelOrganization from '../models/organization.js';
 import modelUser from '../models/users.js';
+import modelRole from '../models/roles.js';
 
 import dateFormat from '../utils/dateFormat.js';
 
@@ -10,12 +11,12 @@ const addSop = async (req, res, next) => {
         const { id_org, name } = req.body;
 
         const data = await modelSop.create({
-            id_org, name, is_active : 2
+            id_org, name, is_active: 2
         });
 
-        return res.status(200).json({
+        return res.status(201).json({
+            message: 'sukses menambahkan data',
             data,
-            message: 'sukses menambahkan data'
         });
     } catch (error) {
         next(error);
@@ -24,8 +25,8 @@ const addSop = async (req, res, next) => {
 
 const addSopDetail = async (req, res, next) => {
     try {
-        const { number, description, version } = req.body;
-        const {id_sop} = req.query;
+        const { number, description, version, section, warning } = req.body;
+        const { id_sop } = req.query;
 
         const sop = await modelSop.findByPk(id_sop);
         if (!sop) {
@@ -36,12 +37,13 @@ const addSopDetail = async (req, res, next) => {
 
         const dataSopDetail = await modelSopDetail.create({
             number, description, id_sop, version, is_approved: false, status: 'processing',
+            section, warning
         });
         console.log(dataSopDetail.dataValues.id_sop_detail);
-        
-        return res.status(200).json({
-            data: dataSopDetail,
+
+        return res.status(201).json({
             message: 'sukses menambahkan data',
+            data: dataSopDetail,
         });
     } catch (error) {
         next(error);
@@ -61,7 +63,7 @@ const getAllSop = async (req, res, next) => {
                     model: modelOrganization,
                     attributes: ['org_name']
                 }
-            ] 
+            ]
         });
 
         const data = dataSop.map(item => {
@@ -97,9 +99,8 @@ const getAllSopDetail = async (req, res, next) => {
                         model: modelOrganization,
                         attributes: ['org_name']
                     }
-                }, 
-                
-            ] 
+                },
+            ]
         });
 
         const data = dataSop.map(item => ({
@@ -126,7 +127,7 @@ const getSopById = async (req, res, next) => {
         const { id } = req.params;
 
         const dataSop = await modelSop.findByPk(id, {
-            attributes: {exclude: ['id_org']},
+            attributes: { exclude: ['id_org'] },
             include: [
                 {
                     model: modelOrganization,
@@ -135,7 +136,7 @@ const getSopById = async (req, res, next) => {
             ]
         });
 
-        if (!dataSop) return res.status(404).json({message: 'data tidak ditemukan'});
+        if (!dataSop) return res.status(404).json({ message: 'data tidak ditemukan' });
 
         const data = {
             id: dataSop.id_sop,
@@ -156,7 +157,7 @@ const getSopById = async (req, res, next) => {
 
 const getAssignedSop = async (req, res, next) => {
     try {
-        
+
     } catch (error) {
         next(error);
     }
@@ -167,14 +168,18 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
         const { id } = req.params;
 
         const dataSop = await modelSop.findByPk(id, {
-            attributes: {exclude: ['id_sop', 'id_org', 'is_active']},
+            attributes: { exclude: ['id_org', 'is_active'] },
             include: [
                 {
                     model: modelOrganization,
                     attributes: ['org_name'],
                     include: {
                         model: modelUser,
-                        attributes: ['identity_number', 'name']
+                        attributes: ['identity_number', 'name'],
+                        include: {
+                            model: modelRole,
+                            attributes: ['role_name']
+                        }
                     }
                 },
                 {
@@ -190,14 +195,18 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
         });
 
         const data = {
+            id: dataSop.id_sop,
             name: dataSop.name,
             creation_date: dateFormat(dataSop.creation_date),
             organization: dataSop.organization.org_name,
-            pic_number:  dataSop.organization.user.identity_number,
-            pic_name: dataSop.organization.user.name,
+            pic: {
+                number: dataSop.organization.user.identity_number,
+                name: dataSop.organization.user.name,
+                role: dataSop.organization.user.role.role_name,
+            },
             number: dataSop.sop_details[0].number,
             description: dataSop.sop_details[0].description,
-            drafter: dataSop.sop_details[0].users.map(item =>{
+            drafter: dataSop.sop_details[0].users.map(item => {
                 return {
                     id_number: item.identity_number,
                     name: item.name
@@ -205,8 +214,8 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
             })
         };
 
-        if (!dataSop) return res.status(404).json({message: 'data tidak ditemukan'});
-        
+        if (!dataSop) return res.status(404).json({ message: 'data tidak ditemukan' });
+
         return res.status(200).json({
             message: 'sukses mendapatkan data',
             data

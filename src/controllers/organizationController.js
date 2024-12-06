@@ -13,7 +13,7 @@ const addOrg = async (req, res) => {
             id_org_parent
         });
 
-        res.status(200).json({
+        res.status(201).json({
             message: 'sukses menambahkan data'
         });
 
@@ -42,7 +42,7 @@ const getOrg = async (req, res, next) => {
         }));
 
         return res.status(200).json({
-            message: 'sukes mendapat data',
+            message: 'sukses mendapat data',
             data: flattenedData,
         })
     } catch (error) {
@@ -60,7 +60,7 @@ const deleteOrg = async (req, res) => {
         await organization.destroy();
 
         return res.status(200).json({
-            message: 'sukes menghapus data',
+            message: 'sukses menghapus data',
         });
 
     } catch (error) {
@@ -88,7 +88,7 @@ const updateOrg = async (req, res) => {
         });
 
         return res.status(200).json({
-            message: 'sukes memperbarui data',
+            message: 'sukses memperbarui data',
         });
 
     } catch (error) {

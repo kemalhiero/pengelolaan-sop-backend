@@ -2,9 +2,9 @@ import modelDrafter from '../models/drafter.js';
 import modelSopDetail from '../models/sop_details.js';
 import modelUser from '../models/users.js';
 
-const addDrafter = async (req, res, next) => {
+const addSopDrafter = async (req, res, next) => {
     try {
-        const {id_user, id_sop_detail} = req.body;
+        const { id_user, id_sop_detail } = req.body;
 
         const dataUser = await modelUser.findByPk(id_user);
         const dataSopDetail = await modelSopDetail.findByPk(id_sop_detail);
@@ -35,4 +35,4 @@ const getDrafter = async (req, res, next) => {
     }
 };
 
-export {addDrafter};
+export { getDrafter, addSopDrafter };
