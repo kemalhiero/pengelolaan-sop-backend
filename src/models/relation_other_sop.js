@@ -1,14 +1,14 @@
 import sequelize from "../config/db.js";
 import { DataTypes } from 'sequelize';
 
-const relation_other_sop = sequelize.define('relation_other_sop' ,
+const relation_other_sop = sequelize.define('relation_other_sop',
     {
-        id_relation_other_sop: {
+        id_relation_sop: {
             type: DataTypes.INTEGER.UNSIGNED,
             primaryKey: true,
             autoIncrement: true,
             allowNull: false
-        }, 
+        },
         id_sop_detail: {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false
@@ -18,9 +18,9 @@ const relation_other_sop = sequelize.define('relation_other_sop' ,
             allowNull: false
         },
     }, {
-        freezeTableName: true,
-        timestamps: false,
-    }
+    freezeTableName: true,
+    timestamps: false,
+}
 );
 
 export default relation_other_sop;

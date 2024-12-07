@@ -3,10 +3,10 @@ import { validateText } from '../utils/validation.js';
 
 const addEquipment = async (req, res, next) => {
     try {
-        const equipment = req.body;
+        const { id_sop_detail, equipment } = req.body;
 
         if (!equipment) {
-            const error = new Error('Data pelaksana tidak ditemukan!');
+            const error = new Error('Data peralatan tidak ditemukan!');
             error.status = 404;
             throw error;
         };
@@ -17,7 +17,9 @@ const addEquipment = async (req, res, next) => {
             throw error;
         };
 
-        await modelEquipment.create({ equipment });
+        await modelEquipment.create({
+            id_sop_detail, equipment
+        });
 
         res.status(201).json({
             message: 'sukses menambahkan data'

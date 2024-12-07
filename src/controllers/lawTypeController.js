@@ -8,12 +8,12 @@ const addLawType = async (req, res, next) => {
         await modelLawType.create({
             law_type,
             description
-        })
+        });
 
         res.status(201).json({
             message: 'sukses menambahkan data'
         });
-        
+
     } catch (error) {
         next(error);
     }
@@ -41,11 +41,11 @@ const getLawType = async (req, res, next) => {
 
 const deleteLawType = async (req, res, next) => {
     try {
-        const {id} = req.query;
+        const { id } = req.query;
         const lawType = await modelLawType.findByPk(id);
 
         if (!lawType) {
-            return res.status(404).json({message : 'data tidak ditemukan'})
+            return res.status(404).json({ message: 'data tidak ditemukan' })
         }
 
         await lawType.destroy();
@@ -61,11 +61,11 @@ const deleteLawType = async (req, res, next) => {
 
 const updateLawType = async (req, res, next) => {
     try {
-        const {id} = req.query;
-        const {law_type, description} = req.body;
+        const { id } = req.query;
+        const { law_type, description } = req.body;
         const lawType = await modelLawType.findByPk(id);
 
-        if (!lawType) return res.status(404).json({message : 'data tidak ditemukan'})
+        if (!lawType) return res.status(404).json({ message: 'data tidak ditemukan' })
 
         await lawType.update(
             { law_type, description }

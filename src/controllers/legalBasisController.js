@@ -78,7 +78,7 @@ const updateLegal = async (req, res) => {
 
         await legal.update({
             id_law_type, number, year, about
-        })
+        });
 
         return res.status(200).json({
             message: 'sukses memperbarui data',
@@ -91,7 +91,7 @@ const updateLegal = async (req, res) => {
 
 const addSopLegal = async (req, res, next) => {
     try {
-        const {id_sop_detail, id_legal} = req.body;
+        const { id_sop_detail, id_legal } = req.body;
 
         const sopDetail = await modelSopDetail.findByPk(id_sop_detail);
         const legal = await modelLegal.findByPk(id_legal);
@@ -101,7 +101,7 @@ const addSopLegal = async (req, res, next) => {
             error.status = 404;
             throw error;
         };
-        
+
         await modelLegalBasisSopDetail.create({
             id_sop_detail, id_legal
         });

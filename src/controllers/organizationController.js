@@ -3,7 +3,7 @@ import modelUser from '../models/users.js'
 
 const addOrg = async (req, res) => {
     try {
-        const {id_pic, name, level, about, id_org_parent} = req.body;
+        const { id_pic, name, level, about, id_org_parent } = req.body;
 
         await modelOrganization.create({
             person_in_charge: id_pic,
@@ -25,7 +25,7 @@ const addOrg = async (req, res) => {
 const getOrg = async (req, res, next) => {
     try {
         const organization = await modelOrganization.findAll({
-            attributes: {exclude: ['person_in_charge']},
+            attributes: { exclude: ['person_in_charge'] },
             include: {
                 model: modelUser,
                 attributes: ['name']
@@ -52,10 +52,10 @@ const getOrg = async (req, res, next) => {
 
 const deleteOrg = async (req, res) => {
     try {
-        const {id} = req.query;
+        const { id } = req.query;
         const organization = await modelOrganization.findByPk(id);
 
-        if (!organization) return res.status(404).json({message: 'data tidak ditemukan'});
+        if (!organization) return res.status(404).json({ message: 'data tidak ditemukan' });
 
         await organization.destroy();
 
@@ -67,17 +67,17 @@ const deleteOrg = async (req, res) => {
         console.error(error);
         return res.status(500).json({
             message: error.message,
-        });        
+        });
     }
 };
 
 const updateOrg = async (req, res) => {
     try {
-        const {id} = req.query;
-        const {id_pic, name, level, about, id_org_parent} = req.body;
+        const { id } = req.query;
+        const { id_pic, name, level, about, id_org_parent } = req.body;
         const organization = await modelOrganization.findByPk(id);
 
-        if (!organization) return res.status(404).json({message: 'data tidak ditemukan'});
+        if (!organization) return res.status(404).json({ message: 'data tidak ditemukan' });
 
         await organization.update({
             person_in_charge: id_pic,
@@ -92,7 +92,7 @@ const updateOrg = async (req, res) => {
         });
 
     } catch (error) {
-        next(error);       
+        next(error);
     }
 };
 

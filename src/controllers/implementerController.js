@@ -16,7 +16,7 @@ const getImplementer = async (req, res, next) => {
             message: 'sukses mendapat data',
             data: implementer,
         });
-        
+
     } catch (error) {
         next(error);
     }
@@ -24,11 +24,12 @@ const getImplementer = async (req, res, next) => {
 
 const addSopImplementer = async (req, res, next) => {
     try {
-        const {id_sop_detail, id_sop_implementer} = req.body;
+        const { id_sop_detail, id_sop_implementer } = req.body;
 
         const dataImplementer = await modelSopImplementer.findByPk(id_sop_implementer);
         const dataSopDetail = await modelSopDetail.findByPk(id_sop_detail);
 
+        // TODO buat pengecekan terlebih dahulu apakah kombinasi dari kedua data  yang sama sudah ada atau belum, kalau sudah buat validasinya, karena kalau sekarang hanya tampil error duplikat
         if (!dataImplementer || !dataSopDetail) {
             const error = new Error('Data pelaksana atau sop detail tidak ditemukan');
             error.status = 404;

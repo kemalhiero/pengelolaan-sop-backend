@@ -8,7 +8,8 @@ router.route('/')
 
 router.route('/detail')
     .get(sopController.getAllSopDetail)
-    .post(sopController.addSopDetail);
+    .post(sopController.addSopDetail)
+    .patch(sopController.updateSopDetail);
 
 router.route('/assignment/:id')
     .get(sopController.getAssignedSopDetail)

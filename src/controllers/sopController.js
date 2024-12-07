@@ -25,19 +25,18 @@ const addSop = async (req, res, next) => {
 
 const addSopDetail = async (req, res, next) => {
     try {
-        const { number, description, version, section, warning } = req.body;
-        const { id_sop } = req.query;
+        const { number, description, version } = req.body;
+        const { id } = req.query;
 
-        const sop = await modelSop.findByPk(id_sop);
+        const sop = await modelSop.findByPk(id);
         if (!sop) {
             const error = new Error('Data sop tidak ditemukan');
             error.status = 404;
             throw error;
-        }
+        };
 
         const dataSopDetail = await modelSopDetail.create({
-            number, description, id_sop, version, is_approved: false, status: 'processing',
-            section, warning
+            number, description, id_sop: id, version, is_approved: false, status: 'processing',
         });
         console.log(dataSopDetail.dataValues.id_sop_detail);
 
@@ -226,4 +225,39 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
     }
 };
 
-export { addSop, addSopDetail, getAllSop, getAllSopDetail, getSopById, getAssignedSopDetail };
+const updateSopDetail = async (req, res, next) => {
+    try {
+        const { id } = req.query;
+        const updateData = req.body;
+
+        const [sop, sopDetail] = await Promise.all([
+            modelSop.findByPk(id),
+            modelSopDetail.findOne({ where: { id_sop: id } })
+        ]);
+
+        if (!sop || !sopDetail) {
+            const error = new Error('Data sop tidak ditemukan');
+            error.status = 404;
+            throw error;
+        }
+
+        // Filter hanya field yang ada di request body
+        const data_baru = Object.keys(updateData).reduce((acc, key) => {
+            if (updateData[key] !== undefined) {
+                acc[key] = updateData[key];
+            }
+            return acc;
+        }, {});
+
+        const data = await sopDetail.update(data_baru);
+
+        return res.status(200).json({
+            message: 'sukses memperbarui data',
+            data
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export { addSop, addSopDetail, getAllSop, getAllSopDetail, getSopById, getAssignedSopDetail, updateSopDetail };

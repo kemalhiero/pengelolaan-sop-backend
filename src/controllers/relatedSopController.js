@@ -3,21 +3,23 @@ import { validateText } from '../utils/validation.js';
 
 const addRelatedSop = async (req, res, next) => {
     try {
-        const relatedSop = req.body;
+        const { id_sop_detail, related_sop } = req.body;
 
-        if (!relatedSop) {
-            const error = new Error('Data sop tidak ada!');
+        if (!related_sop) {
+            const error = new Error('Data sop yang berelasi tidak ada!');
             error.status = 404;
             throw error;
         };
 
-        if (!validateText(iq)) {
+        if (!validateText(related_sop)) {
             const error = new Error('Tidak boleh diawali dengan angka atau simbol');
             error.status = 400;
             throw error;
         };
 
-        await modelRelatedSop.create({ relatedSop });
+        await modelRelatedSop.create({
+            id_sop_detail, related_sop
+        });
 
         res.status(201).json({
             message: 'sukses menambahkan data'

@@ -18,8 +18,7 @@ const equipment = sequelize.define('equipment' ,
             allowNull: false
         },
         equipment_description: {
-            type: DataTypes.STRING(300),
-            allowNull: false
+            type: DataTypes.STRING(300)
         },
     }, {
         freezeTableName: true,
