@@ -29,4 +29,33 @@ const addEquipment = async (req, res, next) => {
     }
 };
 
-export { addEquipment };
+const getSopEquipment = async (req, res, next) => {
+    try {
+        const { id } = req.query;
+
+        const dataPeralatanSop = await modelEquipment.findAll({
+            where: {
+                id_sop_detail: id
+            },
+            attributes: [
+                ['id_equipment', 'id'],
+                'equipment'
+            ]
+        });
+    
+        if (dataPeralatanSop.length == 0) {
+            const error = new Error('Data sop terkait tidak ditemukan!');
+            error.status = 404;
+            throw error;
+        };
+    
+        res.status(200).json({
+            message: 'sukses mengambil data',
+            data: dataPeralatanSop
+        }); 
+    } catch (error) {
+        next(error);
+    }
+};
+
+export { addEquipment, getSopEquipment };

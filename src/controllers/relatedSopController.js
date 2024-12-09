@@ -30,4 +30,29 @@ const addRelatedSop = async (req, res, next) => {
     }
 };
 
-export { addRelatedSop };
+const getRelatedSop = async (req, res, next) => {
+    const { id } = req.query;
+
+    const dataSopTerkait = await modelRelatedSop.findAll({
+        where: {
+            id_sop_detail: id
+        },
+        attributes: [
+            ['id_relation_sop', 'id'],
+            'related_sop'
+        ]
+    });
+
+    if (dataSopTerkait.length == 0) {
+        const error = new Error('Data sop terkait tidak ditemukan!');
+        error.status = 404;
+        throw error;
+    };
+
+    res.status(200).json({
+        message: 'sukses mengambil data',
+        data: dataSopTerkait
+    });
+};
+
+export { addRelatedSop, getRelatedSop };

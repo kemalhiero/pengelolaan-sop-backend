@@ -114,6 +114,45 @@ const addSopLegal = async (req, res, next) => {
     }
 };
 
+const getSopLegal = async (req, res, next) => {
+    try {
+        const { id } = req.query;
+
+        const dataLegal = await modelLegal.findAll({
+            attributes: ['id_legal', 'number', 'year', 'about'],
+            include: [
+                {
+                    model: modelLawType,
+                    attributes: ['id_law_type', 'law_type'],
+                },
+                {
+                    model: modelSopDetail,
+                    where: { id_sop_detail: id },
+                    attributes: []
+                }
+
+            ]
+        });
+
+        const flattenedLegal = dataLegal.map(item => ({
+            id: item.id_legal,
+            number: item.number,
+            year: item.year,
+            about: item.about,
+            id_law_type: item.law_type.id_law_type,  // Flatten law_type
+            law_type: item.law_type.law_type,  // Flatten law_type
+        }));
+
+        return res.status(200).json({
+            message: 'sukses mendapat data',
+            data: flattenedLegal
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 export {
-    addLegal, getLegal, deleteLegal, updateLegal, addSopLegal
+    addLegal, getLegal, deleteLegal, updateLegal, addSopLegal, getSopLegal
 }

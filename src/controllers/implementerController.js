@@ -1,3 +1,4 @@
+import modelUser from '../models/users.js';
 import modelSopDetail from '../models/sop_details.js';
 import modelSopImplementer from '../models/sop_step_implementer.js';
 import modelSopDetailImplementer from '../models/sop_detail_implementer.js';
@@ -48,4 +49,37 @@ const addSopImplementer = async (req, res, next) => {
     }
 };
 
-export { getImplementer, addSopImplementer }
+const getSopImplementer = async (req, res, next) => {
+    try {
+        const { id } = req.query;
+
+        const dataSopDetail = await modelSopDetail.findByPk(id);
+        if (!dataSopDetail) {
+            const error = new Error('Data pelaksana atau sop detail tidak ditemukan');
+            error.status = 404;
+            throw error;
+        };
+
+        const dataSopImplementer = await modelSopImplementer.findAll({
+            include: {
+                model: modelSopDetail,
+                where: { id_sop_detail: id },
+                attributes: []
+            },
+            attributes: [
+                ['id_sop_implementer', 'id'],
+                ['implementer_name', 'name'],
+            ]
+        });
+
+        return res.status(200).json({
+            message: 'sukses mengambil data',
+            data: dataSopImplementer,
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export { getImplementer, addSopImplementer, getSopImplementer };

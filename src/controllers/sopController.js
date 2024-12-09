@@ -183,7 +183,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
                 },
                 {
                     model: modelSopDetail,
-                    attributes: ['number', 'description'],
+                    attributes: ['id_sop_detail', 'number', 'description'],
                     where: { is_approved: false },
                     include: {
                         model: modelUser,
@@ -210,7 +210,8 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
                     id_number: item.identity_number,
                     name: item.name
                 }
-            })
+            }),
+            id_sop_detail: dataSop.sop_details[0].id_sop_detail
         };
 
         if (!dataSop) return res.status(404).json({ message: 'data tidak ditemukan' });
@@ -260,4 +261,26 @@ const updateSopDetail = async (req, res, next) => {
     }
 };
 
-export { addSop, addSopDetail, getAllSop, getAllSopDetail, getSopById, getAssignedSopDetail, updateSopDetail };
+const getSectionandWarning = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const dataSopDetail = await modelSopDetail.findByPk(id, {
+            attributes: ['warning', 'section']
+        });
+
+        if (!dataSopDetail) {
+            const error = new Error('Data sop tidak ditemukan');
+            error.status = 404;
+            throw error;
+        };
+
+        return res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data: dataSopDetail
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export { addSop, addSopDetail, getAllSop, getAllSopDetail, getSopById, getAssignedSopDetail, updateSopDetail, getSectionandWarning };

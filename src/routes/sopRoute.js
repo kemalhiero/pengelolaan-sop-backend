@@ -12,7 +12,9 @@ router.route('/detail')
     .patch(sopController.updateSopDetail);
 
 router.route('/assignment/:id')
-    .get(sopController.getAssignedSopDetail)
+    .get(sopController.getAssignedSopDetail);
+
+router.get('/info/:id', sopController.getSectionandWarning);
 
 router.route('/:id')
     .get(sopController.getSopById);

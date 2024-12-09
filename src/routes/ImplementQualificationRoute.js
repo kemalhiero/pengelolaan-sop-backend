@@ -3,6 +3,7 @@ import * as implementQualificationController from '../controllers/implementQuali
 
 const router = Router();
 router.route('/')
+    .get(implementQualificationController.getSopIQ)
     .post(implementQualificationController.addImplementQualification);
     
 // router.route('/sop')

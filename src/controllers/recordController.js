@@ -31,4 +31,33 @@ const addRecord = async (req, res, next) => {
     }
 };
 
-export { addRecord };
+const getSopRecord = async (req, res, next) => {
+    try {
+        const { id } = req.query;
+
+        const dataPencatatanSop = await modelRecord.findAll({
+            where: {
+                id_sop_detail: id
+            },
+            attributes: [
+                ['id_data_record', 'id'],
+                'data_record'
+            ]
+        });
+
+        if (dataPencatatanSop.length == 0) {
+            const error = new Error('Data pencatatan terkait tidak ditemukan!');
+            error.status = 404;
+            throw error;
+        };
+
+        res.status(200).json({
+            message: 'sukses mengambil data',
+            data: dataPencatatanSop
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export { addRecord, getSopRecord };

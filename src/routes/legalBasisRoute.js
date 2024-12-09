@@ -9,6 +9,7 @@ router.route('/')
     .delete(legalBasisController.deleteLegal);
 
 router.route('/sop')
+    .get(legalBasisController.getSopLegal)
     .post(legalBasisController.addSopLegal);
 
 export default router;

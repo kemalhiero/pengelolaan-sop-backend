@@ -29,4 +29,33 @@ const addImplementQualification = async (req, res, next) => {
     }
 };
 
-export { addImplementQualification };
+const getSopIQ = async (req, res, next) => {
+    try {
+        const {id} = req.query;
+
+        const dataSopIq = await modelImplementQualificationCOntroller.findAll({
+            where: {
+                id_sop_detail: id
+            },
+            attributes: [
+                ['id_qualification',  'id'],
+                'qualification'
+            ]
+        });
+
+        if (dataSopIq.length == 0) {
+            const error = new Error('Data kualifikasi pelaksana tidak ditemukan!');
+            error.status = 404;
+            throw error;
+        };
+
+        res.status(200).json({
+            message: 'sukses mengambil data',
+            data: dataSopIq
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export { addImplementQualification, getSopIQ };
