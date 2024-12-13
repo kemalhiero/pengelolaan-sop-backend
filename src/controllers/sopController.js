@@ -1,9 +1,11 @@
 import modelSop from '../models/sop.js';
+import modelRole from '../models/roles.js';
+import modelUser from '../models/users.js';
+import modelSopStep from '../models/sop_step.js'
 import modelSopDetail from '../models/sop_details.js';
 import modelOrganization from '../models/organization.js';
-import modelUser from '../models/users.js';
-import modelRole from '../models/roles.js';
 
+import { nanoid } from 'nanoid';
 import dateFormat from '../utils/dateFormat.js';
 
 const addSop = async (req, res, next) => {
@@ -229,7 +231,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
 const updateSopDetail = async (req, res, next) => {
     try {
         const { id } = req.query;
-        const updateData = req.body;
+        const updateData = req.body;    // jadinya harus sama input yang ada sama penulisan atribut di model sop detail
 
         const [sop, sopDetail] = await Promise.all([
             modelSop.findByPk(id),
@@ -283,4 +285,55 @@ const getSectionandWarning = async (req, res, next) => {
     }
 };
 
-export { addSop, addSopDetail, getAllSop, getAllSopDetail, getSopById, getAssignedSopDetail, updateSopDetail, getSectionandWarning };
+const addSopStep = async (req, res, next) => {
+    try {
+        const { id_sop_detail, seq_number, name, type, id_implementer, fittings, time, time_unit, output, description } = req.body;
+
+        await modelSopStep.create({
+            id_step: nanoid(10),
+            id_sop_detail, seq_number, name, type, id_implementer, fittings, time, time_unit, output, description
+        });
+
+        return res.status(200).json({
+            message: 'sukses menambahkan data',
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const getSopStepbySopDetail = async (req, res, next) => {
+    try {
+        const { id } = req.query;
+        const dataSopDetail = await modelSopDetail.findByPk(id, {
+            attributes: [['id_sop_detail', 'id']]
+        });
+
+        if (!dataSopDetail) {
+            const error = new Error('Data sop detail tidak ditemukan');
+            error.status = 404;
+            throw error;
+        };
+
+        const dataStep = await modelSopStep.findAll({
+            where: {
+                id_sop_detail: id
+            },
+            attributes: { exclude: ['id_sop_detail'] }
+        });
+
+        return res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data: dataStep
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export {
+    addSop, getAllSop, getSopById,
+    addSopDetail, getAllSopDetail, updateSopDetail, getSectionandWarning,
+    getAssignedSopDetail,
+    addSopStep, getSopStepbySopDetail
+};

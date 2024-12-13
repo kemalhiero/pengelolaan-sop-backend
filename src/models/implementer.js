@@ -1,9 +1,9 @@
 import sequelize from "../config/db.js";
 import { DataTypes } from 'sequelize';
 
-const sop_step_implementer = sequelize.define('sop_step_implementer' ,
+const implementer = sequelize.define('implementer' ,
     {
-        id_sop_implementer: {
+        id_implementer: {
             type: DataTypes.TINYINT.UNSIGNED,
             primaryKey: true,
             autoIncrement: true,
@@ -22,4 +22,4 @@ const sop_step_implementer = sequelize.define('sop_step_implementer' ,
     }
 );
 
-export default sop_step_implementer;
+export default implementer;

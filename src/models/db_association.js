@@ -10,8 +10,8 @@ import modelEquipment from './equipment.js';
 import modelDataRecord from './data_record.js';
 import modelSopDetails from './sop_details.js';
 import modelOrganization from './organization.js';
+import modelImplementer from './implementer.js';
 import modelRelationOtherSop from './relation_other_sop.js';
-import modelStepImplementer from './sop_step_implementer.js';
 import modelSopDetailImplementer from './sop_detail_implementer.js';
 import modelLegalBasisSopDetail from './legal_basis_sop_details.js';
 import modelImplementQualification from './implement_qualification.js';
@@ -47,8 +47,8 @@ modelEquipment.belongsTo(modelSopDetails, { foreignKey: 'id_sop_detail' });
 modelSopDetails.hasMany(modelDataRecord, { foreignKey: 'id_sop_detail' });
 modelDataRecord.belongsTo(modelSopDetails, { foreignKey: 'id_sop_detail' });
 
-modelStepImplementer.hasMany(modelStep, { foreignKey: 'id_sop_implementer' });
-modelStep.belongsTo(modelStepImplementer, { foreignKey: 'id_sop_implementer' });
+modelImplementer.hasMany(modelStep, { foreignKey: 'id_implementer' });
+modelStep.belongsTo(modelImplementer, { foreignKey: 'id_implementer' });
 
 modelSopDetails.hasMany(modelRelationOtherSop, { foreignKey: 'id_sop_detail' });
 modelRelationOtherSop.belongsTo(modelSopDetails, { foreignKey: 'id_sop_detail' });
@@ -63,8 +63,8 @@ modelSopDetails.belongsToMany(modelUser, { through: modelDrafter, foreignKey: 'i
 modelLegal.belongsToMany(modelSopDetails, { through: modelLegalBasisSopDetail, foreignKey: 'id_legal' });
 modelSopDetails.belongsToMany(modelLegal, { through: modelLegalBasisSopDetail, foreignKey: 'id_sop_detail' });
 
-modelStepImplementer.belongsToMany(modelSopDetails, { through: modelSopDetailImplementer, foreignKey: 'id_sop_implementer' });
-modelSopDetails.belongsToMany(modelStepImplementer, { through: modelSopDetailImplementer, foreignKey: 'id_sop_detail' });
+modelImplementer.belongsToMany(modelSopDetails, { through: modelSopDetailImplementer, foreignKey: 'id_implementer' });
+modelSopDetails.belongsToMany(modelImplementer, { through: modelSopDetailImplementer, foreignKey: 'id_sop_detail' });
 
 // self referencing
 modelOrganization.hasMany(modelOrganization, { foreignKey: 'id_org_parent', as: 'children' });

@@ -2,7 +2,7 @@ import express, { urlencoded, json } from 'express';
 const app = express()
 const port = process.env.PORT
 
-app.use(urlencoded({ extended: true }));
+// app.use(urlencoded({ extended: true }));
 app.use(json());
 
 import cors from 'cors';

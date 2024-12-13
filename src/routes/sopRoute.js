@@ -11,6 +11,10 @@ router.route('/detail')
     .post(sopController.addSopDetail)
     .patch(sopController.updateSopDetail);
 
+router.route('/step')
+    .get(sopController.getSopStepbySopDetail)
+    .post(sopController.addSopStep);
+
 router.route('/assignment/:id')
     .get(sopController.getAssignedSopDetail);
 

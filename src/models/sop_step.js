@@ -18,19 +18,19 @@ const sop_step = sequelize.define('sop_step' ,
         id_next_step_if_yes: {
             type: DataTypes.STRING(25),
         },
-        activity_seq_number: {
+        seq_number: {
             type: DataTypes.TINYINT.UNSIGNED,
             allowNull: false,
         },
-        activity_name: {
+        name: {
             type: DataTypes.STRING(200),
             allowNull: false,
         },
-        activity_type: {
+        type: {
             type: DataTypes.ENUM('terminator', 'process', 'decision', 'arrow'),
             allowNull: false,
         },
-        id_sop_implementer: {
+        id_implementer: {
             type: DataTypes.TINYINT.UNSIGNED,
             allowNull: false,
         },
@@ -39,7 +39,12 @@ const sop_step = sequelize.define('sop_step' ,
             allowNull: false,
         },
         time: {
-            type: DataTypes.DATE,
+            type: DataTypes.TINYINT.UNSIGNED,
+            allowNull: false,
+        },
+        time_unit: {
+            type: DataTypes.ENUM('h', 'm', 'd', 'w', 'mo', 'y'),
+            defaultValue: 'h',
             allowNull: false,
         },
         output: {

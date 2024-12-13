@@ -1,13 +1,13 @@
 import modelUser from '../models/users.js';
 import modelSopDetail from '../models/sop_details.js';
-import modelSopImplementer from '../models/sop_step_implementer.js';
+import modelImplementer from '../models/implementer.js';
 import modelSopDetailImplementer from '../models/sop_detail_implementer.js';
 
 const getImplementer = async (req, res, next) => {
     try {
-        const implementer = await modelSopImplementer.findAll({
+        const implementer = await modelImplementer.findAll({
             attributes: [
-                ['id_sop_implementer', 'id'],
+                ['id_implementer', 'id'],
                 ['implementer_name', 'name'],
                 'description'
             ]
@@ -27,7 +27,7 @@ const addSopImplementer = async (req, res, next) => {
     try {
         const { id_sop_detail, id_sop_implementer } = req.body;
 
-        const dataImplementer = await modelSopImplementer.findByPk(id_sop_implementer);
+        const dataImplementer = await modelImplementer.findByPk(id_sop_implementer);
         const dataSopDetail = await modelSopDetail.findByPk(id_sop_detail);
 
         // TODO buat pengecekan terlebih dahulu apakah kombinasi dari kedua data  yang sama sudah ada atau belum, kalau sudah buat validasinya, karena kalau sekarang hanya tampil error duplikat
@@ -60,14 +60,14 @@ const getSopImplementer = async (req, res, next) => {
             throw error;
         };
 
-        const dataSopImplementer = await modelSopImplementer.findAll({
+        const dataSopImplementer = await modelImplementer.findAll({
             include: {
                 model: modelSopDetail,
                 where: { id_sop_detail: id },
                 attributes: []
             },
             attributes: [
-                ['id_sop_implementer', 'id'],
+                ['id_implementer', 'id'],
                 ['implementer_name', 'name'],
             ]
         });

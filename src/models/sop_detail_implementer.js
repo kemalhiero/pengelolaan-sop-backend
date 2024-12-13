@@ -1,7 +1,7 @@
 import sequelize from "../config/db.js";
 import { DataTypes } from 'sequelize';
 import modelSopDetail from './sop_details.js';
-import modelSopImplementer from './sop_step_implementer.js';
+import modelImplementer from './implementer.js';
 
 
 const sop_detail_implementer = sequelize.define('sop_detail_implementer',
@@ -15,13 +15,13 @@ const sop_detail_implementer = sequelize.define('sop_detail_implementer',
                 key: 'id_sop_detail'
             }
         },
-        id_sop_implementer: {
+        id_implementer: {
             type: DataTypes.TINYINT.UNSIGNED,
             primaryKey: true,
             allowNull: false,
             references: {
-                model: modelSopImplementer,
-                key: 'id_sop_implementer'
+                model: modelImplementer,
+                key: 'id_implementer'
             }
         },
     },
