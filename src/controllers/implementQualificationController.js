@@ -1,7 +1,7 @@
 import modelImplementQualificationCOntroller from '../models/implement_qualification.js';
 import { validateText } from '../utils/validation.js';
 
-const addImplementQualification = async (req, res, next) => {
+const addSopIQ = async (req, res, next) => {
     try {
         const { id_sop_detail, qualification } = req.body;
 
@@ -31,14 +31,14 @@ const addImplementQualification = async (req, res, next) => {
 
 const getSopIQ = async (req, res, next) => {
     try {
-        const {id} = req.query;
+        const { id } = req.query;
 
         const dataSopIq = await modelImplementQualificationCOntroller.findAll({
             where: {
                 id_sop_detail: id
             },
             attributes: [
-                ['id_qualification',  'id'],
+                ['id_qualification', 'id'],
                 'qualification'
             ]
         });
@@ -58,4 +58,32 @@ const getSopIQ = async (req, res, next) => {
     }
 };
 
-export { addImplementQualification, getSopIQ };
+const deleteSopIQ = async (req, res, next) => {
+    try {
+        const { id } = req.query;
+
+        if (isNaN(Number(id))) {
+            const error = new Error('ID harus berupa angka');
+            error.status = 400;
+            throw error;
+        };
+
+        const dataIQ = await modelImplementQualificationCOntroller.findByPk(id, { attributes: ['id_qualification'] });
+        if (!dataIQ) {
+            const error = new Error('Data kualifikasi pelaksana tidak ditemukan!');
+            error.status = 404;
+            throw error;
+        };
+
+        await dataIQ.destroy();
+
+        return res.status(200).json({
+            message: 'sukses menghapus data',
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export { addSopIQ, getSopIQ, deleteSopIQ };

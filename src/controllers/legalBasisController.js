@@ -53,7 +53,7 @@ const getLegal = async (req, res, next) => {
 const deleteLegal = async (req, res) => {
     try {
         const { id } = req.query;
-        const legal = await modelLegal.findByPk(id);
+        const legal = await modelLegal.findByPk(id, { attributes: ['id_legal'] });
 
         if (!legal) return res.status(404).json({ message: 'data tidak ditemukan' });
 
@@ -72,7 +72,7 @@ const updateLegal = async (req, res) => {
     try {
         const { id } = req.query;
         const { id_law_type, number, year, about } = req.body;
-        const legal = await modelLegal.findByPk(id);
+        const legal = await modelLegal.findByPk(id, { attributes: ['id_legal'] });
 
         if (!legal) return res.status(404).json({ message: 'data tidak ditemukan' });
 
@@ -93,8 +93,8 @@ const addSopLegal = async (req, res, next) => {
     try {
         const { id_sop_detail, id_legal } = req.body;
 
-        const sopDetail = await modelSopDetail.findByPk(id_sop_detail);
-        const legal = await modelLegal.findByPk(id_legal);
+        const sopDetail = await modelSopDetail.findByPk(id_sop_detail, { attributes: ['id_sop_detail'] });
+        const legal = await modelLegal.findByPk(id_legal, { attributes: ['id_legal'] });
 
         if (!sopDetail || !legal) {
             const error = new Error('Data dasar hukum atau sop detail tidak ditemukan');
@@ -153,6 +153,38 @@ const getSopLegal = async (req, res, next) => {
     }
 };
 
+const deleteSopLegal = async (req, res, next) => {
+    try {
+        const { id_sop_detail, id_legal } = req.query;
+
+        if (isNaN(Number(id_sop_detail)) || isNaN(Number(id_legal))) {
+            const error = new Error('ID harus berupa angka');
+            error.status = 400;
+            throw error;
+        };
+
+        const dataSopLegal = await modelLegalBasisSopDetail.findOne({
+            where: {
+                id_sop_detail, id_legal
+            }
+        });
+        if (!dataSopLegal) {
+            const error = new Error('Data dasar hukum sop tidak ditemukan!');
+            error.status = 404;
+            throw error;
+        };
+
+        await dataSopLegal.destroy();
+
+        return res.status(200).json({
+            message: 'sukses menghapus data',
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export {
-    addLegal, getLegal, deleteLegal, updateLegal, addSopLegal, getSopLegal
+    addLegal, getLegal, deleteLegal, updateLegal,
+    addSopLegal, getSopLegal, deleteSopLegal
 }

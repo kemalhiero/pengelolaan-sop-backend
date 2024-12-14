@@ -8,5 +8,6 @@ router.route('/')
 router.route('/sop')
     .get(implementerController.getSopImplementer)
     .post(implementerController.addSopImplementer)
+    .delete(implementerController.deleteSopImplementer);
 
 export default router;

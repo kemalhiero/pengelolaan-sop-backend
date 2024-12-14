@@ -58,4 +58,32 @@ const getSopEquipment = async (req, res, next) => {
     }
 };
 
-export { addEquipment, getSopEquipment };
+const deleteEquipment = async (req, res, next) => {
+    try {
+        const { id } = req.query;
+
+        if (isNaN(Number(id))) {
+            const error = new Error('ID harus berupa angka');
+            error.status = 400;
+            throw error;
+        };
+
+        const dataEquipment = await modelEquipment.findByPk(id, { attributes: ['id_equipment'] });
+        if (!dataEquipment) {
+            const error = new Error('Data peralatan tidak ditemukan!');
+            error.status = 404;
+            throw error;
+        };
+
+        await dataEquipment.destroy();
+
+        return res.status(200).json({
+            message: 'sukses menghapus data',
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export { addEquipment, getSopEquipment, deleteEquipment };

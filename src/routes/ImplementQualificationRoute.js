@@ -4,7 +4,8 @@ import * as implementQualificationController from '../controllers/implementQuali
 const router = Router();
 router.route('/')
     .get(implementQualificationController.getSopIQ)
-    .post(implementQualificationController.addImplementQualification);
+    .post(implementQualificationController.addSopIQ)
+    .delete(implementQualificationController.deleteSopIQ);
     
 // router.route('/sop')
 //     .post(implementQualificationController.addSopImplementer)

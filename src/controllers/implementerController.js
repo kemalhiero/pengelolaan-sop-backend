@@ -25,10 +25,10 @@ const getImplementer = async (req, res, next) => {
 
 const addSopImplementer = async (req, res, next) => {
     try {
-        const { id_sop_detail, id_sop_implementer } = req.body;
+        const { id_sop_detail, id_implementer } = req.body;
 
-        const dataImplementer = await modelImplementer.findByPk(id_sop_implementer);
-        const dataSopDetail = await modelSopDetail.findByPk(id_sop_detail);
+        const dataImplementer = await modelImplementer.findByPk(id_implementer, { attributes: ['id_implementer'] });
+        const dataSopDetail = await modelSopDetail.findByPk(id_sop_detail, { attributes: ['id_sop_detail'] });
 
         // TODO buat pengecekan terlebih dahulu apakah kombinasi dari kedua data  yang sama sudah ada atau belum, kalau sudah buat validasinya, karena kalau sekarang hanya tampil error duplikat
         if (!dataImplementer || !dataSopDetail) {
@@ -38,7 +38,7 @@ const addSopImplementer = async (req, res, next) => {
         };
 
         await modelSopDetailImplementer.create({
-            id_sop_detail, id_sop_implementer
+            id_sop_detail, id_implementer
         });
 
         return res.status(201).json({
@@ -53,10 +53,10 @@ const getSopImplementer = async (req, res, next) => {
     try {
         const { id } = req.query;
 
-        const dataSopDetail = await modelSopDetail.findByPk(id);
+        const dataSopDetail = await modelSopDetail.findByPk(id, { attributes: ['id_sop_detail'] });
         if (!dataSopDetail) {
             const error = new Error('Data pelaksana atau sop detail tidak ditemukan');
-            error.status = 404;
+            error.status = 400;
             throw error;
         };
 
@@ -71,7 +71,12 @@ const getSopImplementer = async (req, res, next) => {
                 ['implementer_name', 'name'],
             ]
         });
-
+        if (dataSopImplementer.length == 0) {
+            const error = new Error('Data pelaksana tidak ditemukan');
+            error.status = 404;
+            throw error;
+        };
+        
         return res.status(200).json({
             message: 'sukses mengambil data',
             data: dataSopImplementer,
@@ -82,4 +87,36 @@ const getSopImplementer = async (req, res, next) => {
     }
 };
 
-export { getImplementer, addSopImplementer, getSopImplementer };
+const deleteSopImplementer = async (req, res, next) => {
+    try {
+        const { id_sop_detail, id_implementer } = req.query;
+
+        if (isNaN(Number(id_sop_detail)) || isNaN(Number(id_implementer))) {
+            const error = new Error('ID harus berupa angka');
+            error.status = 400;
+            throw error;
+        };
+
+        const dataSopDetail = await modelSopDetailImplementer.findOne({
+            where: {
+                id_sop_detail,
+                id_implementer
+            }
+        });
+        if (!dataSopDetail) {
+            const error = new Error('Data pelaksana sop tidak ditemukan!');
+            error.status = 404;
+            throw error;
+        };
+
+        await dataSopDetail.destroy();
+
+        return res.status(200).json({
+            message: 'sukses menghapus data',
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export { getImplementer, addSopImplementer, getSopImplementer, deleteSopImplementer };

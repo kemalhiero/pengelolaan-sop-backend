@@ -60,4 +60,32 @@ const getSopRecord = async (req, res, next) => {
     }
 };
 
-export { addRecord, getSopRecord };
+const deleteSopRecord = async (req, res, next) => {
+    try {
+        const { id } = req.query;
+
+        if (isNaN(Number(id))) {
+            const error = new Error('ID harus berupa angka');
+            error.status = 400;
+            throw error;
+        };
+
+        const dataSopRecord = await modelRecord.findByPk(id, { attributes: ['id_data_record'] });
+        if (!dataSopRecord) {
+            const error = new Error('Data pencatatan sop tidak ditemukan!');
+            error.status = 404;
+            throw error;
+        };
+
+        await dataSopRecord.destroy();
+
+        return res.status(200).json({
+            message: 'sukses menghapus data',
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export { addRecord, getSopRecord, deleteSopRecord };
