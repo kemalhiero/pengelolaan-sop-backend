@@ -65,16 +65,14 @@ const deleteSopRecord = async (req, res, next) => {
         const { id } = req.query;
 
         if (isNaN(Number(id))) {
-            const error = new Error('ID harus berupa angka');
-            error.status = 400;
-            throw error;
+            console.error('ID harus berupa angka')
+            return res.status(400).json({ message: 'ID harus berupa angka' })
         };
 
         const dataSopRecord = await modelRecord.findByPk(id, { attributes: ['id_data_record'] });
         if (!dataSopRecord) {
-            const error = new Error('Data pencatatan sop tidak ditemukan!');
-            error.status = 404;
-            throw error;
+            console.error('Data pencatatan sop tidak ditemukan!')
+            return res.status(404).json({ message: 'Data pencatatan sop tidak ditemukan!' })
         };
 
         await dataSopRecord.destroy();

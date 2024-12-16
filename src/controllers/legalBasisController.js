@@ -97,9 +97,8 @@ const addSopLegal = async (req, res, next) => {
         const legal = await modelLegal.findByPk(id_legal, { attributes: ['id_legal'] });
 
         if (!sopDetail || !legal) {
-            const error = new Error('Data dasar hukum atau sop detail tidak ditemukan');
-            error.status = 404;
-            throw error;
+            console.error('Data dasar hukum atau sop detail tidak ditemukan')
+            return res.status(400).json({ message: 'Data dasar hukum atau sop detail tidak ditemukan' })
         };
 
         await modelLegalBasisSopDetail.create({
@@ -158,9 +157,8 @@ const deleteSopLegal = async (req, res, next) => {
         const { id_sop_detail, id_legal } = req.query;
 
         if (isNaN(Number(id_sop_detail)) || isNaN(Number(id_legal))) {
-            const error = new Error('ID harus berupa angka');
-            error.status = 400;
-            throw error;
+            console.error('ID harus berupa angka')
+            return res.status(400).json({ message: 'ID harus berupa angka' })
         };
 
         const dataSopLegal = await modelLegalBasisSopDetail.findOne({
@@ -169,9 +167,8 @@ const deleteSopLegal = async (req, res, next) => {
             }
         });
         if (!dataSopLegal) {
-            const error = new Error('Data dasar hukum sop tidak ditemukan!');
-            error.status = 404;
-            throw error;
+            console.error('Data dasar hukum sop tidak ditemukan!')
+            return res.status(404).json({ message: 'Data dasar hukum sop tidak ditemukan!' })
         };
 
         await dataSopLegal.destroy();

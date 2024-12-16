@@ -6,15 +6,13 @@ const addSopIQ = async (req, res, next) => {
         const { id_sop_detail, qualification } = req.body;
 
         if (!qualification) {
-            const error = new Error('Data kualifikasi pelaksana tidak ditemukan!');
-            error.status = 404;
-            throw error;
+            console.error('Data kualifikasi pelaksana tidak ditemukan!')
+            return res.status(404).json({ message: 'Data kualifikasi pelaksana tidak ditemukan!' })
         };
 
         if (!validateText(qualification)) {
-            const error = new Error('Tidak boleh diawali dengan angka atau simbol');
-            error.status = 400; // Bad Request
-            throw error;
+            console.error('Tidak boleh diawali dengan angka atau simbol')
+            return res.status(400).json({ message: 'Tidak boleh diawali dengan angka atau simbol' })
         };
 
         await modelImplementQualificationCOntroller.create({
@@ -44,9 +42,8 @@ const getSopIQ = async (req, res, next) => {
         });
 
         if (dataSopIq.length == 0) {
-            const error = new Error('Data kualifikasi pelaksana tidak ditemukan!');
-            error.status = 404;
-            throw error;
+            console.error('Data kualifikasi pelaksana tidak ditemukan!')
+            return res.status(404).json({ message: 'Data kualifikasi pelaksana tidak ditemukan!' })
         };
 
         res.status(200).json({
@@ -63,16 +60,14 @@ const deleteSopIQ = async (req, res, next) => {
         const { id } = req.query;
 
         if (isNaN(Number(id))) {
-            const error = new Error('ID harus berupa angka');
-            error.status = 400;
-            throw error;
+            console.error('ID harus berupa angka')
+            return res.status(400).json({ message: 'ID harus berupa angka' })
         };
 
         const dataIQ = await modelImplementQualificationCOntroller.findByPk(id, { attributes: ['id_qualification'] });
         if (!dataIQ) {
-            const error = new Error('Data kualifikasi pelaksana tidak ditemukan!');
-            error.status = 404;
-            throw error;
+            console.error('Data kualifikasi pelaksana tidak ditemukan!')
+            return res.status(404).json({ message: 'Data kualifikasi pelaksana tidak ditemukan!' })
         };
 
         await dataIQ.destroy();

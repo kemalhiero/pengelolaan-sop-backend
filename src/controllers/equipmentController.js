@@ -6,15 +6,13 @@ const addEquipment = async (req, res, next) => {
         const { id_sop_detail, equipment } = req.body;
 
         if (!equipment) {
-            const error = new Error('Data peralatan tidak ditemukan!');
-            error.status = 404;
-            throw error;
+            console.error('Data peralatan tidak ditemukan!')
+            return res.status(404).json({ message: 'Data peralatan tidak ditemukan!' })
         };
 
         if (!validateText(equipment)) {
-            const error = new Error('Tidak boleh diawali dengan angka atau simbol');
-            error.status = 400; // Bad Request
-            throw error;
+            console.error('Tidak boleh diawali dengan angka atau simbol!')
+            return res.status(400).json({ message: 'Tidak boleh diawali dengan angka atau simbol!' })
         };
 
         await modelEquipment.create({
@@ -44,9 +42,8 @@ const getSopEquipment = async (req, res, next) => {
         });
     
         if (dataPeralatanSop.length == 0) {
-            const error = new Error('Data sop terkait tidak ditemukan!');
-            error.status = 404;
-            throw error;
+            console.error('Data sop terkait tidak ditemukan!')
+            return res.status(404).json({ message: 'Data sop terkait tidak ditemukan!' })
         };
     
         res.status(200).json({
@@ -63,16 +60,14 @@ const deleteEquipment = async (req, res, next) => {
         const { id } = req.query;
 
         if (isNaN(Number(id))) {
-            const error = new Error('ID harus berupa angka');
-            error.status = 400;
-            throw error;
+            console.error('ID harus berupa angka!')
+            return res.status(400).json({ message: 'ID harus berupa angka!' })
         };
 
         const dataEquipment = await modelEquipment.findByPk(id, { attributes: ['id_equipment'] });
         if (!dataEquipment) {
-            const error = new Error('Data peralatan tidak ditemukan!');
-            error.status = 404;
-            throw error;
+            console.error('Data peralatan tidak ditemukan!')
+            return res.status(404).json({ message: 'Data peralatan tidak ditemukan!' })
         };
 
         await dataEquipment.destroy();

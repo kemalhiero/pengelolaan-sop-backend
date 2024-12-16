@@ -6,15 +6,13 @@ const addRelatedSop = async (req, res, next) => {
         const { id_sop_detail, related_sop } = req.body;
 
         if (!related_sop || !id_sop_detail) {
-            const error = new Error('Data sop yang berelasi tidak ada!');
-            error.status = 404;
-            throw error;
+            console.error('ID harus berupa angka')
+            return res.status(400).json({ message: 'ID harus berupa angka' })
         };
 
         if (!validateText(related_sop)) {
-            const error = new Error('Tidak boleh diawali dengan angka atau simbol');
-            error.status = 400;
-            throw error;
+            console.error('Tidak boleh diawali dengan angka atau simbol!')
+            return res.status(400).json({ message: 'Tidak boleh diawali dengan angka atau simbol!' })
         };
 
         await modelRelatedSop.create({
@@ -44,9 +42,8 @@ const getRelatedSop = async (req, res, next) => {
     });
 
     if (dataSopTerkait.length == 0) {
-        const error = new Error('Data sop terkait tidak ditemukan!');
-        error.status = 404;
-        throw error;
+        console.error('Data sop terkait tidak ditemukan!')
+        return res.status(404).json({ message: 'Data sop terkait tidak ditemukan!' });
     };
 
     res.status(200).json({
@@ -60,17 +57,15 @@ const deleteRelatedSop = async (req, res, next) => {
         const { id } = req.query;
 
         if (isNaN(Number(id))) {
-            const error = new Error('ID harus berupa angka');
-            error.status = 400;
-            throw error;
+            console.error('ID harus berupa angka')
+            return res.status(400).json({ message: 'ID harus berupa angka' })
         };
 
         const dataRelatedSop = await modelRelatedSop.findByPk(id, { attributes: ['id_relation_sop'] });
         if (!dataRelatedSop) {
-            const error = new Error('Data sop terkait tidak ditemukan!');
-            error.status = 404;
-            throw error;
-        };
+            console.error('Data sop terkait tidak ditemukan!')
+            return res.status(404).json({ message: 'Data sop terkait tidak ditemukan!' })
+        }
 
         await dataRelatedSop.destroy();
 
