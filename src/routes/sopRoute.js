@@ -13,7 +13,9 @@ router.route('/detail')
 
 router.route('/step')
     .get(sopController.getSopStepbySopDetail)
-    .post(sopController.addSopStep);
+    .post(sopController.addSopStep)
+    .patch(sopController.updateSopStep)
+    .delete(sopController.deleteSopStep);
 
 router.route('/assignment/:id')
     .get(sopController.getAssignedSopDetail);

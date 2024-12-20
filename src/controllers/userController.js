@@ -29,7 +29,7 @@ const loginUser = async (req, res, next) => {
     }
 };
 
-const getEmploye = async (req, res, next) => {
+const getDrafter = async (req, res, next) => {
     try {
         const pic = await modelUser.findAll({
             attributes: ['id_user', 'identity_number', 'name'],
@@ -48,7 +48,7 @@ const getEmploye = async (req, res, next) => {
         }));
 
         res.status(200).json({
-            message: 'sukses login',
+            message: 'sukses mendapatkan data',
             data
         });
 
@@ -57,4 +57,4 @@ const getEmploye = async (req, res, next) => {
     }
 };
 
-export { regisUser, loginUser, getEmploye };
+export { regisUser, loginUser, getDrafter };

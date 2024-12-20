@@ -3,6 +3,7 @@ import modelRole from '../models/roles.js';
 import modelUser from '../models/users.js';
 import modelSopStep from '../models/sop_step.js'
 import modelSopDetail from '../models/sop_details.js';
+import modelImplementer from '../models/implementer.js';
 import modelOrganization from '../models/organization.js';
 
 import { nanoid } from 'nanoid';
@@ -27,7 +28,7 @@ const addSop = async (req, res, next) => {
 
 const addSopDetail = async (req, res, next) => {
     try {
-        const { number, description, version } = req.body;
+        const { number, description, version, pic_position } = req.body;
         const { id } = req.query;
 
         const sop = await modelSop.findByPk(id);
@@ -38,7 +39,9 @@ const addSopDetail = async (req, res, next) => {
         };
 
         const dataSopDetail = await modelSopDetail.create({
-            number, description, id_sop: id, version, is_approved: false, status: 'processing',
+            number, description, id_sop: id, version, 
+            is_approved: false, status: 2,
+            position_of_the_person_in_charge: pic_position
         });
         console.log(dataSopDetail.dataValues.id_sop_detail);
 
@@ -139,12 +142,32 @@ const getSopById = async (req, res, next) => {
 
         if (!dataSop) return res.status(404).json({ message: 'data tidak ditemukan' });
 
+        const dataSopDetail = await modelSopDetail.findAll({
+            where: {id_sop: id},
+            attributes: [
+                ['id_sop_detail', 'id'],
+                'number', 'version', 'revision_date', 'effective_date', 'is_approved', 'status', 'warning', 'section', 'description', 'position_of_the_person_in_charge'
+            ],
+            include: {
+                model: modelImplementer,
+                attributes: ['implementer_name'],
+                through: { attributes: [] }
+            }
+        });
+        // Transform data untuk menghapus struktur nested yang tidak diinginkan
+        const transformedSopDetail = dataSopDetail.map(detail => ({
+            ...detail.get({ plain: true }),
+            implementers: detail.implementers.map(imp => imp.implementer_name),
+            revision_date: dateFormat(detail.revision_date)
+        }));
+
         const data = {
             id: dataSop.id_sop,
             name: dataSop.name,
             creation_date: dateFormat(dataSop.creation_date),
             is_active: dataSop.is_active,
             organization: dataSop.organization.org_name,
+            version: transformedSopDetail
         };
 
         return res.status(200).json({
@@ -251,6 +274,7 @@ const updateSopDetail = async (req, res, next) => {
             }
             return acc;
         }, {});
+        data_baru.revision_date = new Date()
 
         const data = await sopDetail.update(data_baru);
 
@@ -309,11 +333,7 @@ const getSopStepbySopDetail = async (req, res, next) => {
             attributes: [['id_sop_detail', 'id']]
         });
 
-        if (!dataSopDetail) {
-            const error = new Error('Data sop detail tidak ditemukan');
-            error.status = 404;
-            throw error;
-        };
+        if (!dataSopDetail) return res.status(404).json({ message: 'Data sop detail tidak ditemukan' });
 
         const dataStep = await modelSopStep.findAll({
             where: {
@@ -331,9 +351,50 @@ const getSopStepbySopDetail = async (req, res, next) => {
     }
 };
 
+const updateSopStep = async (req, res, next) => {
+    try {
+        const { id } = req.query;
+        const updateData = req.body;
+        const dataSopStep = await modelSopStep.findByPk(id);
+        if (!dataSopStep) return res.status(404).json({ message: 'Data tahapan sop tidak ditemukan' });
+
+        const data_baru = Object.keys(updateData).reduce((acc, key) => {
+            if (updateData[key] !== undefined) {
+                acc[key] = updateData[key];
+            }
+            return acc;
+        }, {});
+
+        await dataSopStep.update(data_baru);
+
+        return res.status(200).json({
+            message: 'sukses memperbarui data',
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+const deleteSopStep = async (req, res, next) => {
+    try {
+        const { id } = req.query;
+        const dataSopStep = await modelSopStep.findByPk(id);
+        if (!dataSopStep) return res.status(404).json({ message: 'Data tahapan sop tidak ditemukan' });
+
+        await dataSopStep.destroy();
+
+        return res.status(200).json({
+            message: 'sukses menghapus data',
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export {
     addSop, getAllSop, getSopById,
     addSopDetail, getAllSopDetail, updateSopDetail, getSectionandWarning,
     getAssignedSopDetail,
-    addSopStep, getSopStepbySopDetail
+    addSopStep, getSopStepbySopDetail, updateSopStep, deleteSopStep
 };

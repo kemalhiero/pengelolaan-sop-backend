@@ -2,7 +2,7 @@ import { Router } from 'express';
 import * as userController from '../controllers/userController.js';
 
 const router = Router();
-router.route('/employe')
-    .get(userController.getEmploye)
+router.route('/drafter')
+    .get(userController.getDrafter)
 
 export default router;

@@ -46,9 +46,7 @@ const getSopRecord = async (req, res, next) => {
         });
 
         if (dataPencatatanSop.length == 0) {
-            const error = new Error('Data pencatatan terkait tidak ditemukan!');
-            error.status = 404;
-            throw error;
+            return res.status(404).json({ message: 'Data pencatatan terkait tidak ditemukan!' })
         };
 
         res.status(200).json({

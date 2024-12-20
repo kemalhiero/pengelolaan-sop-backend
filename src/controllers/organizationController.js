@@ -1,5 +1,6 @@
 import modelOrganization from '../models/organization.js';
-import modelUser from '../models/users.js'
+import modelUser from '../models/users.js';
+import modelRole from '../models/roles.js';
 
 const addOrg = async (req, res) => {
     try {
@@ -28,7 +29,11 @@ const getOrg = async (req, res, next) => {
             attributes: { exclude: ['person_in_charge'] },
             include: {
                 model: modelUser,
-                attributes: ['name']
+                attributes: ['name'],
+                include: {
+                    model: modelRole,
+                    attributes: ['role_name']
+                }
             }
         });
 
@@ -38,12 +43,15 @@ const getOrg = async (req, res, next) => {
             level: item.org_level,
             about: item.org_about,
             org_parent: item.id_org_parent,
-            pic: item.user.name
+            pic: {
+                name: item.user.name,
+                role: item.user.role.role_name
+            }
         }));
 
         return res.status(200).json({
             message: 'sukses mendapat data',
-            data: flattenedData,
+            data: flattenedData
         })
     } catch (error) {
         next(error);

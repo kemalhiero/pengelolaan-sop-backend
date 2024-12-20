@@ -32,7 +32,8 @@ const sop_details = sequelize.define('sop_details' ,
             allowNull: false,
         },
         status: {               //
-            type: DataTypes.ENUM('processing', 'approved'),
+            type: DataTypes.TINYINT.UNSIGNED,
+            defaultValue: 0,
             allowNull: false,
         },
         warning: {
@@ -42,7 +43,7 @@ const sop_details = sequelize.define('sop_details' ,
             type: DataTypes.STRING(100),
         },
         description: {          // bisa tapi tidak wajib saat di awal
-            type: DataTypes.STRING(500),
+            type: DataTypes.STRING(1000),
         },
         position_of_the_person_in_charge: {
             type: DataTypes.STRING(50)
