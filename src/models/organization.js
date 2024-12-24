@@ -15,7 +15,8 @@ const organization = sequelize.define('organization' ,
         },
         org_name: {
             type: DataTypes.STRING(100),
-            allowNull: false
+            allowNull: false,
+            unique: true
         },
         org_level: {
             type: DataTypes.ENUM('departemen', 'laboratorium'),
@@ -28,8 +29,7 @@ const organization = sequelize.define('organization' ,
             type: DataTypes.TINYINT.UNSIGNED,
         }, 
     }, {
-        freezeTableName: true,
-        timestamps: false,
+        freezeTableName: true
     }
 );
 

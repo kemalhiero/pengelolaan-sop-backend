@@ -34,8 +34,7 @@ const legal_basis = sequelize.define('legal_basis' ,
             allowNull: false
         },
     }, {
-        freezeTableName: true,
-        timestamps: false,
+        freezeTableName: true
     }
 );
 

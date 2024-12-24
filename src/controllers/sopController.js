@@ -3,11 +3,13 @@ import modelRole from '../models/roles.js';
 import modelUser from '../models/users.js';
 import modelSopStep from '../models/sop_step.js'
 import modelSopDetail from '../models/sop_details.js';
-import modelImplementer from '../models/implementer.js';
 import modelOrganization from '../models/organization.js';
 
 import { nanoid } from 'nanoid';
+import { literal } from 'sequelize';
 import dateFormat from '../utils/dateFormat.js';
+
+const currentYear = new Date().getFullYear();
 
 const addSop = async (req, res, next) => {
     try {
@@ -39,9 +41,9 @@ const addSopDetail = async (req, res, next) => {
         };
 
         const dataSopDetail = await modelSopDetail.create({
-            number, description, id_sop: id, version, 
+            number, description, id_sop: id, version,
             is_approved: false, status: 2,
-            position_of_the_person_in_charge: pic_position
+            revision_date: new Date(), pic_position
         });
         console.log(dataSopDetail.dataValues.id_sop_detail);
 
@@ -57,7 +59,7 @@ const addSopDetail = async (req, res, next) => {
 const getAllSop = async (req, res, next) => {
     try {
         const dataSop = await modelSop.findAll({
-            attributes: ['id_sop', 'name', 'is_active', 'creation_date'],
+            attributes: ['id_sop', 'name', 'is_active', 'createdAt'],
             include: [
                 // {
                 //     model: modelSopDetail,
@@ -71,7 +73,7 @@ const getAllSop = async (req, res, next) => {
         });
 
         const data = dataSop.map(item => {
-            const formattedCreationDate = dateFormat(item.creation_date)
+            const formattedCreationDate = dateFormat(item.createdAt)
 
             return {
                 id: item.id_sop,
@@ -143,28 +145,30 @@ const getSopById = async (req, res, next) => {
         if (!dataSop) return res.status(404).json({ message: 'data tidak ditemukan' });
 
         const dataSopDetail = await modelSopDetail.findAll({
-            where: {id_sop: id},
+            where: { id_sop: id },
             attributes: [
                 ['id_sop_detail', 'id'],
-                'number', 'version', 'revision_date', 'effective_date', 'is_approved', 'status', 'warning', 'section', 'description', 'position_of_the_person_in_charge'
+                'number', 'version', 'revision_date', 'effective_date',
+                'is_approved', 'status', 'warning', 'section',
+                'description', 'pic_position'
             ],
             include: {
-                model: modelImplementer,
-                attributes: ['implementer_name'],
+                model: modelUser,
+                attributes: ['identity_number', 'name'],
                 through: { attributes: [] }
             }
         });
         // Transform data untuk menghapus struktur nested yang tidak diinginkan
         const transformedSopDetail = dataSopDetail.map(detail => ({
             ...detail.get({ plain: true }),
-            implementers: detail.implementers.map(imp => imp.implementer_name),
-            revision_date: dateFormat(detail.revision_date)
+            revision_date: dateFormat(detail.revision_date),
+            effective_date: dateFormat(detail.effective_date)
         }));
 
         const data = {
             id: dataSop.id_sop,
             name: dataSop.name,
-            creation_date: dateFormat(dataSop.creation_date),
+            creation_date: dateFormat(dataSop.createdAt),
             is_active: dataSop.is_active,
             organization: dataSop.organization.org_name,
             version: transformedSopDetail
@@ -174,6 +178,67 @@ const getSopById = async (req, res, next) => {
             message: 'sukses mendapatkan data',
             data
         });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const getLatestSopVersion = async (req, res, next) => {
+    try {
+        const { id } = req.query;
+
+        const latestSop = await modelSopDetail.findOne({
+            order: [['version', 'DESC']],
+            limit: 1,
+            where: { id_sop: id },
+            attributes: ['number', 'version'],
+            // include: {
+            //     model: modelUser,
+            //     attributes: ['id_user', 'identity_number', 'name'],
+            //     through: {attributes:[]}
+            // }
+        });
+
+        return res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data: latestSop
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const getLatestSopInYear = async (req, res, next) => {
+    try {
+        const { year } = req.query;
+
+        // Validasi tahun
+        const yearNumber = parseInt(year);
+        if (isNaN(yearNumber) || yearNumber.toString().length !== 4) {
+            return res.status(400).json({
+                message: 'Format tahun tidak valid. Masukkan tahun dalam format YYYY (contoh: 2024)'
+            });
+        }
+
+        // Validasi rentang tahun yang masuk akal (misalnya 1900-2100)
+        if (yearNumber < 2010 || yearNumber > currentYear) {
+            return res.status(400).json({
+                message: `Tahun harus berada dalam rentang 1900-${currentYear}`
+            });
+        }
+
+        const latestSop = await modelSopDetail.findOne({
+            where: literal(`YEAR(createdAt) = ${year}`),
+            order: [['createdAt', 'DESC']],
+            attributes: ['number', 'version']
+        });
+        if (!latestSop) return res.status(404).json({ message: 'data tidak ditemukan' })
+
+        return res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data: latestSop
+        });
+
     } catch (error) {
         next(error);
     }
@@ -221,7 +286,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
         const data = {
             id: dataSop.id_sop,
             name: dataSop.name,
-            creation_date: dateFormat(dataSop.creation_date),
+            creation_date: dateFormat(dataSop.createdAt),
             organization: dataSop.organization.org_name,
             pic: {
                 number: dataSop.organization.user.identity_number,
@@ -394,7 +459,7 @@ const deleteSopStep = async (req, res, next) => {
 
 export {
     addSop, getAllSop, getSopById,
-    addSopDetail, getAllSopDetail, updateSopDetail, getSectionandWarning,
+    addSopDetail, getAllSopDetail, updateSopDetail, getSectionandWarning, getLatestSopVersion, getLatestSopInYear,
     getAssignedSopDetail,
     addSopStep, getSopStepbySopDetail, updateSopStep, deleteSopStep
 };

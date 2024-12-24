@@ -57,8 +57,7 @@ const sop_step = sequelize.define('sop_step' ,
         },
 
     }, {
-        freezeTableName: true,
-        timestamps: false,
+        freezeTableName: true
     }
 );
 

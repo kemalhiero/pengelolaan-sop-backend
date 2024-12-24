@@ -19,18 +19,9 @@ const feedback = sequelize.define('feedback' ,
         feedback: {
             type: DataTypes.STRING(200),
             allowNull: false
-        },
-        created_at: {
-            type : DataTypes.DATE,
-        },
-        updated_at: {
-            type : DataTypes.DATE,
         }
     }, {
-        freezeTableName: true,
-        timestamps: true,
-        updatedAt: 'updated_at',
-        createdAt: 'created_at'
+        freezeTableName: true
     }
 );
 

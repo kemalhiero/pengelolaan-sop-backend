@@ -45,12 +45,11 @@ const sop_details = sequelize.define('sop_details' ,
         description: {          // bisa tapi tidak wajib saat di awal
             type: DataTypes.STRING(1000),
         },
-        position_of_the_person_in_charge: {
+        pic_position: {
             type: DataTypes.STRING(50)
         },
     }, {
         freezeTableName: true,
-        timestamps: false,
     }
 );
 

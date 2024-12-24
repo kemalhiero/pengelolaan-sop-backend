@@ -6,6 +6,10 @@ router.route('/')
     .get(sopController.getAllSop)
     .post(sopController.addSop);
 
+router.get('/latest/sop', sopController.getLatestSopVersion);
+router.get('/latest/year', sopController.getLatestSopInYear);
+
+
 router.route('/detail')
     .get(sopController.getAllSopDetail)
     .post(sopController.addSopDetail)

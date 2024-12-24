@@ -18,19 +18,13 @@ const sop = sequelize.define('sop' ,
             allowNull: false,
             unique: true
         },
-        creation_date: {
-            type: DataTypes.DATE,
-            allowNull: false,
-            defaultValue: DataTypes.NOW,
-        },
         is_active: {
             type: DataTypes.TINYINT.UNSIGNED,
             allowNull: false,
             defaultValue: 2
         },
     }, {
-        freezeTableName: true,
-        timestamps: false,
+        freezeTableName: true
     }
 );
 
