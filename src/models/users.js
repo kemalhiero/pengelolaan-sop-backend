@@ -10,7 +10,8 @@ const users = sequelize.define('users' ,
         },
         identity_number: {
             type: DataTypes.STRING(20),
-            allowNull: false
+            allowNull: false,
+            unique: true
         },
         name: {
             type: DataTypes.STRING(100),
@@ -18,7 +19,13 @@ const users = sequelize.define('users' ,
         },
         gender: {
             type: DataTypes.ENUM('pria', 'wanita'),
-            allowNull: false
+            allowNull: false,
+            validate: {
+                isIn: {
+                    args: [['pria', 'wanita']],
+                    msg: 'Gender harus diisi dengan "pria" atau "wanita"'
+                }
+            }
         },
         id_role: {
             type: DataTypes.TINYINT.UNSIGNED,
@@ -26,7 +33,8 @@ const users = sequelize.define('users' ,
         },
         email: {
             type: DataTypes.STRING(50),
-            allowNull: false
+            allowNull: false,
+            unique: true
         },
         password: {
             type: DataTypes.STRING(100),

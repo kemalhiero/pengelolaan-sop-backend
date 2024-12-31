@@ -2,7 +2,7 @@
 
 Back-End Tugas Akhir "Sistem Informasi Pengelolaan SOP di Departemen Sistem Informasi Universitas Andalas berbasis web".
 
-- NodeJS 20.17.0
+- NodeJS 22.11.0
 - MariaDB 11.4.3
 
 ### Project Setup

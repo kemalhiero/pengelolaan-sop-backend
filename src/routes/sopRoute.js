@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as sopController from '../controllers/sopController.js';
+import { verifyToken } from '../utils/auth.js'
 
 const router = Router();
 router.route('/')
@@ -8,7 +9,6 @@ router.route('/')
 
 router.get('/latest/sop', sopController.getLatestSopVersion);
 router.get('/latest/year', sopController.getLatestSopInYear);
-
 
 router.route('/detail')
     .get(sopController.getAllSopDetail)
@@ -20,6 +20,9 @@ router.route('/step')
     .post(sopController.addSopStep)
     .patch(sopController.updateSopStep)
     .delete(sopController.deleteSopStep);
+
+router.route('/assignment')
+    .get(sopController.getAssignedSop);
 
 router.route('/assignment/:id')
     .get(sopController.getAssignedSopDetail);
