@@ -10,7 +10,7 @@ const registUser = async (req, res, next) => {
     try {
         const { name, id_number, email, gender, password, confirm_password } = req.body;
 
-        if (password !== confirm_password) return res.status(401).send({ message: 'Passwords tidak cocok' });
+        if (password !== confirm_password) return res.status(401).send({ message: 'sandi tidak cocok' });
 
         // hash password
         const salt = await bcrypt.genSalt();
@@ -25,6 +25,15 @@ const registUser = async (req, res, next) => {
         });
 
     } catch (error) {
+        // Handling Sequelize unique constraint error
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            const field = error.errors[0].path; // mendapatkan field yang duplikat
+            return res.status(409).json({
+                message: `${field} sudah terdaftar`,
+                field: field
+            });
+        }
+        
         next(error);
     }
 };
@@ -51,7 +60,7 @@ const loginUser = async (req, res, next) => {
 
         res.status(200).json({
             message: 'sukses login',
-            token
+            data: { token }
         });
 
     } catch (error) {
