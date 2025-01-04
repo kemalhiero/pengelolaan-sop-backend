@@ -1,7 +1,7 @@
 import sequelize from "../config/db.js";
 import { DataTypes } from 'sequelize';
 
-const relation_other_sop = sequelize.define('relation_other_sop',
+export default sequelize.define('relation_other_sop',
     {
         id_relation_sop: {
             type: DataTypes.INTEGER.UNSIGNED,
@@ -22,5 +22,3 @@ const relation_other_sop = sequelize.define('relation_other_sop',
     timestamps: false,
 }
 );
-
-export default relation_other_sop;

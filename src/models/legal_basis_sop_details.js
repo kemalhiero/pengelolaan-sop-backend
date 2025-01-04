@@ -3,7 +3,7 @@ import { DataTypes } from 'sequelize';
 import modelLegalBasis from './legal_basis.js';
 import modelSopDetail from './sop_details.js';
 
-const legal_basis_sop_details = sequelize.define('legal_basis_sop_details' ,
+export default sequelize.define('legal_basis_sop_details',
     {
         id_sop_detail: {
             type: DataTypes.INTEGER.UNSIGNED,
@@ -24,9 +24,7 @@ const legal_basis_sop_details = sequelize.define('legal_basis_sop_details' ,
             }
         },
     }, {
-        freezeTableName: true,
-        timestamps: false,
-    }
+    freezeTableName: true,
+    timestamps: false,
+}
 );
-
-export default legal_basis_sop_details;

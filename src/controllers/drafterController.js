@@ -1,6 +1,38 @@
 import modelDrafter from '../models/drafter.js';
 import modelSopDetail from '../models/sop_details.js';
 import modelUser from '../models/users.js';
+import modelRole from '../models/roles.js';
+import { Op } from 'sequelize';
+
+const getAllDrafter = async (req, res, next) => {
+    try {
+        const pic = await modelUser.findAll({
+            attributes: ['id_user', 'identity_number', 'name'],
+            include: {
+                model: modelRole,
+                attributes: ['role_name'],
+                where: {
+                    role_name:  ['penyusun', 'pj', 'kaprodi'] // Mengambil role_name yang sesuai
+                }
+            }
+        });
+
+        const data = pic.map(item => ({
+            id: item.id_user,
+            identity_number: item.identity_number,
+            name: item.name,
+            role: item.role.role_name
+        }));
+
+        res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
 
 const addSopDrafter = async (req, res, next) => {
     try {
@@ -27,9 +59,9 @@ const addSopDrafter = async (req, res, next) => {
     }
 };
 
-const getDrafter = async (req, res, next) => {      //ambil pembuat dokumen berdasarkan id detail sop
+const getDrafterByIdDetail = async (req, res, next) => {      //ambil pembuat dokumen berdasarkan id detail sop
     try {
-        const { id } = req.query;
+        const { id } = req.params;
 
         const dataSopDetail = await modelSopDetail.findByPk(id);
 
@@ -58,4 +90,4 @@ const getDrafter = async (req, res, next) => {      //ambil pembuat dokumen berd
     }
 };
 
-export { getDrafter, addSopDrafter };
+export { getAllDrafter, getDrafterByIdDetail, addSopDrafter };

@@ -1,33 +1,33 @@
 import { Router } from 'express';
 import * as sopController from '../controllers/sopController.js';
-import { verifyToken } from '../utils/auth.js'
+import { verifyToken } from '../middlewares/auth.js';
 
 const router = Router();
 router.route('/')
     .get(sopController.getAllSop)
-    .post(sopController.addSop);
+    .post(verifyToken, sopController.addSop);
 
 router.get('/latest/sop', sopController.getLatestSopVersion);
 router.get('/latest/year', sopController.getLatestSopInYear);
 
 router.route('/detail')
     .get(sopController.getAllSopDetail)
-    .post(sopController.addSopDetail)
-    .patch(sopController.updateSopDetail);
+    .post(verifyToken ,sopController.addSopDetail)
+    .patch(verifyToken ,sopController.updateSopDetail);
 
 router.route('/step')
     .get(sopController.getSopStepbySopDetail)
-    .post(sopController.addSopStep)
-    .patch(sopController.updateSopStep)
-    .delete(sopController.deleteSopStep);
+    .post(verifyToken, sopController.addSopStep)
+    .patch(verifyToken, sopController.updateSopStep)
+    .delete(verifyToken, sopController.deleteSopStep);
 
 router.route('/assignment')
-    .get(sopController.getAssignedSop);
+    .get(verifyToken, sopController.getAssignedSop);
 
 router.route('/assignment/:id')
-    .get(sopController.getAssignedSopDetail);
+    .get(verifyToken, sopController.getAssignedSopDetail);
 
-router.get('/info/:id', sopController.getSectionandWarning);
+router.get( '/info/:id', verifyToken,sopController.getSectionandWarning);
 
 router.route('/:id')
     .get(sopController.getSopById);

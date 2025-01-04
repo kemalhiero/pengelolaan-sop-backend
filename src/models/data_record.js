@@ -1,7 +1,7 @@
 import sequelize from "../config/db.js";
 import { DataTypes } from 'sequelize';
 
-const data_record = sequelize.define('data_record' ,
+export default sequelize.define('data_record' ,
     {
         id_data_record: {
             type: DataTypes.INTEGER.UNSIGNED,
@@ -25,5 +25,3 @@ const data_record = sequelize.define('data_record' ,
         timestamps: false,
     }
 );
-
-export default data_record;

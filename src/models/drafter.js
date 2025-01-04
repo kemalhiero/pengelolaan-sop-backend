@@ -1,9 +1,9 @@
 import sequelize from "../config/db.js";
 import { DataTypes } from 'sequelize';
 import modelSopDetail from './sop_details.js';
-import modelUser  from './users.js';
+import modelUser from './users.js';
 
-const drafter = sequelize.define('drafter' ,
+export default sequelize.define('drafter',
     {
         id_sop_detail: {
             type: DataTypes.INTEGER.UNSIGNED,
@@ -24,9 +24,7 @@ const drafter = sequelize.define('drafter' ,
             }
         },
     }, {
-        freezeTableName: true,
-        timestamps: false,
-    }
+    freezeTableName: true,
+    timestamps: false,
+}
 );
-
-export default drafter;

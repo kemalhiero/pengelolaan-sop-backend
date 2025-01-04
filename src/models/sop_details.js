@@ -1,14 +1,14 @@
 import sequelize from "../config/db.js";
 import { DataTypes } from 'sequelize';
 
-const sop_details = sequelize.define('sop_details' ,
+export default sequelize.define('sop_details',
     {
         id_sop_detail: {        // data awal yang dimasukkan
             type: DataTypes.INTEGER.UNSIGNED,
             primaryKey: true,
             autoIncrement: true,
             allowNull: false
-        }, 
+        },
         id_sop: {               //
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false
@@ -49,8 +49,6 @@ const sop_details = sequelize.define('sop_details' ,
             type: DataTypes.STRING(50)
         },
     }, {
-        freezeTableName: true,
-    }
+    freezeTableName: true,
+}
 );
-
-export default sop_details;

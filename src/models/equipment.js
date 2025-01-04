@@ -1,7 +1,7 @@
 import sequelize from "../config/db.js";
 import { DataTypes } from 'sequelize';
 
-const equipment = sequelize.define('equipment' ,
+export default sequelize.define('equipment' ,
     {
         id_equipment: {
             type: DataTypes.INTEGER.UNSIGNED,
@@ -25,5 +25,3 @@ const equipment = sequelize.define('equipment' ,
         timestamps: false,
     }
 );
-
-export default equipment;

@@ -3,8 +3,7 @@ import { DataTypes } from 'sequelize';
 import modelSopDetail from './sop_details.js';
 import modelImplementer from './implementer.js';
 
-
-const sop_detail_implementer = sequelize.define('sop_detail_implementer',
+export default sequelize.define('sop_detail_implementer',
     {
         id_sop_detail: {
             type: DataTypes.INTEGER.UNSIGNED,
@@ -30,5 +29,3 @@ const sop_detail_implementer = sequelize.define('sop_detail_implementer',
         timestamps: false,
     }
 );
-
-export default sop_detail_implementer;

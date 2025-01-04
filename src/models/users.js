@@ -1,7 +1,7 @@
 import sequelize from "../config/db.js";
 import { DataTypes } from 'sequelize';
 
-const users = sequelize.define('users' ,
+export default sequelize.define('users',
     {
         id_user: {
             type: DataTypes.STRING(15),
@@ -40,11 +40,9 @@ const users = sequelize.define('users' ,
             type: DataTypes.STRING(100),
             allowNull: false
         },
-    }, 
+    },
     {
         freezeTableName: true,
         timestamps: false,
     }
 );
-
-export default users;

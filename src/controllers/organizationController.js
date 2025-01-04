@@ -2,7 +2,7 @@ import modelOrganization from '../models/organization.js';
 import modelUser from '../models/users.js';
 import modelRole from '../models/roles.js';
 
-const addOrg = async (req, res) => {
+const addOrg = async (req, res, next) => {
     try {
         const { id_pic, name, level, about, id_org_parent } = req.body;
 

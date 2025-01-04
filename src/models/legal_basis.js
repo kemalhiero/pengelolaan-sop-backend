@@ -1,18 +1,18 @@
 import sequelize from "../config/db.js";
 import { DataTypes } from 'sequelize';
 
-const legal_basis = sequelize.define('legal_basis' ,
+export default sequelize.define('legal_basis',
     {
         id_legal: {
             type: DataTypes.SMALLINT.UNSIGNED,
             primaryKey: true,
             autoIncrement: true,
             allowNull: false
-        }, 
+        },
         id_law_type: {
             type: DataTypes.TINYINT.UNSIGNED,
             allowNull: false
-        }, 
+        },
         number: {
             type: DataTypes.SMALLINT.UNSIGNED,
             allowNull: false,
@@ -34,8 +34,6 @@ const legal_basis = sequelize.define('legal_basis' ,
             allowNull: false
         },
     }, {
-        freezeTableName: true
-    }
+    freezeTableName: true
+}
 );
-
-export default legal_basis;

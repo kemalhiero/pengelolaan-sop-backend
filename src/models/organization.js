@@ -1,7 +1,7 @@
 import sequelize from "../config/db.js";
 import { DataTypes } from 'sequelize';
 
-const organization = sequelize.define('organization' ,
+export default sequelize.define('organization' ,
     {
         id_org: {
             type: DataTypes.TINYINT.UNSIGNED,
@@ -32,5 +32,3 @@ const organization = sequelize.define('organization' ,
         freezeTableName: true
     }
 );
-
-export default organization;

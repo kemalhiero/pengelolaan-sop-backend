@@ -1,13 +1,13 @@
 import sequelize from "../config/db.js";
 import { DataTypes } from 'sequelize';
 
-const sop_step = sequelize.define('sop_step' ,
+export default sequelize.define('sop_step',
     {
         id_step: {
             type: DataTypes.STRING(25),
             primaryKey: true,
             allowNull: false
-        }, 
+        },
         id_sop_detail: {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false
@@ -57,8 +57,6 @@ const sop_step = sequelize.define('sop_step' ,
         },
 
     }, {
-        freezeTableName: true
-    }
+    freezeTableName: true
+}
 );
-
-export default sop_step;
