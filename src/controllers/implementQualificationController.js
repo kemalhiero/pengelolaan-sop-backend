@@ -41,11 +41,6 @@ const getSopIQ = async (req, res, next) => {
             ]
         });
 
-        if (dataSopIq.length == 0) {
-            console.error('Data kualifikasi pelaksana tidak ditemukan!')
-            return res.status(404).json({ message: 'Data kualifikasi pelaksana tidak ditemukan!' })
-        };
-
         res.status(200).json({
             message: 'sukses mengambil data',
             data: dataSopIq

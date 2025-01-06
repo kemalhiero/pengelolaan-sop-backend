@@ -45,10 +45,6 @@ const getSopRecord = async (req, res, next) => {
             ]
         });
 
-        if (dataPencatatanSop.length == 0) {
-            return res.status(404).json({ message: 'Data pencatatan terkait tidak ditemukan!' })
-        };
-
         res.status(200).json({
             message: 'sukses mengambil data',
             data: dataPencatatanSop

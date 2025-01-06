@@ -9,7 +9,7 @@ router.route('/')
     .patch(verifyToken, legalBasisController.updateLegal)
     .delete(verifyToken, legalBasisController.deleteLegal);
 
-router.route(verifyToken, '/sop')
+router.route('/sop')
     .get(verifyToken, legalBasisController.getSopLegal)
     .post(verifyToken, legalBasisController.addSopLegal)
     .delete(verifyToken, legalBasisController.deleteSopLegal);

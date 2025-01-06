@@ -42,7 +42,7 @@ const addSopDetail = async (req, res, next) => {
 
         const dataSopDetail = await modelSopDetail.create({
             number, description, id_sop: id, version,
-            is_approved: false, status: 2,
+            is_approved: 2, status: 2,
             revision_date: new Date(), pic_position
         });
         console.log(dataSopDetail.dataValues.id_sop_detail);
@@ -56,7 +56,7 @@ const addSopDetail = async (req, res, next) => {
     }
 };
 
-const getAllSop = async (req, res, next) => {
+const getAllSop = async (req, res, next) => {       //ambil semua sop
     try {
         const dataSop = await modelSop.findAll({
             attributes: ['id_sop', 'name', 'is_active', 'createdAt'],
@@ -93,7 +93,7 @@ const getAllSop = async (req, res, next) => {
     }
 };
 
-const getAllSopDetail = async (req, res, next) => {
+const getAllSopDetail = async (req, res, next) => {    // ambil semua data tabel sop-detail
     try {
         const dataSop = await modelSopDetail.findAll({
             attributes: ['number', 'is_approved', 'status', 'version'],
@@ -128,7 +128,7 @@ const getAllSopDetail = async (req, res, next) => {
     }
 };
 
-const getSopById = async (req, res, next) => {
+const getSopById = async (req, res, next) => {          //untuk ambil sop beserta detail-detailnya (versinya) berdasarkan id
     try {
         const { id } = req.params;
 
@@ -247,29 +247,41 @@ const getLatestSopInYear = async (req, res, next) => {
 // TODO tambahkan filter berdasarkan penyusun yang sedang login saat ini
 const getAssignedSop = async (req, res, next) => {
     try {
-        const dataSop = await modelSop.findAll({
-            attributes: ['id_sop', 'name', 'is_active', 'createdAt'],
+        const dataSop = await modelSopDetail.findAll({
+            attributes: ['number', 'is_approved', 'status', 'version'],
             include: [
-                // {
-                //     model: modelSopDetail,
-                //     attributes: ['number', 'is_approved', 'status', 'version']
-                // }, 
                 {
-                    model: modelOrganization,
-                    attributes: ['org_name']
+                    model: modelSop,
+                    attributes: ['id_sop','name', 'is_active', 'createdAt'],
+                    include: {
+                        model: modelOrganization,
+                        attributes: ['org_name']
+                    }
+                },
+                {
+                    model: modelUser,
+                    attributes: ['identity_number', 'name'],
+                    where: { email: req.user.email },
+                    through: { attributes: [] }
                 }
             ]
         });
+        console.log(req.user)
 
         const data = dataSop.map(item => {
-            const formattedCreationDate = dateFormat(item.createdAt)
+            const formattedCreationDate = dateFormat(item.sop.createdAt);
 
             return {
-                id: item.id_sop,
-                name: item.name,
-                is_active: item.is_active,
-                creation_date: formattedCreationDate, // Gunakan tanggal yang sudah diformat
-                org_name: item.organization.org_name,
+                id: item.sop.id_sop,
+                name: item.sop.name,
+                // is_active: item.sop.is_active,
+                number: item.number,                 //ntar aktifin lagi kalau perlu
+                // version: item.version,
+                is_approved: item.is_approved,
+                creation_date: formattedCreationDate,
+                // status: item.status,
+                org_name: item.sop.organization.org_name,
+                // user: item.users
             };
         });
 
@@ -304,7 +316,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
                 {
                     model: modelSopDetail,
                     attributes: ['id_sop_detail', 'number', 'description'],
-                    where: { is_approved: false },
+                    where: { is_approved: 2 },
                     include: {
                         model: modelUser,
                         attributes: ['identity_number', 'name']

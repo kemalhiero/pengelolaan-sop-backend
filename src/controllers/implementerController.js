@@ -70,10 +70,6 @@ const getSopImplementer = async (req, res, next) => {
                 ['implementer_name', 'name'],
             ]
         });
-        if (dataSopImplementer.length == 0) {
-            console.error('Data pelaksana tidak ditemukan!')
-            return res.status(404).json({ message: 'Data pelaksana tidak ditemukan!' })
-        };
         
         return res.status(200).json({
             message: 'sukses mengambil data',

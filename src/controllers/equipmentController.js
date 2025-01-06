@@ -41,11 +41,6 @@ const getSopEquipment = async (req, res, next) => {
             ]
         });
     
-        if (dataPeralatanSop.length == 0) {
-            console.error('Data sop terkait tidak ditemukan!')
-            return res.status(404).json({ message: 'Data sop terkait tidak ditemukan!' })
-        };
-    
         res.status(200).json({
             message: 'sukses mengambil data',
             data: dataPeralatanSop

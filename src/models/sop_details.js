@@ -28,7 +28,7 @@ export default sequelize.define('sop_details',
             type: DataTypes.DATE
         },
         is_approved: {          //
-            type: DataTypes.BOOLEAN,
+            type: DataTypes.TINYINT.UNSIGNED,
             allowNull: false,
         },
         status: {               //
