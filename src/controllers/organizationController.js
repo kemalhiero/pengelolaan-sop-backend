@@ -29,7 +29,7 @@ const getOrg = async (req, res, next) => {
             attributes: { exclude: ['person_in_charge'] },
             include: {
                 model: modelUser,
-                attributes: ['name'],
+                attributes: ['id_user', 'name'],
                 include: {
                     model: modelRole,
                     attributes: ['role_name']
@@ -44,6 +44,7 @@ const getOrg = async (req, res, next) => {
             about: item.org_about,
             org_parent: item.id_org_parent,
             pic: {
+                id: item.user.id_user,
                 name: item.user.name,
                 role: item.user.role.role_name
             }

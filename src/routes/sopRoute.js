@@ -24,6 +24,8 @@ router.route('/step')
 router.route('/assignment')
     .get(verifyToken, sopController.getAssignedSop);
 
+router.get('/managed', verifyToken, sopController.getManagedSop);
+
 router.route('/assignment/:id')
     .get(verifyToken, sopController.getAssignedSopDetail);
 

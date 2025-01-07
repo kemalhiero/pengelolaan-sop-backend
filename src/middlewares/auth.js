@@ -39,8 +39,13 @@ const verifyToken = async (req, res, next) => {
 
     const currentUser = await modelUser.findOne({
         where: { email: decoded.email },
-        attributes: { exclude: ['password'] }
+        attributes: { exclude: ['id_role', 'password'] },
+        include: {
+            model: modelRole,
+            attributes: ['role_name']
+        }
     });
+    currentUser.dataValues.role = currentUser.dataValues.role.role_name;
 
     if (!currentUser) {
         return next(res.status(401).json({
@@ -54,13 +59,13 @@ const verifyToken = async (req, res, next) => {
 
 const authorizeRole = (roles) => {
     return (req, res, next) => {
-      if (!roles.includes(req.user.role)) {
-        return res.status(403).json({ 
-          message: 'Anda tidak memiliki akses ke resource ini' 
-        });
-      }
-      next();
+        if (!roles.includes(req.user.role)) {
+            return res.status(403).json({
+                message: 'Anda tidak memiliki akses ke resource ini'
+            });
+        }
+        next();
     };
-  };
+};
 
 export { verifyToken, authorizeRole };

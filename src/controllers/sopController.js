@@ -93,6 +93,67 @@ const getAllSop = async (req, res, next) => {       //ambil semua sop
     }
 };
 
+const getManagedSop = async (req, res, next) => {       //ambil semua sop
+    try {
+        console.log(req.user);
+        let dataSop;
+        if (req.user.dataValues.role == 'kaprodi') {
+            dataSop = await modelSop.findAll({
+                attributes: ['id_sop', 'name', 'is_active', 'createdAt'],
+                include: [
+                    {
+                        model: modelOrganization,
+                        attributes: ['org_name']
+                    }
+                ]
+            });
+        } else if (req.user.dataValues.role == 'pj') {
+            dataSop = await modelSop.findAll({
+                attributes: ['id_sop', 'name', 'is_active', 'createdAt'],
+                include: [
+                    {
+                        model: modelOrganization,
+                        attributes: ['org_name'],
+                        where: { person_in_charge: req.user.id_user }
+                    },
+                    // {
+                    //     model: modelSopDetail,
+                    //     attributes: [],
+                    //     include: {
+                    //         model: modelUser,
+                    //         where: { id_user: req.user.id_user }
+                    //     }
+                    // }
+                ]
+            });
+        };
+
+        let data
+        if (dataSop) {
+            data = dataSop.map(item => {
+                const formattedCreationDate = dateFormat(item.createdAt)
+    
+                return {
+                    id: item.id_sop,
+                    name: item.name,
+                    is_active: item.is_active,
+                    creation_date: formattedCreationDate, // Gunakan tanggal yang sudah diformat
+                    org_name: item.organization.org_name,
+                };
+            });            
+        } else {
+            data = []
+        }
+
+        return res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 const getAllSopDetail = async (req, res, next) => {    // ambil semua data tabel sop-detail
     try {
         const dataSop = await modelSopDetail.findAll({
@@ -252,7 +313,7 @@ const getAssignedSop = async (req, res, next) => {
             include: [
                 {
                     model: modelSop,
-                    attributes: ['id_sop','name', 'is_active', 'createdAt'],
+                    attributes: ['id_sop', 'name', 'is_active', 'createdAt'],
                     include: {
                         model: modelOrganization,
                         attributes: ['org_name']
@@ -266,7 +327,6 @@ const getAssignedSop = async (req, res, next) => {
                 }
             ]
         });
-        console.log(req.user)
 
         const data = dataSop.map(item => {
             const formattedCreationDate = dateFormat(item.sop.createdAt);
@@ -500,7 +560,7 @@ const deleteSopStep = async (req, res, next) => {
 };
 
 export {
-    addSop, getAllSop, getSopById, getAssignedSop,
+    addSop, getAllSop, getSopById, getAssignedSop, getManagedSop,
     addSopDetail, getAllSopDetail, updateSopDetail, getSectionandWarning, getLatestSopVersion, getLatestSopInYear,
     getAssignedSopDetail,
     addSopStep, getSopStepbySopDetail, updateSopStep, deleteSopStep
