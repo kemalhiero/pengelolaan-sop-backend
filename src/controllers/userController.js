@@ -1,5 +1,6 @@
 import { env } from 'node:process';
 import { nanoid } from 'nanoid';
+import { literal, Op } from 'sequelize';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
@@ -33,7 +34,7 @@ const registUser = async (req, res, next) => {
                 field: field
             });
         }
-        
+
         next(error);
     }
 };
@@ -90,4 +91,34 @@ const logoutUser = async (req, res, next) => {
     }
 };
 
-export { registUser, loginUser, logoutUser };
+// ambil data user
+const getLecturerList = async (req, res, next) => {
+    try {
+        const dosen = await modelUser.findAll({
+            where: {
+                // Menggunakan sequelize.literal untuk menggunakan fungsi MySQL LENGTH
+                [Op.and]: [
+                    literal('LENGTH(REPLACE(identity_number, "-", "")) = 18')
+                ]
+            },
+            attributes: ['id_user', 'identity_number', 'name', 'email']
+        });
+
+        const data = dosen.map(item => ({
+            id: item.id_user,
+            id_number: item.identity_number,
+            name: item.name,
+            email: item.email
+        }));
+
+        res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export { registUser, loginUser, logoutUser, getLecturerList };

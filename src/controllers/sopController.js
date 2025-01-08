@@ -95,7 +95,6 @@ const getAllSop = async (req, res, next) => {       //ambil semua sop
 
 const getManagedSop = async (req, res, next) => {       //ambil semua sop
     try {
-        console.log(req.user);
         let dataSop;
         if (req.user.dataValues.role == 'kaprodi') {
             dataSop = await modelSop.findAll({
