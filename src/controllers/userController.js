@@ -1,67 +1,44 @@
-import { env } from 'node:process';
-import { nanoid } from 'nanoid';
-import { literal, Op } from 'sequelize';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
-
-import modelRole from '../models/roles.js';
+import { Op, literal } from 'sequelize';
+import modelDrafter from '../models/drafter.js';
+import modelSopDetail from '../models/sop_details.js';
 import modelUser from '../models/users.js';
+import modelRole from '../models/roles.js';
+import modelOrg from '../models/organization.js';
 
-const registUser = async (req, res, next) => {
+const getUserByRole = async (req, res, next) => {
     try {
-        const { name, id_number, email, gender, password, confirm_password } = req.body;
+        const { role } = req.query;
 
-        if (password !== confirm_password) return res.status(401).send({ message: 'sandi tidak cocok' });
-
-        // hash password
-        const salt = await bcrypt.genSalt();
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        await modelUser.create({
-            id_user: nanoid(8), identity_number: id_number, name, gender, email, id_role: 1, password: hashedPassword
+        let dataRole = await modelRole.findAll({
+            attributes: ['role_name']
         });
+        dataRole = dataRole.map(item => item.role_name);
 
-        res.status(200).json({
-            message: 'sukses regis user'
-        });
-
-    } catch (error) {
-        // Handling Sequelize unique constraint error
-        if (error.name === 'SequelizeUniqueConstraintError') {
-            const field = error.errors[0].path; // mendapatkan field yang duplikat
-            return res.status(409).json({
-                message: `${field} sudah terdaftar`,
-                field: field
+        // Cek apakah role valid
+        if (!dataRole.includes(role)) {
+            return res.status(400).json({
+                message: 'Role tidak ada atau tidak valid!'
             });
-        }
-
-        next(error);
-    }
-};
-
-const loginUser = async (req, res, next) => {
-    try {
-        const { email, password } = req.body;
-        if (!email || !password) return res.status(400).json({ message: 'masukkan email dan password!' });
-
-        let userData = await modelUser.findOne({
-            where: { email },
-            attributes: ['password'],
-            include: {
-                model: modelRole,
-                attributes: ['role_name']
-            }
-        });
-
-        if (!userData || !(bcrypt.compareSync(password, userData.password))) {
-            return res.status(400).json({ message: 'Email atau Kata Sandi tidak valid' })
         };
 
-        const token = jwt.sign({ email, role: userData.role.role_name }, env.JWT_SECRET, { expiresIn: '30d' });
+        const user = await modelUser.findAll({
+            attributes: ['id_user', 'identity_number', 'name'],
+            include: {
+                model: modelRole,
+                where: { role_name: role },
+                attributes: []
+            }
+        });
+
+        const data = user.map(item => ({
+            id: item.id_user,
+            id_number: item.identity_number,
+            name: item.name
+        }));
 
         res.status(200).json({
-            message: 'sukses login',
-            data: { token }
+            message: 'sukses mendapatkan data',
+            data,
         });
 
     } catch (error) {
@@ -69,42 +46,152 @@ const loginUser = async (req, res, next) => {
     }
 };
 
-const logoutUser = async (req, res, next) => {
+const getAllPic = async (req, res, next) => {
     try {
-        const authHeader = req.get('Authorization');
-        const token = authHeader?.split(' ')[1];
+        const pic = await modelUser.findAll({
+            attributes: ['id_user', 'identity_number', 'name'],
+            include: [
+                {
+                    model: modelRole,
+                    attributes: [],
+                    where: {
+                        role_name: 'pj'
+                    }
+                },
+                {
+                    model: modelOrg,
+                    attributes: ['org_name']
+                }
+            ]
+        });
 
-        if (!token || token === 'null') {
-            return res.status(401).json({ message: 'Tidak ada token atau sudah logout sebelumnya' });
-        }
+        const data = pic.map(item => ({
+            id: item.id_user,
+            id_number: item.identity_number,
+            name: item.name,
+            org: item.organization.org_name
+        }));
 
-        jwt.verify(token, env.JWT_SECRET, async (err, user) => {
-            if (err) {
-                console.error(err);
-                return res.status(401).json({ message: err });
-            }
-
-            return res.status(200).json({ message: `User ${user.email} berhasil logout` });
+        res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data
         });
     } catch (error) {
         next(error);
     }
 };
 
-// ambil data user
-const getLecturerList = async (req, res, next) => {
+const getAllDrafter = async (req, res, next) => {
     try {
-        const dosen = await modelUser.findAll({
+        const pic = await modelUser.findAll({
+            attributes: ['id_user', 'identity_number', 'name'],
+            include: [
+                {
+                    model: modelRole,
+                    attributes: [],
+                    where: {
+                        role_name: 'penyusun' // Mengambil role_name yang sesuai
+                    }
+                },
+                {
+                    model: modelSopDetail,
+                    attributes: ['id_sop_detail'],
+                    through: { attributes: [] }
+                }
+            ]
+        });
+
+        const data = pic.map(item => ({
+            id: item.id_user,
+            id_number: item.identity_number,
+            name: item.name,
+            status: item.sop_details.length > 0 ? 1 : 0
+        }));
+
+        res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+const addSopDrafter = async (req, res, next) => {
+    try {
+        const { id_user, id_sop_detail } = req.body;
+
+        const dataUser = await modelUser.findByPk(id_user);
+        const dataSopDetail = await modelSopDetail.findByPk(id_sop_detail);
+
+        if (!dataUser || !dataSopDetail) {
+            const error = new Error('Data user atau sop tidak ditemukan');
+            error.status = 404;
+            throw error;
+        };
+
+        await modelDrafter.create({
+            id_user, id_sop_detail
+        });
+
+        return res.status(200).json({
+            message: 'sukses menambahkan data',
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const getDrafterByIdDetail = async (req, res, next) => {      //ambil pembuat dokumen berdasarkan id detail sop
+    try {
+        const { id } = req.params;
+        const dataSopDetail = await modelSopDetail.findByPk(id);
+
+        if (!dataSopDetail) {
+            const error = new Error('Data sop tidak ditemukan');
+            error.status = 404;
+            throw error;
+        };
+
+        const drafter = await modelUser.findAll({
+            include: {
+                model: modelSopDetail,
+                where: { id_sop_detail: id },
+                attributes: []
+            },
+            attributes: ['identity_number', 'name']
+        });
+
+        return res.status(200).json({
+            message: 'sukses mengambil data',
+            data: drafter
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Kepala departemen
+const getHodCandidate = async (req, res, next) => {
+    try {
+        const hodCandidate = await modelUser.findAll({
             where: {
                 // Menggunakan sequelize.literal untuk menggunakan fungsi MySQL LENGTH
                 [Op.and]: [
                     literal('LENGTH(REPLACE(identity_number, "-", "")) = 18')
                 ]
             },
-            attributes: ['id_user', 'identity_number', 'name', 'email']
+            attributes: ['id_user', 'identity_number', 'name', 'email'],
+            include: {
+                model: modelRole,
+                attributes: [],
+                where: { role_name: { [Op.ne]: 'kadep' } }
+            }
         });
 
-        const data = dosen.map(item => ({
+        const data = hodCandidate.map(item => ({
             id: item.id_user,
             id_number: item.identity_number,
             name: item.name,
@@ -121,4 +208,42 @@ const getLecturerList = async (req, res, next) => {
     }
 };
 
-export { registUser, loginUser, logoutUser, getLecturerList };
+
+
+const addHod = async (req, res, next) => {
+    try {
+        const { id } = req.body;
+
+        const hod = await modelUser.findByPk(id, {
+            attributes: ['id_user'],
+            include: {
+                model: modelRole,
+                attributes: ['role_name']
+            }
+        });
+        if (!hod) return res.status(404).json({ message: 'user tidak ditemukan!' });
+        if (hod.dataValues.role.role_name === 'kadep') return res.status(404).json({ message: 'user ini sudah menjadi kadep!' })
+
+        const role = await modelRole.findOne({
+            where: { role_name: 'kadep' },
+            attributes: ['id_role']
+        })
+
+        await hod.update({
+            id_role: role.id_role
+        });
+
+        return res.status(200).json({
+            message: 'sukses menambahkan data'
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export {
+    getUserByRole,
+    getAllDrafter, getDrafterByIdDetail, addSopDrafter,
+    getHodCandidate, addHod,
+    getAllPic,
+};

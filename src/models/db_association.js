@@ -38,7 +38,7 @@ modelStep.belongsTo(modelSopDetails, { foreignKey: 'id_sop_detail' });
 modelSopDetails.hasMany(modelFeedback, { foreignKey: 'id_sop_detail' });
 modelFeedback.belongsTo(modelSopDetails, { foreignKey: 'id_sop_detail' });
 
-modelUser.hasMany(modelOrganization, { foreignKey: 'person_in_charge' });
+modelUser.hasOne(modelOrganization, { foreignKey: 'person_in_charge' });
 modelOrganization.belongsTo(modelUser, { foreignKey: 'person_in_charge' });
 
 modelSopDetails.hasMany(modelEquipment, { foreignKey: 'id_sop_detail' });

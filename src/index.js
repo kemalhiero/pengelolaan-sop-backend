@@ -1,8 +1,7 @@
-import express, { urlencoded, json } from 'express';
+import express, { json } from 'express';
 const app = express()
 const port = process.env.PORT
 
-// app.use(urlencoded({ extended: true }));
 app.use(json());
 
 import cors from 'cors';
@@ -14,8 +13,8 @@ import './models/db_association.js';
 // router
 import sopRoute from './routes/sopRoute.js';
 import userRoute from './routes/userRoute.js';
+import authRoute from './routes/authRoute.js';
 import recordRoute from './routes/recordRoute.js';
-import drafterRoute from './routes/drafterRoute.js';
 import lawTypeRoute from './routes/lawTypeRoute.js';
 import equipmentRoute from './routes/equipmentRoute.js';
 import legalBasisRoute from './routes/legalBasisRoute.js';
@@ -26,10 +25,10 @@ import ImplementQualificationRoute from './routes/ImplementQualificationRoute.js
 
 app
   .use('/api/sop', sopRoute)
+  .use('/api/auth', authRoute)
   .use('/api/user', userRoute)
   .use('/api/record', recordRoute)
   .use('/api/law', legalBasisRoute)
-  .use('/api/drafter', drafterRoute)
   .use('/api/lawtype', lawTypeRoute)
   .use('/api/org', organizationRoute)
   .use('/api/equipment', equipmentRoute)
@@ -57,7 +56,6 @@ app.use((err, req, res, next) => {
       message: err.message,
     });
 });
-
 
 app.listen(port, () => {
   console.log(`Aplikasi berjalan di http://localhost:${port}`)
