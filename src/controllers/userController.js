@@ -8,24 +8,30 @@ import modelOrg from '../models/organization.js';
 const getUserByRole = async (req, res, next) => {
     try {
         const { role } = req.query;
+        if (!role) return res.status(400).json({ message: 'Parameter role harus disertakan' });
 
         let dataRole = await modelRole.findAll({
             attributes: ['role_name']
         });
         dataRole = dataRole.map(item => item.role_name);
 
-        // Cek apakah role valid
-        if (!dataRole.includes(role)) {
+        const requestedRoles = role.split(',');
+        const invalidRoles = requestedRoles.filter(r => !dataRole.includes(r));
+        if (invalidRoles.length > 0) {
             return res.status(400).json({
-                message: 'Role tidak ada atau tidak valid!'
+                message: `Role tidak valid: ${invalidRoles.join(', ')}. Role yang tersedia: ${dataRole.join(', ')}`
             });
-        };
+        }
 
         const user = await modelUser.findAll({
             attributes: ['id_user', 'identity_number', 'name'],
             include: {
                 model: modelRole,
-                where: { role_name: role },
+                where: {
+                    role_name: {
+                        [Op.or]: requestedRoles
+                    }
+                },
                 attributes: []
             }
         });
@@ -65,16 +71,49 @@ const getAllPic = async (req, res, next) => {
             ]
         });
 
-        const data = pic.map(item => ({
-            id: item.id_user,
-            id_number: item.identity_number,
-            name: item.name,
-            org: item.organization.org_name
-        }));
+        const data = pic.map(item => {
+            return {
+                id: item.id_user,
+                id_number: item.identity_number,
+                name: item.name,
+                org: item.organization?.org_name || '-'
+            }
+        });
 
         res.status(200).json({
             message: 'sukses mendapatkan data',
             data
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const addPic = async (req, res, next) => {
+    try {
+        const { id } = req.body;
+
+        const pic = await modelUser.findByPk(id, {
+            attributes: ['id_user'],
+            include: {
+                model: modelRole,
+                attributes: ['role_name']
+            }
+        });
+        if (!pic) return res.status(404).json({ message: 'user tidak ditemukan!' });
+        if (pic.dataValues.role.role_name === 'pj') return res.status(404).json({ message: 'user ini sudah menjadi penanggung jawab!' })
+
+        const role = await modelRole.findOne({
+            where: { role_name: 'pj' },
+            attributes: ['id_role']
+        });
+
+        await pic.update({
+            id_role: role.id_role
+        });
+
+        return res.status(200).json({
+            message: 'sukses menambahkan data'
         });
     } catch (error) {
         next(error);
@@ -173,6 +212,37 @@ const getDrafterByIdDetail = async (req, res, next) => {      //ambil pembuat do
     }
 };
 
+const addDrafter = async (req, res, next) => {
+    try {
+        const { id } = req.body;
+
+        const drafter = await modelUser.findByPk(id, {
+            attributes: ['id_user'],
+            include: {
+                model: modelRole,
+                attributes: ['role_name']
+            }
+        });
+        if (!drafter) return res.status(404).json({ message: 'user tidak ditemukan!' });
+        if (drafter.dataValues.role.role_name === 'penyusun') return res.status(404).json({ message: 'user ini sudah menjadi penyusun!' })
+
+        const role = await modelRole.findOne({
+            where: { role_name: 'penyusun' },
+            attributes: ['id_role']
+        });
+
+        await drafter.update({
+            id_role: role.id_role
+        });
+
+        return res.status(200).json({
+            message: 'sukses menambahkan data'
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 // Kepala departemen
 const getHodCandidate = async (req, res, next) => {
     try {
@@ -208,8 +278,6 @@ const getHodCandidate = async (req, res, next) => {
     }
 };
 
-
-
 const addHod = async (req, res, next) => {
     try {
         const { id } = req.body;
@@ -243,7 +311,7 @@ const addHod = async (req, res, next) => {
 
 export {
     getUserByRole,
-    getAllDrafter, getDrafterByIdDetail, addSopDrafter,
+    getAllDrafter, getDrafterByIdDetail, addSopDrafter, addDrafter,
     getHodCandidate, addHod,
-    getAllPic,
+    getAllPic, addPic,
 };

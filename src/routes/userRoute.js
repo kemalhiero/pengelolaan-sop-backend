@@ -8,13 +8,17 @@ router.get('/', verifyToken, controller.getUserByRole)
 
 router.route('/drafter')
     .get(verifyToken, controller.getAllDrafter)
-    .post(verifyToken, controller.addSopDrafter);
+    .post(verifyToken, controller.addDrafter);
+
+router.post('/drafter/sop', verifyToken, controller.addSopDrafter);
 
 router.get('/drafter/sopdetail/:id', controller.getDrafterByIdDetail);
 
 router.post('/hod', verifyToken, controller.addHod);
 router.get('/hod/candidate', verifyToken, controller.getHodCandidate);
 
-router.get('/pic', verifyToken, controller.getAllPic);
+router.route('/pic')
+    .get(verifyToken, controller.getAllPic)
+    .post(verifyToken, controller.addPic);
 
 export default router;
