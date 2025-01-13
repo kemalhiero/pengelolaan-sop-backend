@@ -20,7 +20,8 @@ export default sequelize.define('organization' ,
         },
         org_level: {
             type: DataTypes.ENUM('departemen', 'laboratorium'),
-            allowNull: false
+            allowNull: false,
+            defaultValue: 'laboratorium'
         },
         org_about: {
             type: DataTypes.STRING(300),

@@ -120,6 +120,46 @@ const addPic = async (req, res, next) => {
     }
 };
 
+const getPicCandidate = async (req, res, next) => {
+    try {
+        const drafterCandidate = await modelUser.findAll({
+            attributes: ['id_user', 'identity_number', 'name'],
+            include: [
+                {
+                    model: modelOrg,
+                    required: false, // Menggunakan LEFT JOIN
+                    attributes: [],
+                    where: {
+                        org_level: { [Op.ne]: 'departemen' }
+                    }
+                }
+            ],
+            where: {
+                id_user: {
+                    [Op.notIn]: literal(
+                        `(SELECT person_in_charge FROM organization WHERE org_level = 'departemen')`
+                    )
+                }
+            }
+        });
+
+        const data = drafterCandidate.map(item => ({
+            id: item.id_user,
+            id_number: item.identity_number,
+            name: item.name
+        }));
+
+        res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+// penyusun
 const getAllDrafter = async (req, res, next) => {
     try {
         const pic = await modelUser.findAll({
@@ -253,7 +293,7 @@ const getHodCandidate = async (req, res, next) => {
                     literal('LENGTH(REPLACE(identity_number, "-", "")) = 18')
                 ]
             },
-            attributes: ['id_user', 'identity_number', 'name', 'email'],
+            attributes: ['id_user', 'identity_number', 'name'],
             include: {
                 model: modelRole,
                 attributes: [],
@@ -264,8 +304,7 @@ const getHodCandidate = async (req, res, next) => {
         const data = hodCandidate.map(item => ({
             id: item.id_user,
             id_number: item.identity_number,
-            name: item.name,
-            email: item.email
+            name: item.name
         }));
 
         res.status(200).json({
@@ -309,9 +348,46 @@ const addHod = async (req, res, next) => {
     }
 };
 
+const getAllHod = async (req, res, next) => {
+    try {
+        const hod = await modelUser.findAll({
+            attributes: ['id_user', 'identity_number', 'name'],
+            include: [
+                {
+                    model: modelRole,
+                    attributes: [],
+                    where: {
+                        role_name: 'kadep'
+                    }
+                },
+                {
+                    model: modelOrg,
+                    attributes: ['org_name']
+                }
+            ]
+        });
+
+        const data = hod.map(item => {
+            return {
+                id: item.id_user,
+                id_number: item.identity_number,
+                name: item.name,
+                status: item.organization?.org_name == 'Departemen Sistem Informasi' ? 1 : 0
+            }
+        });
+
+        res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export {
     getUserByRole,
     getAllDrafter, getDrafterByIdDetail, addSopDrafter, addDrafter,
-    getHodCandidate, addHod,
-    getAllPic, addPic,
+    getHodCandidate, addHod, getAllHod,
+    getAllPic, addPic, getPicCandidate
 };

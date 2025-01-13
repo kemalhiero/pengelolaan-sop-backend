@@ -14,11 +14,16 @@ router.post('/drafter/sop', verifyToken, controller.addSopDrafter);
 
 router.get('/drafter/sopdetail/:id', controller.getDrafterByIdDetail);
 
-router.post('/hod', verifyToken, controller.addHod);
+router.route('/hod')
+    .get( verifyToken, controller.getAllHod)
+    .post( verifyToken, controller.addHod);
+
 router.get('/hod/candidate', verifyToken, controller.getHodCandidate);
 
 router.route('/pic')
     .get(verifyToken, controller.getAllPic)
     .post(verifyToken, controller.addPic);
+
+router.get('/pic/candidate', verifyToken, controller.getPicCandidate);
 
 export default router;
