@@ -8,27 +8,15 @@ export default sequelize.define('organization' ,
             primaryKey: true,
             autoIncrement: true,
             allowNull: false
-        }, 
-        person_in_charge: {
-            type: DataTypes.STRING(15),
-            allowNull: false
         },
         org_name: {
             type: DataTypes.STRING(100),
             allowNull: false,
             unique: true
         },
-        org_level: {
-            type: DataTypes.ENUM('departemen', 'laboratorium'),
-            allowNull: false,
-            defaultValue: 'laboratorium'
-        },
         org_about: {
             type: DataTypes.STRING(300),
         },
-        id_org_parent: {
-            type: DataTypes.TINYINT.UNSIGNED,
-        }, 
     }, {
         freezeTableName: true
     }

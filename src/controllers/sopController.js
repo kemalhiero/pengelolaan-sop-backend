@@ -113,16 +113,15 @@ const getManagedSop = async (req, res, next) => {       //ambil semua sop
                     {
                         model: modelOrganization,
                         attributes: ['org_name'],
-                        where: { person_in_charge: req.user.id_user }
+                        include: {
+                            model: modelUser,
+                            where: {
+                                id_user: req.user.id_user
+                            },
+                            through: { attributes: [] },
+                            attributes: [],
+                        }
                     },
-                    // {
-                    //     model: modelSopDetail,
-                    //     attributes: [],
-                    //     include: {
-                    //         model: modelUser,
-                    //         where: { id_user: req.user.id_user }
-                    //     }
-                    // }
                 ]
             });
         };
@@ -131,7 +130,7 @@ const getManagedSop = async (req, res, next) => {       //ambil semua sop
         if (dataSop) {
             data = dataSop.map(item => {
                 const formattedCreationDate = dateFormat(item.createdAt)
-    
+
                 return {
                     id: item.id_sop,
                     name: item.name,
@@ -139,7 +138,7 @@ const getManagedSop = async (req, res, next) => {       //ambil semua sop
                     creation_date: formattedCreationDate, // Gunakan tanggal yang sudah diformat
                     org_name: item.organization.org_name,
                 };
-            });            
+            });
         } else {
             data = []
         }
@@ -369,7 +368,8 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
                         include: {
                             model: modelRole,
                             attributes: ['role_name']
-                        }
+                        },
+                        through: {attributes: []}
                     }
                 },
                 {
@@ -378,7 +378,8 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
                     where: { is_approved: 2 },
                     include: {
                         model: modelUser,
-                        attributes: ['identity_number', 'name']
+                        attributes: ['identity_number', 'name'],
+                        through: {attributes: []}
                     }
                 }
             ]
@@ -389,11 +390,13 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
             name: dataSop.name,
             creation_date: dateFormat(dataSop.createdAt),
             organization: dataSop.organization.org_name,
-            pic: {
-                number: dataSop.organization.user.identity_number,
-                name: dataSop.organization.user.name,
-                role: dataSop.organization.user.role.role_name,
-            },
+            pic: dataSop.organization.users.map(item => {
+                return {
+                    id_number: item.identity_number,
+                    name: item.name,
+                    role: item.role.role_name,
+                }
+            }),
             number: dataSop.sop_details[0].number,
             description: dataSop.sop_details[0].description,
             drafter: dataSop.sop_details[0].users.map(item => {

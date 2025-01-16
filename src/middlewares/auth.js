@@ -9,7 +9,7 @@ const verifyToken = async (req, res, next) => {
     const authHeader = req.get('Authorization');
 
     // jika token tidak ada, kembalikan respons error
-    if (!authHeader) return res.status(401).json({ succes: false, message: 'Tidak ada token atau sudah logout sebelumnya' });
+    if (!authHeader) return res.status(401).json({ message: 'Tidak ada token atau sudah logout sebelumnya' });
 
     const tokenHeader = authHeader.split(' ')[1];
 
@@ -18,7 +18,7 @@ const verifyToken = async (req, res, next) => {
             status: 401,
             message: 'Login terlebih dahulu!'
         }))
-    }
+    };
 
     let decoded;
     try {
@@ -27,7 +27,6 @@ const verifyToken = async (req, res, next) => {
     catch (err) {
         if (err.name === 'TokenExpiredError') {
             return res.status(401).json({
-                status: false,
                 message: 'Token sudah kadaluarsa'
             });
         }
@@ -35,7 +34,7 @@ const verifyToken = async (req, res, next) => {
         return next(res.status(401).json({
             message: err
         }))
-    }
+    };
 
     const currentUser = await modelUser.findOne({
         where: { email: decoded.email },
@@ -49,11 +48,10 @@ const verifyToken = async (req, res, next) => {
 
     if (!currentUser) {
         return next(res.status(401).json({
-            status: 401,
             message: "User sudah tidak ada, token sudah tidak bisa digunakan"
         }))
-    }
-    req.user = currentUser
+    };
+    req.user = currentUser;
     next()
 };
 

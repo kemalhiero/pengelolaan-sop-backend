@@ -50,7 +50,7 @@ const getLegal = async (req, res, next) => {
     }
 };
 
-const deleteLegal = async (req, res) => {
+const deleteLegal = async (req, res, next) => {
     try {
         const { id } = req.query;
         const legal = await modelLegal.findByPk(id, { attributes: ['id_legal'] });
@@ -68,7 +68,7 @@ const deleteLegal = async (req, res) => {
     }
 };
 
-const updateLegal = async (req, res) => {
+const updateLegal = async (req, res, next) => {
     try {
         const { id } = req.query;
         const { id_law_type, number, year, about } = req.body;

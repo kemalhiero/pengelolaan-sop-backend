@@ -122,22 +122,23 @@ const addPic = async (req, res, next) => {
 
 const getPicCandidate = async (req, res, next) => {
     try {
+        // TODO perbaiki ini
         const drafterCandidate = await modelUser.findAll({
             attributes: ['id_user', 'identity_number', 'name'],
             include: [
                 {
                     model: modelOrg,
-                    required: false, // Menggunakan LEFT JOIN
-                    attributes: [],
+                    through: { attributes: [] }, // Menyesuaikan dengan relasi many-to-many
+                    required: false, // LEFT JOIN
                     where: {
-                        org_level: { [Op.ne]: 'departemen' }
+                        org_level: { [Op.ne]: 'departemen' } // Hanya organisasi dengan level bukan 'departemen'
                     }
                 }
             ],
             where: {
                 id_user: {
                     [Op.notIn]: literal(
-                        `(SELECT person_in_charge FROM organization WHERE org_level = 'departemen')`
+                        `(SELECT pc.id_user FROM person_in_charge pc JOIN organization org ON pc.id_org = org.id_org WHERE org.org_level = 'departemen')`
                     )
                 }
             }
