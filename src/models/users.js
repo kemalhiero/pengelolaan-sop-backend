@@ -1,5 +1,7 @@
 import sequelize from "../config/db.js";
 import { DataTypes } from 'sequelize';
+import modelOrg from './organization.js';
+import modelRole from './roles.js';
 
 export default sequelize.define('users',
     {
@@ -29,7 +31,19 @@ export default sequelize.define('users',
         },
         id_role: {
             type: DataTypes.TINYINT.UNSIGNED,
-            allowNull: false
+            allowNull: false,
+            references: {
+                model: modelRole,
+                key: 'id_role'
+            }
+        },
+        id_org_pic: {
+            type: DataTypes.TINYINT.UNSIGNED,
+            allowNull: true,
+            references: {
+                model: modelOrg,
+                key: 'id_org'
+            }
         },
         email: {
             type: DataTypes.STRING(50),

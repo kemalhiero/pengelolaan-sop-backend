@@ -6,7 +6,6 @@ import modelDrafter from './drafter.js';
 import modelFeedback from './feedback.js';
 import modelLegal from './legal_basis.js';
 import modelLawTypes from './law_types.js';
-import modelPic from './person_in_charge.js'
 import modelEquipment from './equipment.js';
 import modelDataRecord from './data_record.js';
 import modelSopDetails from './sop_details.js';
@@ -30,6 +29,9 @@ modelFeedback.belongsTo(modelUser, { foreignKey: 'id_user' });
 modelOrganization.hasMany(modelSop, { foreignKey: 'id_org' });
 modelSop.belongsTo(modelOrganization, { foreignKey: 'id_org' });
 
+modelOrganization.hasMany(modelUser, { foreignKey: 'id_org_pic', onDelete: 'SET NULL', onUpdate: 'CASCADE' });     //satu organisasi bisa beberapa pj sekaligus
+modelUser.belongsTo(modelOrganization, { foreignKey: 'id_org_pic' });
+
 modelLawTypes.hasMany(modelLegal, { foreignKey: 'id_law_type' });
 modelLegal.belongsTo(modelLawTypes, { foreignKey: 'id_law_type' });
 
@@ -48,7 +50,6 @@ modelEquipment.belongsTo(modelSopDetails, { foreignKey: 'id_sop_detail' });
 modelSopDetails.hasMany(modelDataRecord, { foreignKey: 'id_sop_detail' });
 modelDataRecord.belongsTo(modelSopDetails, { foreignKey: 'id_sop_detail' });
 
-
 modelSopDetails.hasMany(modelRelationOtherSop, { foreignKey: 'id_sop_detail' });
 modelRelationOtherSop.belongsTo(modelSopDetails, { foreignKey: 'id_sop_detail' });
 
@@ -56,9 +57,6 @@ modelSopDetails.hasMany(modelImplementQualification, { foreignKey: 'id_sop_detai
 modelImplementQualification.belongsTo(modelSopDetails, { foreignKey: 'id_sop_detail' });
 
 // relasi many to many
-modelOrganization.belongsToMany(modelUser, { through: modelPic, foreignKey: 'id_org' });
-modelUser.belongsToMany(modelOrganization, { through: modelPic, foreignKey: 'id_user' });
-
 modelUser.belongsToMany(modelSopDetails, { through: modelDrafter, foreignKey: 'id_user' });
 modelSopDetails.belongsToMany(modelUser, { through: modelDrafter, foreignKey: 'id_sop_detail' });
 

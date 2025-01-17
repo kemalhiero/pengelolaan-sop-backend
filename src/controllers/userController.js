@@ -120,31 +120,22 @@ const addPic = async (req, res, next) => {
     }
 };
 
-const getPicCandidate = async (req, res, next) => {
+const getUnassignedPic = async (req, res, next) => {
     try {
-        // TODO perbaiki ini
-        const drafterCandidate = await modelUser.findAll({
+        const pic = await modelUser.findAll({
             attributes: ['id_user', 'identity_number', 'name'],
-            include: [
-                {
-                    model: modelOrg,
-                    through: { attributes: [] }, // Menyesuaikan dengan relasi many-to-many
-                    required: false, // LEFT JOIN
-                    where: {
-                        org_level: { [Op.ne]: 'departemen' } // Hanya organisasi dengan level bukan 'departemen'
-                    }
+            include: {
+                model: modelRole,
+                where: {
+                    role_name: 'pj'
                 }
-            ],
+            },
             where: {
-                id_user: {
-                    [Op.notIn]: literal(
-                        `(SELECT pc.id_user FROM person_in_charge pc JOIN organization org ON pc.id_org = org.id_org WHERE org.org_level = 'departemen')`
-                    )
-                }
+                id_org_pic: null
             }
         });
 
-        const data = drafterCandidate.map(item => ({
+        const data = pic.map(item => ({
             id: item.id_user,
             id_number: item.identity_number,
             name: item.name
@@ -154,12 +145,10 @@ const getPicCandidate = async (req, res, next) => {
             message: 'sukses mendapatkan data',
             data
         });
-
     } catch (error) {
         next(error);
     }
 };
-
 // penyusun
 const getAllDrafter = async (req, res, next) => {
     try {
@@ -390,5 +379,5 @@ export {
     getUserByRole,
     getAllDrafter, getDrafterByIdDetail, addSopDrafter, addDrafter,
     getHodCandidate, addHod, getAllHod,
-    getAllPic, addPic, getPicCandidate
+    getAllPic, addPic, getUnassignedPic
 };
