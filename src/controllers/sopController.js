@@ -67,7 +67,7 @@ const getAllSop = async (req, res, next) => {       //ambil semua sop
                 // }, 
                 {
                     model: modelOrganization,
-                    attributes: ['org_name']
+                    attributes: ['name']
                 }
             ]
         });
@@ -80,7 +80,7 @@ const getAllSop = async (req, res, next) => {       //ambil semua sop
                 name: item.name,
                 is_active: item.is_active,
                 creation_date: formattedCreationDate, // Gunakan tanggal yang sudah diformat
-                org_name: item.organization.org_name,
+                org_name: item.organization.name,
             };
         });
 
@@ -102,7 +102,7 @@ const getManagedSop = async (req, res, next) => {       //ambil semua sop
                 include: [
                     {
                         model: modelOrganization,
-                        attributes: ['org_name']
+                        attributes: ['name']
                     }
                 ]
             });
@@ -112,7 +112,7 @@ const getManagedSop = async (req, res, next) => {       //ambil semua sop
                 include: [
                     {
                         model: modelOrganization,
-                        attributes: ['org_name'],
+                        attributes: ['name'],
                         include: {
                             model: modelUser,
                             where: {
@@ -136,7 +136,7 @@ const getManagedSop = async (req, res, next) => {       //ambil semua sop
                     name: item.name,
                     is_active: item.is_active,
                     creation_date: formattedCreationDate, // Gunakan tanggal yang sudah diformat
-                    org_name: item.organization.org_name,
+                    org_name: item.organization.name,
                 };
             });
         } else {
@@ -162,7 +162,7 @@ const getAllSopDetail = async (req, res, next) => {    // ambil semua data tabel
                     attributes: ['name', 'is_active'],
                     include: {
                         model: modelOrganization,
-                        attributes: ['org_name']
+                        attributes: ['name']
                     }
                 },
             ]
@@ -175,7 +175,7 @@ const getAllSopDetail = async (req, res, next) => {    // ambil semua data tabel
             version: item.version,
             is_approved: item.is_approved,
             status: item.status,
-            org_name: item.sop.organization.org_name,
+            name: item.sop.organization.name,
         }));
 
         return res.status(200).json({
@@ -190,18 +190,19 @@ const getAllSopDetail = async (req, res, next) => {    // ambil semua data tabel
 const getSopById = async (req, res, next) => {          //untuk ambil sop beserta detail-detailnya (versinya) berdasarkan id
     try {
         const { id } = req.params;
+        if (!id) return res.status(404).json({ message: 'atribut id masih kosong!' });
 
         const dataSop = await modelSop.findByPk(id, {
             attributes: { exclude: ['id_org'] },
             include: [
                 {
                     model: modelOrganization,
-                    attributes: ['org_name']
+                    attributes: ['name']
                 }
             ]
         });
 
-        if (!dataSop) return res.status(404).json({ message: 'data tidak ditemukan' });
+        if (!dataSop) return res.status(404).json({ message: 'data tidak ditemukan!' });
 
         const dataSopDetail = await modelSopDetail.findAll({
             where: { id_sop: id },
@@ -229,7 +230,7 @@ const getSopById = async (req, res, next) => {          //untuk ambil sop besert
             name: dataSop.name,
             creation_date: dateFormat(dataSop.createdAt),
             is_active: dataSop.is_active,
-            organization: dataSop.organization.org_name,
+            organization: dataSop.organization.name,
             version: transformedSopDetail
         };
 
@@ -314,7 +315,7 @@ const getAssignedSop = async (req, res, next) => {
                     attributes: ['id_sop', 'name', 'is_active', 'createdAt'],
                     include: {
                         model: modelOrganization,
-                        attributes: ['org_name']
+                        attributes: ['name']
                     }
                 },
                 {
@@ -338,7 +339,7 @@ const getAssignedSop = async (req, res, next) => {
                 is_approved: item.is_approved,
                 creation_date: formattedCreationDate,
                 // status: item.status,
-                org_name: item.sop.organization.org_name,
+                org_name: item.sop.organization.name,
                 // user: item.users
             };
         });
@@ -355,13 +356,14 @@ const getAssignedSop = async (req, res, next) => {
 const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang belum disetujui
     try {
         const { id } = req.params;
+        if (!id) return res.status(404).json({ message: 'atribut id masih kosong!' });
 
         const dataSop = await modelSop.findByPk(id, {
             attributes: { exclude: ['id_org', 'is_active'] },
             include: [
                 {
                     model: modelOrganization,
-                    attributes: ['org_name'],
+                    attributes: ['name'],
                     include: {
                         model: modelUser,
                         attributes: ['identity_number', 'name'],
@@ -369,7 +371,6 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
                             model: modelRole,
                             attributes: ['role_name']
                         },
-                        through: {attributes: []}
                     }
                 },
                 {
@@ -379,7 +380,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
                     include: {
                         model: modelUser,
                         attributes: ['identity_number', 'name'],
-                        through: {attributes: []}
+                        through: { attributes: [] }
                     }
                 }
             ]
@@ -389,7 +390,8 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
             id: dataSop.id_sop,
             name: dataSop.name,
             creation_date: dateFormat(dataSop.createdAt),
-            organization: dataSop.organization.org_name,
+            last_update_date: dateFormat(dataSop.updatedAt),
+            organization: dataSop.organization.name,
             pic: dataSop.organization.users.map(item => {
                 return {
                     id_number: item.identity_number,
@@ -408,7 +410,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
             id_sop_detail: dataSop.sop_details[0].id_sop_detail
         };
 
-        if (!dataSop) return res.status(404).json({ message: 'data tidak ditemukan' });
+        if (!dataSop) return res.status(204).json({ message: 'data kosong!' });
 
         return res.status(200).json({
             message: 'sukses mendapatkan data',

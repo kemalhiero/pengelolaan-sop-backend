@@ -66,7 +66,7 @@ const getAllPic = async (req, res, next) => {
                 },
                 {
                     model: modelOrg,
-                    attributes: ['org_name']
+                    attributes: ['name']
                 }
             ]
         });
@@ -76,7 +76,7 @@ const getAllPic = async (req, res, next) => {
                 id: item.id_user,
                 id_number: item.identity_number,
                 name: item.name,
-                org: item.organization?.org_name || '-'
+                org: item.organization?.name || '-'
             }
         });
 
@@ -352,7 +352,7 @@ const getAllHod = async (req, res, next) => {
                 },
                 {
                     model: modelOrg,
-                    attributes: ['org_name']
+                    attributes: ['name']
                 }
             ]
         });
@@ -362,7 +362,7 @@ const getAllHod = async (req, res, next) => {
                 id: item.id_user,
                 id_number: item.identity_number,
                 name: item.name,
-                status: item.organization?.org_name == 'Departemen Sistem Informasi' ? 1 : 0
+                status: item.organization?.name == 'Departemen Sistem Informasi' ? 1 : 0
             }
         });
 

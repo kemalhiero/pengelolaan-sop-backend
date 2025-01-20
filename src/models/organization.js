@@ -9,13 +9,17 @@ export default sequelize.define('organization' ,
             autoIncrement: true,
             allowNull: false
         },
-        org_name: {
+        name: {
             type: DataTypes.STRING(100),
             allowNull: false,
             unique: true
         },
-        org_about: {
+        about: {
             type: DataTypes.STRING(300),
+        },
+        id_org_parent: {
+            type: DataTypes.TINYINT.UNSIGNED,
+            defaultValue: 0
         },
     }, {
         freezeTableName: true

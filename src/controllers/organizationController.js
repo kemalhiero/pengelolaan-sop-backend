@@ -7,8 +7,7 @@ const addOrg = async (req, res, next) => {
         const { pic, name, about } = req.body;
 
         const dataOrg = await modelOrganization.create({
-            org_name: name,
-            org_about: about,
+            name, about
         });
         pic.forEach(async item => {
             const userPic = await modelUser.findByPk(item.id);
@@ -43,8 +42,8 @@ const getOrg = async (req, res, next) => {
 
         const data = organization.map(item => ({
             id: item.id_org,
-            name: item.org_name,
-            about: item.org_about,
+            name: item.name,
+            about: item.about,
             pic: item.users.map(item => ({
                 id: item.id_user,
                 name: item.name,
@@ -97,8 +96,7 @@ const updateOrg = async (req, res, next) => {
 
         // Update data organisasi
         await organization.update({
-            org_name: name,
-            org_about: about,
+            name, about
         });
 
         // Ambil data PIC yang ada di database
