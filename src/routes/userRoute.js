@@ -24,6 +24,7 @@ router.route('/pic')
     .get(verifyToken, controller.getAllPic)
     .post(verifyToken, controller.addPic);
 
+router.get('/pic/candidate', verifyToken, controller.getPicCandidate);
 router.get('/pic/unassigned', verifyToken, controller.getUnassignedPic);
 
 export default router;

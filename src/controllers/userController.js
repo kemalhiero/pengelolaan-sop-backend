@@ -1,9 +1,10 @@
 import { Op, literal } from 'sequelize';
-import modelDrafter from '../models/drafter.js';
 import modelSopDetail from '../models/sop_details.js';
+import modelOrg from '../models/organization.js';
+import modelDrafter from '../models/drafter.js';
 import modelUser from '../models/users.js';
 import modelRole from '../models/roles.js';
-import modelOrg from '../models/organization.js';
+import modelSop from '../models/sop.js';
 
 const getUserByRole = async (req, res, next) => {
     try {
@@ -40,7 +41,7 @@ const getUserByRole = async (req, res, next) => {
             id: item.id_user,
             id_number: item.identity_number,
             name: item.name
-        }));
+        })) || [];
 
         res.status(200).json({
             message: 'sukses mendapatkan data',
@@ -52,33 +53,122 @@ const getUserByRole = async (req, res, next) => {
     }
 };
 
+// pic
 const getAllPic = async (req, res, next) => {
     try {
-        const pic = await modelUser.findAll({
-            attributes: ['id_user', 'identity_number', 'name'],
-            include: [
-                {
-                    model: modelRole,
-                    attributes: [],
-                    where: {
-                        role_name: 'pj'
+        let dataPic;
+        if (req.user.dataValues.role == 'kadep') {
+            dataPic = await modelUser.findAll({
+                attributes: ['id_user', 'identity_number', 'name'],
+                include: [
+                    {
+                        model: modelRole,
+                        attributes: [],
+                        where: {
+                            role_name: 'pj'
+                        }
+                    },
+                    {
+                        model: modelOrg,
+                        attributes: ['name']
+                    }
+                ]
+            });
+        } else if (req.user.dataValues.role == 'pj') {
+            dataPic = await modelUser.findAll({
+                attributes: ['id_user', 'identity_number', 'name'],
+                include: [
+                    {
+                        model: modelRole,
+                        attributes: [],
+                        where: {
+                            role_name: 'pj'
+                        }
+                    },
+                    {
+                        model: modelOrg,
+                        attributes: ['name'],
+                        where: {
+                            id_org: req.user.dataValues.id_org_pic
+                        }
+                    }
+                ]
+            });
+        }
+
+        const data = dataPic?.map(item => ({
+            id: item.id_user,
+            id_number: item.identity_number,
+            name: item.name,
+            org: item.organization?.name || '-'
+        })) || [];
+
+        res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const getPicCandidate = async (req, res, next) => {
+    try {
+        let dataPic;
+        if (req.user.dataValues.role == 'kadep') {
+            dataPic = await modelUser.findAll({
+                attributes: ['id_user', 'identity_number', 'name'],
+                include: [
+                    {
+                        model: modelSopDetail,
+                        attributes: ['id_sop_detail'],
+                        through: { attributes: [] }
+                    },
+                    {
+                        model: modelRole,
+                        attributes: [],
+                        where: {
+                            role_name: {
+                                [Op.notIn]: ['pj', 'kadep'],
+                            }
+                        }
+                    }
+                ],
+            });
+        } else if (req.user.dataValues.role == 'pj') {
+            dataPic = await modelUser.findAll({
+                attributes: ['id_user', 'identity_number', 'name'],
+                include: [
+                    {
+                        model: modelSopDetail,
+                        attributes: ['id_sop_detail'],
+                        through: { attributes: [] }
+                    },
+                    {
+                        model: modelRole,
+                        attributes: [],
+                        where: {
+                            role_name: {
+                                [Op.notIn]: ['pj', 'kadep'],
+                            }
+                        }
+                    }
+                ],
+                where: {
+                    // hanya bisa menambahkan user yang organisasinya sama atau yang belum punya organisasi
+                    id_org_pic: {
+                        [Op.or]: [req.user.id_org_pic, null],
                     }
                 },
-                {
-                    model: modelOrg,
-                    attributes: ['name']
-                }
-            ]
-        });
+            });
+        }
 
-        const data = pic.map(item => {
-            return {
-                id: item.id_user,
-                id_number: item.identity_number,
-                name: item.name,
-                org: item.organization?.name || '-'
-            }
-        });
+        const data = dataPic.map(item => ({
+            id: item.id_user,
+            id_number: item.identity_number,
+            name: item.name,
+            status: item.sop_details.length > 0 ? 1 : 0
+        })) || [];
 
         res.status(200).json({
             message: 'sukses mendapatkan data',
@@ -149,33 +239,58 @@ const getUnassignedPic = async (req, res, next) => {
         next(error);
     }
 };
+
 // penyusun
 const getAllDrafter = async (req, res, next) => {
     try {
-        const pic = await modelUser.findAll({
-            attributes: ['id_user', 'identity_number', 'name'],
-            include: [
-                {
-                    model: modelRole,
-                    attributes: [],
-                    where: {
-                        role_name: 'penyusun' // Mengambil role_name yang sesuai
+        let dataDrafter;
+        if (req.user.dataValues.role == 'kadep') {
+            dataDrafter = await modelUser.findAll({
+                attributes: ['id_user', 'identity_number', 'name'],
+                include: [
+                    {
+                        model: modelRole,
+                        attributes: [],
+                        where: {
+                            role_name: 'penyusun' // Mengambil role_name yang sesuai
+                        }
+                    },
+                    {
+                        model: modelSopDetail,
+                        attributes: ['id_sop_detail'],
+                        through: { attributes: [] }
                     }
-                },
-                {
-                    model: modelSopDetail,
-                    attributes: ['id_sop_detail'],
-                    through: { attributes: [] }
+                ]
+            });
+        } else if (req.user.dataValues.role == 'pj') {
+            dataDrafter = await modelUser.findAll({
+                attributes: ['id_user', 'identity_number', 'name'],
+                include: [
+                    {
+                        model: modelRole,
+                        attributes: [],
+                        where: {
+                            role_name: 'penyusun' // Mengambil role_name yang sesuai
+                        }
+                    },
+                    {
+                        model: modelSopDetail,
+                        attributes: ['id_sop_detail'],
+                        through: { attributes: [] },
+                    }
+                ],
+                where: {
+                    id_org_pic: req.user.dataValues.id_org_pic
                 }
-            ]
-        });
+            });
+        }
 
-        const data = pic.map(item => ({
+        const data = dataDrafter.map(item => ({
             id: item.id_user,
             id_number: item.identity_number,
             name: item.name,
             status: item.sop_details.length > 0 ? 1 : 0
-        }));
+        })) || [];
 
         res.status(200).json({
             message: 'sukses mendapatkan data',
@@ -379,5 +494,5 @@ export {
     getUserByRole,
     getAllDrafter, getDrafterByIdDetail, addSopDrafter, addDrafter,
     getHodCandidate, addHod, getAllHod,
-    getAllPic, addPic, getUnassignedPic
+    getAllPic, addPic, getUnassignedPic, getPicCandidate
 };

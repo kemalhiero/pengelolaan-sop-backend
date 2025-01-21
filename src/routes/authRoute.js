@@ -8,4 +8,7 @@ router.post('/regist', controller.registUser);
 router.post('/login', controller.loginUser);
 router.post('/logout', controller.logoutUser);
 
+router.post('/forget-pw', controller.forgetPassword);
+router.post('/reset-pw', controller.resetPassword);
+
 export default router;

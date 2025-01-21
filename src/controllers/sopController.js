@@ -113,12 +113,12 @@ const getManagedSop = async (req, res, next) => {       //ambil semua sop
                     {
                         model: modelOrganization,
                         attributes: ['name'],
+                        required: true,
                         include: {
                             model: modelUser,
                             where: {
                                 id_user: req.user.id_user
                             },
-                            through: { attributes: [] },
                             attributes: [],
                         }
                     },
@@ -126,22 +126,17 @@ const getManagedSop = async (req, res, next) => {       //ambil semua sop
             });
         };
 
-        let data
-        if (dataSop) {
-            data = dataSop.map(item => {
-                const formattedCreationDate = dateFormat(item.createdAt)
 
-                return {
-                    id: item.id_sop,
-                    name: item.name,
-                    is_active: item.is_active,
-                    creation_date: formattedCreationDate, // Gunakan tanggal yang sudah diformat
-                    org_name: item.organization.name,
-                };
-            });
-        } else {
-            data = []
-        }
+        const data = dataSop?.map(item => {
+            const formattedCreationDate = dateFormat(item.createdAt)
+            return {
+                id: item.id_sop,
+                name: item.name,
+                is_active: item.is_active,
+                creation_date: formattedCreationDate, // Gunakan tanggal yang sudah diformat
+                org_name: item.organization?.name,
+            };
+        }) || [];
 
         return res.status(200).json({
             message: 'sukses mendapatkan data',

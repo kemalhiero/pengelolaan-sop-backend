@@ -7,10 +7,11 @@ import modelFeedback from './feedback.js';
 import modelLegal from './legal_basis.js';
 import modelLawTypes from './law_types.js';
 import modelEquipment from './equipment.js';
+import modelResetToken from './reset_token.js'
 import modelDataRecord from './data_record.js';
 import modelSopDetails from './sop_details.js';
-import modelOrganization from './organization.js';
 import modelImplementer from './implementer.js';
+import modelOrganization from './organization.js';
 import modelRelationOtherSop from './relation_other_sop.js';
 import modelSopDetailImplementer from './sop_detail_implementer.js';
 import modelLegalBasisSopDetail from './legal_basis_sop_details.js';
@@ -25,6 +26,9 @@ modelSopDetails.belongsTo(modelSop, { foreignKey: 'id_sop' });
 
 modelUser.hasMany(modelFeedback, { foreignKey: 'id_user' });
 modelFeedback.belongsTo(modelUser, { foreignKey: 'id_user' });
+
+modelUser.hasMany(modelResetToken, { foreignKey: 'id_user' });
+modelResetToken.belongsTo(modelUser, { foreignKey: 'id_user' });
 
 modelOrganization.hasMany(modelSop, { foreignKey: 'id_org' });
 modelSop.belongsTo(modelOrganization, { foreignKey: 'id_org' });
