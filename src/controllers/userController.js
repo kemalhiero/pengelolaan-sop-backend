@@ -240,6 +240,72 @@ const getUnassignedPic = async (req, res, next) => {
     }
 };
 
+const getPicDetail = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        if (!id) return res.status(404).json({ message: 'masukkan id penanggung jawab!' });
+
+        const dataPic = await modelUser.findByPk(id, {
+            attributes: { exclude: ['password', 'id_role', 'id_org_pic'] },
+            include: [
+                {
+                    model: modelOrg,
+                    attributes: ['name'],
+                    include: [
+                        {
+                            model: modelSop,
+                            attributes: ['name', 'is_active'],
+                            include: {
+                                model: modelSopDetail,
+                                attributes: ['number', 'version', 'is_approved', 'status']
+
+                            }
+                        },
+                        {
+                            model: modelUser,
+                            attributes: ['identity_number', 'name']
+                        }
+                    ]
+                },
+                {
+                    model: modelRole,
+                    attributes: ['role_name']
+                }
+            ]
+        });
+
+        const data = {
+            id: dataPic.dataValues.id_user,
+            id_number: dataPic.dataValues.identity_number,
+            name: dataPic.dataValues.name,
+            role: dataPic.dataValues.role.role_name,
+            gender: dataPic.dataValues.gender,
+            email: dataPic.dataValues.email,
+            org: dataPic.dataValues.organization.name,
+            team_member: dataPic.dataValues.organization.users.map(item => ({
+                id_number: item.identity_number,
+                name: item.name
+            })),
+            sop: dataPic.dataValues.organization.sops.flatMap(itemsop =>
+                itemsop.sop_details.map(itemsopdetail => ({
+                    number: itemsopdetail.number,
+                    name: itemsop.name,
+                    version: itemsopdetail.version,
+                    is_sop_active: itemsop.is_active,
+                    is_version_approved: itemsopdetail.is_approved,
+                    status: itemsopdetail.status
+                }))
+            )
+        };
+
+        res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 // penyusun
 const getAllDrafter = async (req, res, next) => {
     try {
@@ -259,6 +325,10 @@ const getAllDrafter = async (req, res, next) => {
                         model: modelSopDetail,
                         attributes: ['id_sop_detail'],
                         through: { attributes: [] }
+                    },
+                    {
+                        model: modelOrg,
+                        attributes: ['name']
                     }
                 ]
             });
@@ -277,6 +347,10 @@ const getAllDrafter = async (req, res, next) => {
                         model: modelSopDetail,
                         attributes: ['id_sop_detail'],
                         through: { attributes: [] },
+                    },
+                    {
+                        model: modelOrg,
+                        attributes: ['name']
                     }
                 ],
                 where: {
@@ -289,6 +363,7 @@ const getAllDrafter = async (req, res, next) => {
             id: item.id_user,
             id_number: item.identity_number,
             name: item.name,
+            org: item.organization?.name || '-',
             status: item.sop_details.length > 0 ? 1 : 0
         })) || [];
 
@@ -388,6 +463,62 @@ const addDrafter = async (req, res, next) => {
     }
 };
 
+const getDrafterDetail = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        if (!id) return res.status(404).json({ message: 'masukkan id penanggung jawab!' });
+
+        const dataDrafter = await modelUser.findByPk(id, {
+            attributes: { exclude: ['password', 'id_role', 'id_org_pic'] },
+            include: [
+                {
+                    model: modelOrg,
+                    attributes: ['name'],
+                    include: {
+                        model: modelSop,
+                        attributes: ['name', 'is_active'],
+                        include: {
+                            model: modelSopDetail,
+                            attributes: ['number', 'version', 'is_approved', 'status']
+
+                        }
+                    }
+                },
+                {
+                    model: modelRole,
+                    attributes: ['role_name']
+                }
+            ]
+        });
+
+        const data = {
+            id: dataDrafter.dataValues.id_user,
+            id_number: dataDrafter.dataValues.identity_number,
+            name: dataDrafter.dataValues.name,
+            role: dataDrafter.dataValues.role.role_name,
+            gender: dataDrafter.dataValues.gender,
+            email: dataDrafter.dataValues.email,
+            org: dataDrafter.dataValues.organization.name,
+            sop: dataDrafter.dataValues.organization.sops.flatMap(itemsop =>
+                itemsop.sop_details.map(itemsopdetail => ({
+                    number: itemsopdetail.number,
+                    name: itemsop.name,
+                    version: itemsopdetail.version,
+                    is_sop_active: itemsop.is_active,
+                    is_version_approved: itemsopdetail.is_approved,
+                    status: itemsopdetail.status
+                }))
+            )
+        };
+
+        res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 // Kepala departemen
 const getHodCandidate = async (req, res, next) => {
     try {
@@ -492,7 +623,7 @@ const getAllHod = async (req, res, next) => {
 
 export {
     getUserByRole,
-    getAllDrafter, getDrafterByIdDetail, addSopDrafter, addDrafter,
+    getAllDrafter, getDrafterByIdDetail, addSopDrafter, addDrafter, getDrafterDetail,
     getHodCandidate, addHod, getAllHod,
-    getAllPic, addPic, getUnassignedPic, getPicCandidate
+    getAllPic, addPic, getUnassignedPic, getPicCandidate, getPicDetail
 };

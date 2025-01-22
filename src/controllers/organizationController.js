@@ -1,6 +1,10 @@
+import { Op } from 'sequelize';
+
 import modelOrganization from '../models/organization.js';
+import modelSopDetail from '../models/sop_details.js';
 import modelUser from '../models/users.js';
 import modelRole from '../models/roles.js';
+import modelSop from '../models/sop.js';
 
 const addOrg = async (req, res, next) => {
     try {
@@ -30,14 +34,30 @@ const addOrg = async (req, res, next) => {
 const getOrg = async (req, res, next) => {
     try {
         const organization = await modelOrganization.findAll({
-            include: {
-                model: modelUser,
-                attributes: ['id_user', 'name'],
-                include: {
-                    model: modelRole,
-                    attributes: ['role_name']
+            include: [
+                {
+                    model: modelUser,
+                    attributes: ['id_user', 'name'],
+                    include: {
+                        model: modelRole,
+                        attributes: ['role_name'],
+                        where: {
+                            role_name: {
+                                [Op.or]: ['pj', 'kadep']
+                            }
+                        }
+                    }
+                },
+                {
+                    model: modelSop,
+                    attributes: ['id_sop'],
+                    include: {
+                        model: modelSopDetail,
+                        attributes: ['id_sop_detail']
+                    }
                 }
-            }
+
+            ]
         });
 
         const data = organization.map(item => ({
@@ -49,7 +69,10 @@ const getOrg = async (req, res, next) => {
                 name: item.name,
                 role: item.role.role_name
 
-            }))
+            })),
+            total_sop: item.sops.reduce((total, sop) => {
+                return total + sop.sop_details.length;
+            }, 0)
         }));
 
         return res.status(200).json({
