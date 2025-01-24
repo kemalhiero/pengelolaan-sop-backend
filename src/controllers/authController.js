@@ -184,4 +184,49 @@ const resetPassword = async (req, res, next) => {
     }
 };
 
-export { registUser, loginUser, logoutUser, forgetPassword, resetPassword };
+const updatePassword = async (req, res, next) => {
+    try {
+        const { currentPassword, newPassword, confirmPassword } = req.body;
+
+        const dataUser = await modelUser.findByPk(req.user.id_user, { attributes: ['id_user', 'password'] });
+        if (!bcrypt.compareSync(currentPassword, dataUser.dataValues.password)) {
+            return res.status(404).json({ message: 'sandi anda salah!' })
+        }
+
+        if (newPassword != confirmPassword) {
+            return res.status(404).json({ message: 'kata sandi tidak sesuai!' });
+        }
+
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        await dataUser.update({
+            password: hashedPassword
+        });
+
+        res.status(200).json({
+            message: 'sukses perbarui sandi'
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const updateProfile = async (req, res, next) => {
+    try {
+        const { id_number, name, gender, email } = req.body;
+
+        const dataUser = await modelUser.findByPk(req.user.id_user, {
+            attributes: ['id_number', 'name', 'gender', 'email']
+        });
+
+        if (email != dataUser.dataValues.email) {
+            
+        }
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+export { registUser, loginUser, logoutUser, forgetPassword, resetPassword, updatePassword, updateProfile };

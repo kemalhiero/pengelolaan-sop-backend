@@ -53,6 +53,41 @@ const getUserByRole = async (req, res, next) => {
     }
 };
 
+const getUserProfile = async (req, res, next) => {
+    try {
+        const dataUser = await modelUser.findByPk(req.user.id_user, {
+            attributes: { exclude: ['password', 'id_role', 'id_org_pic'] },
+            include: [
+                {
+                    model: modelRole,
+                    attributes: ['role_name']
+                },
+                {
+                    model: modelOrg,
+                    attributes: ['name']
+                }
+            ]
+        });
+
+        const data = {
+            id: dataUser.dataValues.id_user,
+            id_number: dataUser.dataValues.identity_number,
+            name: dataUser.dataValues.name,
+            gender: dataUser.dataValues.gender,
+            email: dataUser.dataValues.email,
+            role: dataUser.dataValues.role.role_name,
+            org: dataUser.dataValues.organization.name,
+        };
+
+        res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 // pic
 const getAllPic = async (req, res, next) => {
     try {
@@ -281,12 +316,12 @@ const getPicDetail = async (req, res, next) => {
             role: dataPic.dataValues.role.role_name,
             gender: dataPic.dataValues.gender,
             email: dataPic.dataValues.email,
-            org: dataPic.dataValues.organization.name,
-            team_member: dataPic.dataValues.organization.users.map(item => ({
+            org: dataPic.dataValues.organization?.name || '-',
+            team_member: dataPic.dataValues.organization?.users.map(item => ({
                 id_number: item.identity_number,
                 name: item.name
-            })),
-            sop: dataPic.dataValues.organization.sops.flatMap(itemsop =>
+            })) || [],
+            sop: dataPic.dataValues.organization?.sops.flatMap(itemsop =>
                 itemsop.sop_details.map(itemsopdetail => ({
                     number: itemsopdetail.number,
                     name: itemsop.name,
@@ -295,7 +330,7 @@ const getPicDetail = async (req, res, next) => {
                     is_version_approved: itemsopdetail.is_approved,
                     status: itemsopdetail.status
                 }))
-            )
+            ) || [],
         };
 
         res.status(200).json({
@@ -306,6 +341,7 @@ const getPicDetail = async (req, res, next) => {
         next(error);
     }
 };
+
 // penyusun
 const getAllDrafter = async (req, res, next) => {
     try {
@@ -473,21 +509,21 @@ const getDrafterDetail = async (req, res, next) => {
             include: [
                 {
                     model: modelOrg,
-                    attributes: ['name'],
-                    include: {
-                        model: modelSop,
-                        attributes: ['name', 'is_active'],
-                        include: {
-                            model: modelSopDetail,
-                            attributes: ['number', 'version', 'is_approved', 'status']
-
-                        }
-                    }
+                    attributes: ['name']
                 },
                 {
                     model: modelRole,
                     attributes: ['role_name']
-                }
+                },
+                {
+                    model: modelSopDetail,
+                    attributes: ['number', 'version', 'is_approved', 'status'],
+                    through: { attributes: [] },
+                    include: {
+                        model: modelSop,
+                        attributes: ['name', 'is_active'],
+                    }
+                },
             ]
         });
 
@@ -499,16 +535,14 @@ const getDrafterDetail = async (req, res, next) => {
             gender: dataDrafter.dataValues.gender,
             email: dataDrafter.dataValues.email,
             org: dataDrafter.dataValues.organization.name,
-            sop: dataDrafter.dataValues.organization.sops.flatMap(itemsop =>
-                itemsop.sop_details.map(itemsopdetail => ({
-                    number: itemsopdetail.number,
-                    name: itemsop.name,
-                    version: itemsopdetail.version,
-                    is_sop_active: itemsop.is_active,
-                    is_version_approved: itemsopdetail.is_approved,
-                    status: itemsopdetail.status
-                }))
-            )
+            sop: dataDrafter.dataValues.sop_details?.map(itemsop => ({
+                number: itemsop.number,
+                name: itemsop.sop.name,
+                version: itemsop.version,
+                is_sop_active: itemsop.sop.is_active,
+                is_version_approved: itemsop.is_approved,
+                status: itemsop.status
+            })) || [],
         };
 
         res.status(200).json({
@@ -519,6 +553,7 @@ const getDrafterDetail = async (req, res, next) => {
         next(error);
     }
 };
+
 // Kepala departemen
 const getHodCandidate = async (req, res, next) => {
     try {
@@ -622,7 +657,7 @@ const getAllHod = async (req, res, next) => {
 };
 
 export {
-    getUserByRole,
+    getUserByRole, getUserProfile,
     getAllDrafter, getDrafterByIdDetail, addSopDrafter, addDrafter, getDrafterDetail,
     getHodCandidate, addHod, getAllHod,
     getAllPic, addPic, getUnassignedPic, getPicCandidate, getPicDetail
