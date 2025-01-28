@@ -61,7 +61,7 @@ const loginUser = async (req, res, next) => {
 
         let userData = await modelUser.findOne({
             where: { email },
-            attributes: ['password'],
+            attributes: ['photo', 'password'],
             include: {
                 model: modelRole,
                 attributes: ['role_name']
@@ -72,7 +72,11 @@ const loginUser = async (req, res, next) => {
             return res.status(400).json({ message: 'Email atau Kata Sandi tidak valid' })
         };
 
-        const token = jwt.sign({ email, role: userData.role.role_name }, env.JWT_SECRET, { expiresIn: '30d' });
+        const token = jwt.sign({ 
+            email, 
+            role: userData.role.role_name, 
+            photo: userData.dataValues.photo ? `${env.CLOUDFLARE_R2_PUBLIC_BUCKET_URL}/${userData.dataValues.photo}` : null
+        }, env.JWT_SECRET, { expiresIn: '30d' });
 
         res.status(200).json({
             message: 'sukses login',
@@ -212,21 +216,4 @@ const updatePassword = async (req, res, next) => {
     }
 };
 
-const updateProfile = async (req, res, next) => {
-    try {
-        const { id_number, name, gender, email } = req.body;
-
-        const dataUser = await modelUser.findByPk(req.user.id_user, {
-            attributes: ['id_number', 'name', 'gender', 'email']
-        });
-
-        if (email != dataUser.dataValues.email) {
-            
-        }
-
-    } catch (error) {
-        next(error);
-    }
-}
-
-export { registUser, loginUser, logoutUser, forgetPassword, resetPassword, updatePassword, updateProfile };
+export { registUser, loginUser, logoutUser, forgetPassword, resetPassword, updatePassword };

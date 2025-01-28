@@ -1,10 +1,12 @@
 import { Op, literal } from 'sequelize';
+import { env } from 'node:process';
 import modelSopDetail from '../models/sop_details.js';
 import modelOrg from '../models/organization.js';
 import modelDrafter from '../models/drafter.js';
 import modelUser from '../models/users.js';
 import modelRole from '../models/roles.js';
 import modelSop from '../models/sop.js';
+import { uploadFile, deleteFile } from '../utils/fileServices.js';
 
 const getUserByRole = async (req, res, next) => {
     try {
@@ -74,6 +76,7 @@ const getUserProfile = async (req, res, next) => {
             id_number: dataUser.dataValues.identity_number,
             name: dataUser.dataValues.name,
             gender: dataUser.dataValues.gender,
+            photo: dataUser.dataValues.photo ? `${env.CLOUDFLARE_R2_PUBLIC_BUCKET_URL}/${dataUser.dataValues.photo}`: null,
             email: dataUser.dataValues.email,
             role: dataUser.dataValues.role.role_name,
             org: dataUser.dataValues.organization.name,
@@ -83,6 +86,57 @@ const getUserProfile = async (req, res, next) => {
             message: 'sukses mendapatkan data',
             data
         });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const updateProfile = async (req, res, next) => {
+    try {
+        const { id_number, name, gender, email } = req.body;
+
+        const dataUser = await modelUser.findByPk(req.user.id_user, {
+            attributes: ['id_number', 'name', 'gender', 'email']
+        });
+
+        if (email != dataUser.dataValues.email) {
+
+        }
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+const uploadProfilePhoto = async (req, res, next) => {
+    try {
+        const file = req.file;
+        const user = await modelUser.findByPk(req.user.id_user, {
+            attributes: ['id_user', 'photo']
+        });
+        if (!user) return res.status(404).json({ message: 'user tidak ditemukan!' });
+
+        // Upload file ke Cloudflare R2 menggunakan file service
+        const fileUrl = await uploadFile(file, 'profile-pictures');
+        await user.update({ photo: fileUrl });
+
+        return res.status(200).json({ message: 'Foto profil berhasil diunggah', fileUrl });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const deleteProfilePhoto = async (req, res, next) => {
+    try {
+        const user = await modelUser.findByPk(req.user.id_user, {
+            attributes: ['id_user', 'photo']
+        });
+        if (!user || !user.dataValues.photo) return res.status(404).json({ message: 'user tidak ditemukan!' });
+
+        await deleteFile(user.dataValues.photo, 'profile-pictures');
+        await user.update({ photo: null });
+
+        return res.status(200).json({ message: 'Foto profil berhasil dihapus' });
     } catch (error) {
         next(error);
     }
@@ -657,7 +711,7 @@ const getAllHod = async (req, res, next) => {
 };
 
 export {
-    getUserByRole, getUserProfile,
+    getUserByRole, getUserProfile, updateProfile, uploadProfilePhoto, deleteProfilePhoto,
     getAllDrafter, getDrafterByIdDetail, addSopDrafter, addDrafter, getDrafterDetail,
     getHodCandidate, addHod, getAllHod,
     getAllPic, addPic, getUnassignedPic, getPicCandidate, getPicDetail
