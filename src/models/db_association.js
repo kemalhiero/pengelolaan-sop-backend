@@ -7,11 +7,12 @@ import modelFeedback from './feedback.js';
 import modelLegal from './legal_basis.js';
 import modelLawTypes from './law_types.js';
 import modelEquipment from './equipment.js';
-import modelResetToken from './reset_token.js'
+import modelResetToken from './reset_token.js';
 import modelDataRecord from './data_record.js';
 import modelSopDetails from './sop_details.js';
 import modelImplementer from './implementer.js';
 import modelOrganization from './organization.js';
+import modelVerificationCode from './verification_code.js';
 import modelRelationOtherSop from './relation_other_sop.js';
 import modelSopDetailImplementer from './sop_detail_implementer.js';
 import modelLegalBasisSopDetail from './legal_basis_sop_details.js';
@@ -33,7 +34,7 @@ modelResetToken.belongsTo(modelUser, { foreignKey: 'id_user' });
 modelOrganization.hasMany(modelSop, { foreignKey: 'id_org' });
 modelSop.belongsTo(modelOrganization, { foreignKey: 'id_org' });
 
-modelOrganization.hasMany(modelUser, { foreignKey: 'id_org_pic', onDelete: 'SET NULL', onUpdate: 'CASCADE' });     //satu organisasi bisa beberapa pj sekaligus
+modelOrganization.hasMany(modelUser, { foreignKey: 'id_org_pic' });     //satu organisasi bisa beberapa pj sekaligus
 modelUser.belongsTo(modelOrganization, { foreignKey: 'id_org_pic' });
 
 modelLawTypes.hasMany(modelLegal, { foreignKey: 'id_law_type' });
@@ -41,6 +42,9 @@ modelLegal.belongsTo(modelLawTypes, { foreignKey: 'id_law_type' });
 
 modelSopDetails.hasMany(modelStep, { foreignKey: 'id_sop_detail' });
 modelStep.belongsTo(modelSopDetails, { foreignKey: 'id_sop_detail' });
+
+modelUser.hasMany(modelVerificationCode, { foreignKey: 'id_user', onDelete: 'NO ACTION' });
+modelVerificationCode.belongsTo(modelUser, { foreignKey: 'id_user' });
 
 modelImplementer.hasMany(modelStep, { foreignKey: 'id_implementer' });
 modelStep.belongsTo(modelImplementer, { foreignKey: 'id_implementer' });
