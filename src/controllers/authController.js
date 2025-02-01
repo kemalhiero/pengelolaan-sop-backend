@@ -45,11 +45,11 @@ const registUser = async (req, res, next) => {
 
 const loginUser = async (req, res, next) => {
     try {
-        const { email, password } = req.body;
-        if (!email || !password) return res.status(400).json({ message: 'masukkan email dan password!' });
+        const { idnumber, password } = req.body;
+        if (!idnumber || !password) return res.status(400).json({ message: 'masukkan nim/nip dan password!' });
 
         let userData = await modelUser.findOne({
-            where: { email },
+            where: { identity_number: idnumber },
             attributes: ['photo', 'password'],
             include: {
                 model: modelRole,
@@ -58,11 +58,11 @@ const loginUser = async (req, res, next) => {
         });
 
         if (!userData || !(bcrypt.compareSync(password, userData.password))) {
-            return res.status(400).json({ message: 'Email atau Kata Sandi tidak valid' })
+            return res.status(400).json({ message: 'NIM/NIP atau Kata Sandi tidak valid' })
         };
 
         const token = jwt.sign({
-            email,
+            idnumber,
             role: userData.role.role_name,
             photo: userData.dataValues.photo ? `${env.CLOUDFLARE_R2_PUBLIC_BUCKET_URL}/${userData.dataValues.photo}` : null
         }, env.JWT_SECRET, { expiresIn: '30d' });
@@ -92,7 +92,7 @@ const logoutUser = async (req, res, next) => {
                 return res.status(401).json({ message: err });
             }
 
-            return res.status(200).json({ message: `User ${user.email} berhasil logout` });
+            return res.status(200).json({ message: `User ${user.idnumber} berhasil logout` });
         });
     } catch (error) {
         next(error);
@@ -101,10 +101,11 @@ const logoutUser = async (req, res, next) => {
 
 const forgetPassword = async (req, res, next) => {
     try {
-        const { email } = req.body;
+        const { idnumber } = req.body;
 
         const dataUser = await modelUser.findOne({
-            where: { email }
+            where: { identity_number: idnumber },
+            attributes: ['id_user', 'email']
         });
         if (!dataUser) return res.status(404).json({ message: 'Email tidak terdaftar dalam sistem' });
 
@@ -121,7 +122,7 @@ const forgetPassword = async (req, res, next) => {
 
         const resetLink = `${env.FRONTEND_URL}reset-pw?token=${token}`;
         await sendEmail(
-            email,
+            dataUser.dataValues.email,
             'Reset Password SIPP DSI Universitas Andalas',
             `
                 <h2>Reset Password</h2>
@@ -204,11 +205,11 @@ const updatePassword = async (req, res, next) => {
 };
 
 // ubah email di halaman profil
-const sendEmailVerificationCode = async (req, res, next) => {
+const sendCode = async (req, res, next) => {
     try {
         const { newEmail } = req.body;
         if (!newEmail) return res.status(404).json({ message: 'tidak ada email!' });
-        
+
         const user = await modelUser.findOne({
             where: { email: newEmail },
             attributes: ['email']
@@ -224,7 +225,7 @@ const sendEmailVerificationCode = async (req, res, next) => {
 
         await sendEmail(
             newEmail,
-            'Verifikasi Email Baru SIPP DSI',
+            'Verifikasi Email Baru SIPP DSI Universitas Andalas',
             `
                 <h1>Verifikasi Email</h1>
                 <p>Gunakan kode berikut untuk memverifikasi email baru anda:</p>
@@ -257,7 +258,7 @@ const verifyCode = async (req, res, next) => {
         if (!verifCode) return res.status(400).json({ message: 'Kode verifikasi tidak valid atau sudah kadaluarsa!' });
         await verifCode.update({ used: true });     // Tandai kode sebagai sudah digunakan
 
-        return res.status(200).json({ message: 'Kode verifikasi valid dan email berhasil diubah!' });
+        return res.status(200).json({ message: 'Kode verifikasi valid!' });
     } catch (error) {
         next(error);
     }
@@ -275,7 +276,7 @@ const updateEmail = async (req, res, next) => {
 
         await sendEmail(
             newEmail,
-            'Perubahan Alamat Email SIPP DSI',
+            'Perubahan Alamat Email SIPP DSI Universitas Andalas',
             `
                 <h1>Perubahan Alamat Email</h1>
                 <p>Email Anda telah diubah dari ${oldEmail} menjadi ${newEmail}.</p>
@@ -294,5 +295,5 @@ const updateEmail = async (req, res, next) => {
 export {
     registUser, loginUser, logoutUser,
     forgetPassword, resetPassword, updatePassword,
-    sendEmailVerificationCode, verifyCode, updateEmail
+    sendCode, verifyCode, updateEmail
 };

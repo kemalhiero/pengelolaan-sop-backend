@@ -12,7 +12,7 @@ router.post('/forget-pw', controller.forgetPassword);
 router.post('/reset-pw', controller.resetPassword);
 router.post('/update-pw', verifyToken, controller.updatePassword);
 
-router.post('/send-verif-code', verifyToken, controller.sendEmailVerificationCode);
+router.post('/send-code', verifyToken, controller.sendCode);
 router.post('/verify-code', verifyToken, controller.verifyCode);
 router.post('/update-email', verifyToken, controller.updateEmail);
 

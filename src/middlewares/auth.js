@@ -37,7 +37,7 @@ const verifyToken = async (req, res, next) => {
     };
 
     const currentUser = await modelUser.findOne({
-        where: { email: decoded.email },
+        where: { identity_number: decoded.idnumber },
         attributes: { exclude: ['id_role', 'password'] },
         include: {
             model: modelRole,

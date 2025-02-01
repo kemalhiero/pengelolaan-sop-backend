@@ -15,7 +15,6 @@ const transporter = createTransport({
 
 const sendEmail = async (to, subject, html) => {
     const mailOptions = {
-        // from: env.EMAIL_FROM,
         to,
         subject,
         html,
