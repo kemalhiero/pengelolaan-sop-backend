@@ -1,4 +1,3 @@
-import modelUser from '../models/users.js';
 import modelSopDetail from '../models/sop_details.js';
 import modelImplementer from '../models/implementer.js';
 import modelSopDetailImplementer from '../models/sop_detail_implementer.js';
@@ -8,16 +7,78 @@ const getImplementer = async (req, res, next) => {
         const implementer = await modelImplementer.findAll({
             attributes: [
                 ['id_implementer', 'id'],
-                ['implementer_name', 'name'],
-                'description'
-            ]
+                'name', 'description'
+            ],
+            include: {
+                model: modelSopDetail,
+                attributes: [['id_sop', 'id']],
+                group: 'id_sop',
+                through: { attributes: [] }
+            }
         });
+
+        const data = implementer.map(item => ({
+            id: item.dataValues.id,
+            name: item.dataValues.name,
+            description: item.dataValues.description,
+            sop_total: item.dataValues.sop_details.length
+        }))
 
         return res.status(200).json({
-            message: 'sukses mendapat data',
-            data: implementer,
+            message: 'sukses mendapat data!',
+            data
         });
+    } catch (error) {
+        next(error);
+    }
+};
 
+const addImplementer = async (req, res, next) => {
+    try {
+        const { name, description } = req.body;
+
+        if (!name || !description) return res.status(404).json({ message: 'pastikan data tidak kosong!' });
+
+        await modelImplementer.create({ name, description });
+
+        return res.status(200).json({
+            message: 'sukses menambahkan data!',
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const updateImplementer = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { name, description } = req.body;
+
+        const implementer = await modelImplementer.findByPk(id);
+        if (!implementer) return res.status(404).json({ message: 'data tidak ditemukan!' });
+
+        await implementer.update({ name, description });
+
+        return res.status(200).json({
+            message: 'sukses memperbarui data!',
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const deleteImplementer = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const implementer = await modelImplementer.findByPk(id);
+        if (!implementer) return res.status(404).json({ message: 'data tidak ditemukan!' });
+
+        await implementer.destroy();
+
+        return res.status(200).json({
+            message: 'sukses menghapus data!',
+        });
     } catch (error) {
         next(error);
     }
@@ -54,7 +115,6 @@ const getSopImplementer = async (req, res, next) => {
 
         const dataSopDetail = await modelSopDetail.findByPk(id, { attributes: ['id_sop_detail'] });
         if (!dataSopDetail) {
-            const error = new Error('');
             console.error('Data pelaksana atau sop detail tidak ditemukan!')
             return res.status(400).json({ message: 'Data pelaksana atau sop detail tidak ditemukan!' })
         };
@@ -66,16 +126,14 @@ const getSopImplementer = async (req, res, next) => {
                 attributes: []
             },
             attributes: [
-                ['id_implementer', 'id'],
-                ['implementer_name', 'name'],
+                ['id_implementer', 'id'], 'name'
             ]
         });
-        
+
         return res.status(200).json({
             message: 'sukses mengambil data',
             data: dataSopImplementer,
         });
-
     } catch (error) {
         next(error);
     }
@@ -111,4 +169,7 @@ const deleteSopImplementer = async (req, res, next) => {
     }
 };
 
-export { getImplementer, addSopImplementer, getSopImplementer, deleteSopImplementer };
+export {
+    getImplementer, addImplementer, updateImplementer, deleteImplementer,
+    addSopImplementer, getSopImplementer, deleteSopImplementer
+};

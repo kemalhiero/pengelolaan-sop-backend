@@ -1,4 +1,5 @@
 import modelLawType from '../models/law_types.js';
+import modelLegal from '../models/legal_basis.js';
 
 const addLawType = async (req, res, next) => {
     try {
@@ -23,15 +24,25 @@ const getLawType = async (req, res, next) => {
     try {
         const lawType = await modelLawType.findAll({
             attributes: [
-                ['id_law_type', 'id'], // mengganti nama kolom 'id_law_type' menjadi 'id'
-                'law_type',             // mengambil kolom 'law_type'
-                'description'           // mengambil kolom 'description'
-            ]
+                ['id_law_type', 'id'],
+                'law_type', 'description'
+            ],
+            include: {
+                model: modelLegal,
+                attributes: [['id_legal', 'id']]
+            }
         });
+
+        const data = lawType.map(item => ({
+            id: item.dataValues.id,
+            law_type: item.dataValues.law_type,
+            description: item.dataValues.description,
+            law_total: item.legal_bases.length
+        }));
 
         return res.status(200).json({
             message: 'sukses mendapat data',
-            data: lawType,
+            data
         });
 
     } catch (error) {

@@ -9,7 +9,7 @@ export default sequelize.define('implementer',
             autoIncrement: true,
             allowNull: false
         },
-        implementer_name: {
+        name: {
             type: DataTypes.STRING(100),
             allowNull: false
         },

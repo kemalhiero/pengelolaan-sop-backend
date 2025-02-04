@@ -24,25 +24,35 @@ const getLegal = async (req, res, next) => {
     try {
         const legal = await modelLegal.findAll({
             attributes: ['id_legal', 'number', 'year', 'about'],
-            include: {
-                model: modelLawType,
-                attributes: ['id_law_type', 'law_type'],
-            }
+            include: [
+                {
+                    model: modelLawType,
+                    attributes: ['id_law_type', 'law_type'],
+                },
+                {
+                    model: modelSopDetail,
+                    attributes: [['id_sop', 'id']],
+                    group: 'id_sop',
+                    through: { attributes: [] }
+                }
+
+            ]
         });
 
         // Flatten the response so that law_type is not nested
-        const flattenedLegal = legal.map(item => ({
+        const data = legal.map(item => ({
             id: item.id_legal,
             number: item.number,
             year: item.year,
             about: item.about,
             id_law_type: item.law_type.id_law_type,  // Flatten law_type
             law_type: item.law_type.law_type,  // Flatten law_type
+            sop_total: item.sop_details.length
         }));
 
         return res.status(200).json({
             message: 'sukses mendapat data',
-            data: flattenedLegal,
+            data
         });
 
     } catch (error) {
