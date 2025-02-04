@@ -10,11 +10,13 @@ import modelRole from '../models/roles.js';
 import modelUser from '../models/users.js';
 import modelResetToken from '../models/reset_token.js';
 import modelVerificationCode from '../models/verification_code.js';
+import isInstitutionalEmail from '../utils/isInstitutionalEmail.js';
 
 const registUser = async (req, res, next) => {
     try {
         const { name, id_number, email, gender, password, confirm_password } = req.body;
 
+        if (!isInstitutionalEmail(email)) return res.status(400).json({ message: 'Email harus menggunakan domain student.unand.ac.id atau it.unand.ac.id' });
         if (password !== confirm_password) return res.status(401).send({ message: 'sandi tidak cocok' });
 
         // hash password
@@ -28,7 +30,6 @@ const registUser = async (req, res, next) => {
         return res.status(200).json({
             message: 'sukses regis user'
         });
-
     } catch (error) {
         // Handling Sequelize unique constraint error
         if (error.name === 'SequelizeUniqueConstraintError') {
@@ -71,7 +72,6 @@ const loginUser = async (req, res, next) => {
             message: 'sukses login',
             data: { token }
         });
-
     } catch (error) {
         next(error);
     }
@@ -267,6 +267,10 @@ const verifyCode = async (req, res, next) => {
 const updateEmail = async (req, res, next) => {
     const { oldEmail, newEmail } = req.body;
     try {
+
+        if (isInstitutionalEmail(newEmail)) {
+            return res.status(400).json({ message: 'Email harus menggunakan domain student.unand.ac.id atau it.unand.ac.id' });
+        }
 
         const user = await modelUser.findOne({
             where: { email: oldEmail },
