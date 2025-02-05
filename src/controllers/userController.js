@@ -76,7 +76,8 @@ const getUserProfile = async (req, res, next) => {
             id_number: dataUser.dataValues.identity_number,
             name: dataUser.dataValues.name,
             gender: dataUser.dataValues.gender,
-            photo: dataUser.dataValues.photo ? `${env.CLOUDFLARE_R2_PUBLIC_BUCKET_URL}/${dataUser.dataValues.photo}`: null,
+            photo: dataUser.dataValues.photo ? `${env.CLOUDFLARE_R2_PUBLIC_BUCKET_URL}/${dataUser.dataValues.photo}` : null,
+            signature: dataUser.dataValues.signature ? `${env.CLOUDFLARE_R2_PUBLIC_BUCKET_URL}/${dataUser.dataValues.signature}` : null,
             email: dataUser.dataValues.email,
             role: dataUser.dataValues.role.role_name,
             org: dataUser.dataValues.organization.name,
@@ -108,6 +109,7 @@ const updateProfile = async (req, res, next) => {
     }
 };
 
+// foto profil
 const uploadProfilePhoto = async (req, res, next) => {
     try {
         const file = req.file;
@@ -137,6 +139,24 @@ const deleteProfilePhoto = async (req, res, next) => {
         await user.update({ photo: null });
 
         return res.status(200).json({ message: 'Foto profil berhasil dihapus' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// tanda tangan
+const uploadSignatureFile = async (req, res, next) => {
+    try {
+        const file = req.file;
+        const user = await modelUser.findByPk(req.user.id_user, {
+            attributes: ['id_user', 'signature']
+        });
+        if (!user) return res.status(404).json({ message: 'user tidak ditemukan!' });
+
+        const fileUrl = await uploadFile(file, 'signatures');
+        await user.update({ signature: fileUrl });
+
+        return res.status(200).json({ message: 'Tanda tangan berhasil diunggah', fileUrl });
     } catch (error) {
         next(error);
     }
@@ -644,9 +664,9 @@ const getHodCandidate = async (req, res, next) => {
 
 const addHod = async (req, res, next) => {
     try {
-        const { id } = req.body;
+        const { oldHodId, newHodId } = req.body;
 
-        const hod = await modelUser.findByPk(id, {
+        const hod = await modelUser.findByPk(newHodId, {
             attributes: ['id_user'],
             include: {
                 model: modelRole,
@@ -659,10 +679,21 @@ const addHod = async (req, res, next) => {
         const role = await modelRole.findOne({
             where: { role_name: 'kadep' },
             attributes: ['id_role']
-        })
+        });
+
+        const dsi = await modelOrg.findOne({
+            where: { name: 'Departemen Sistem Informasi' },
+            attributes: ['id_org']
+        });
+
+        await modelUser.update(
+            { id_role: 3 },
+            { where: { id_user: oldHodId } }
+        );
 
         await hod.update({
-            id_role: role.id_role
+            id_role: role.dataValues.id_role,
+            id_org_pic: dsi.dataValues.id_org
         });
 
         return res.status(200).json({
@@ -697,7 +728,7 @@ const getAllHod = async (req, res, next) => {
                 id: item.id_user,
                 id_number: item.identity_number,
                 name: item.name,
-                status: item.organization?.name == 'Departemen Sistem Informasi' ? 1 : 0
+                status: item.organization?.name == 'Departemen Sistem Informasi' ? 1 : 0        //kalau 1 masih aktif, kalau 0 tidak
             }
         });
 
@@ -710,9 +741,51 @@ const getAllHod = async (req, res, next) => {
     }
 };
 
+const getCurrentHod = async (req, res, next) => {
+    try {
+        const hod = await modelUser.findOne({
+            attributes: { exclude: ['signature', 'password', 'id_role', 'id_org_pic'] },
+            include: [
+                {
+                    model: modelRole,
+                    attributes: [],
+                    where: {
+                        role_name: 'kadep'
+                    }
+                },
+                {
+                    model: modelOrg,
+                    attributes: [],
+                    where: {
+                        name: 'Departemen Sistem Informasi'
+                    }
+                }
+            ]
+        });
+
+        const data = {
+            id: hod.id_user,
+            id_number: hod.identity_number,
+            name: hod.name,
+            gender: hod.gender,
+            photo: hod.photo ? `${env.CLOUDFLARE_R2_PUBLIC_BUCKET_URL}/${hod.photo}` : null,
+            email: hod.email,
+        };
+
+        res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
 export {
-    getUserByRole, getUserProfile, updateProfile, uploadProfilePhoto, deleteProfilePhoto,
+    getUserByRole, getUserProfile, updateProfile,
+    uploadProfilePhoto, deleteProfilePhoto,
+    uploadSignatureFile,
     getAllDrafter, getDrafterByIdDetail, addSopDrafter, addDrafter, getDrafterDetail,
-    getHodCandidate, addHod, getAllHod,
+    getHodCandidate, addHod, getAllHod, getCurrentHod,
     getAllPic, addPic, getUnassignedPic, getPicCandidate, getPicDetail
 };

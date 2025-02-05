@@ -32,6 +32,9 @@ export default sequelize.define('users',
         photo: {
             type: DataTypes.STRING(200),
         },
+        signature: {
+            type: DataTypes.STRING(200),
+        },
         id_role: {
             type: DataTypes.TINYINT.UNSIGNED,
             allowNull: false,

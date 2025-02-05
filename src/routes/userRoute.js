@@ -8,9 +8,13 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 router.get('/', verifyToken, controller.getUserByRole);
 router.get('/profile', verifyToken, controller.getUserProfile);
+
 router.route('/profile/photo')
     .post(verifyToken, upload.single('file'), controller.uploadProfilePhoto)
     .delete(verifyToken, controller.deleteProfilePhoto);
+
+router.route('/signature')
+    .post(verifyToken, upload.single('file'), controller.uploadSignatureFile)
 
 router.route('/drafter')
     .get(verifyToken, controller.getAllDrafter)
@@ -24,6 +28,7 @@ router.route('/hod')
     .get(verifyToken, controller.getAllHod)
     .post(verifyToken, controller.addHod);
 
+router.get('/hod/current', verifyToken, controller.getCurrentHod);
 router.get('/hod/candidate', verifyToken, controller.getHodCandidate);
 
 router.route('/pic')
