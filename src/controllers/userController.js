@@ -662,7 +662,7 @@ const getHodCandidate = async (req, res, next) => {
     }
 };
 
-const addHod = async (req, res, next) => {
+const updateHod = async (req, res, next) => {
     try {
         const { oldHodId, newHodId } = req.body;
 
@@ -686,11 +686,13 @@ const addHod = async (req, res, next) => {
             attributes: ['id_org']
         });
 
+        // turunin kadep lama
         await modelUser.update(
-            { id_role: 3 },
+            { id_role: 2 },
             { where: { id_user: oldHodId } }
         );
 
+        // angkat kadep baru
         await hod.update({
             id_role: role.dataValues.id_role,
             id_org_pic: dsi.dataValues.id_org
@@ -786,6 +788,6 @@ export {
     uploadProfilePhoto, deleteProfilePhoto,
     uploadSignatureFile,
     getAllDrafter, getDrafterByIdDetail, addSopDrafter, addDrafter, getDrafterDetail,
-    getHodCandidate, addHod, getAllHod, getCurrentHod,
+    getHodCandidate, updateHod, getAllHod, getCurrentHod,
     getAllPic, addPic, getUnassignedPic, getPicCandidate, getPicDetail
 };
