@@ -531,6 +531,12 @@ const updateSopStep = async (req, res, next) => {
             return acc;
         }, {});
 
+        // Check if type is being changed from 'decision' to something else
+        if (dataSopStep.type === 'decision' && updateData.type && updateData.type !== 'decision') {
+            data_baru.id_next_step_if_no = null; // Reset id_next_step to null
+            data_baru.id_next_step_if_yes = null;
+        }
+
         await dataSopStep.update(data_baru);
 
         return res.status(200).json({

@@ -17,7 +17,7 @@ export default sequelize.define('equipment' ,
             type: DataTypes.STRING(100),
             allowNull: false
         },
-        equipment_description: {
+        description: {
             type: DataTypes.STRING(300)
         },
     }, {

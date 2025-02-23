@@ -17,7 +17,7 @@ export default sequelize.define('data_record' ,
             type: DataTypes.STRING(100),
             allowNull: false
         },
-        data_record_description: {
+        description: {
             type: DataTypes.STRING(300),
         },
     }, {
