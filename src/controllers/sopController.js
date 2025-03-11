@@ -333,7 +333,7 @@ const getAssignedSop = async (req, res, next) => {
                 // version: item.version,
                 is_approved: item.is_approved,
                 creation_date: formattedCreationDate,
-                // status: item.status,
+                status: item.status,
                 org_name: item.sop.organization.name,
                 // user: item.users
             };

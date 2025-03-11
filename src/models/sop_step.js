@@ -13,10 +13,10 @@ export default sequelize.define('sop_step',
             allowNull: false
         },
         id_next_step_if_no: {
-            type: DataTypes.STRING(25),
+            type: DataTypes.STRING(25)
         },
         id_next_step_if_yes: {
-            type: DataTypes.STRING(25),
+            type: DataTypes.STRING(25)
         },
         seq_number: {
             type: DataTypes.TINYINT.UNSIGNED,
@@ -35,8 +35,7 @@ export default sequelize.define('sop_step',
             allowNull: false,
         },
         fittings: {
-            type: DataTypes.STRING(200),
-            allowNull: false,
+            type: DataTypes.STRING(200)
         },
         time: {
             type: DataTypes.TINYINT.UNSIGNED,
@@ -48,12 +47,10 @@ export default sequelize.define('sop_step',
             allowNull: false,
         },
         output: {
-            type: DataTypes.STRING(100),
-            allowNull: false,
+            type: DataTypes.STRING(100)
         },
         description: {
-            type: DataTypes.STRING(300),
-            allowNull: false,
+            type: DataTypes.STRING(300)
         },
 
     }, {
