@@ -238,6 +238,55 @@ const getSopById = async (req, res, next) => {          //untuk ambil sop besert
     }
 };
 
+const getSopVersion = async (req, res, next) => {
+    try {
+        const {id, version} = req.query;
+        if (!id || !version) return res.status(404).json({ message: 'atribut id atau version masih kosong!' });
+
+        const dataSopDetail = await modelSopDetail.findOne({
+            where: { id_sop: id, version },
+            attributes: [
+                ['id_sop_detail', 'id'],
+                'number', 'version', 'revision_date', 'effective_date',
+                'is_approved', 'status', 'warning', 'section',
+                'description', 'pic_position'
+            ],
+            include: [
+                {
+                    model: modelUser,
+                    attributes: ['identity_number', 'name'],
+                    through: { attributes: [] }
+                },
+                {
+                    model: modelSop,
+                    attributes: ['name', 'is_active']
+                }
+
+            ]
+        });
+        if (!dataSopDetail) return res.status(404).json({ message: 'data tidak ditemukan!' });
+        
+        // Transform data untuk menghapus struktur nested yang tidak diinginkan
+        const transformedSopDetail = {
+            ...dataSopDetail.get({ plain: true }),
+            revision_date: dateFormat(dataSopDetail.revision_date),
+            effective_date: dateFormat(dataSopDetail.effective_date),
+            name: dataSopDetail.sop.name,
+            is_active: dataSopDetail.sop.is_active
+        };
+
+        // Remove nested sop object since we've flattened it
+        delete transformedSopDetail.sop;
+
+        return res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data: transformedSopDetail
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 const getLatestSopVersion = async (req, res, next) => {
     try {
         const { id } = req.query;
@@ -565,7 +614,7 @@ const deleteSopStep = async (req, res, next) => {
 };
 
 export {
-    addSop, getAllSop, getSopById, getAssignedSop, getManagedSop,
+    addSop, getAllSop, getSopById, getAssignedSop, getManagedSop, getSopVersion,
     addSopDetail, getAllSopDetail, updateSopDetail, getSectionandWarning, getLatestSopVersion, getLatestSopInYear,
     getAssignedSopDetail,
     addSopStep, getSopStepbySopDetail, updateSopStep, deleteSopStep
