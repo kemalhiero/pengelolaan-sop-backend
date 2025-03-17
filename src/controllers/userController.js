@@ -366,7 +366,7 @@ const getPicDetail = async (req, res, next) => {
                             attributes: ['name', 'is_active'],
                             include: {
                                 model: modelSopDetail,
-                                attributes: ['number', 'version', 'is_approved', 'status']
+                                attributes: ['number', 'version', 'status']
 
                             }
                         },
@@ -401,7 +401,6 @@ const getPicDetail = async (req, res, next) => {
                     name: itemsop.name,
                     version: itemsopdetail.version,
                     is_sop_active: itemsop.is_active,
-                    is_version_approved: itemsopdetail.is_approved,
                     status: itemsopdetail.status
                 }))
             ) || [],
@@ -591,7 +590,7 @@ const getDrafterDetail = async (req, res, next) => {
                 },
                 {
                     model: modelSopDetail,
-                    attributes: ['number', 'version', 'is_approved', 'status'],
+                    attributes: ['number', 'version', 'status'],
                     through: { attributes: [] },
                     include: {
                         model: modelSop,
@@ -614,7 +613,6 @@ const getDrafterDetail = async (req, res, next) => {
                 name: itemsop.sop.name,
                 version: itemsop.version,
                 is_sop_active: itemsop.sop.is_active,
-                is_version_approved: itemsop.is_approved,
                 status: itemsop.status
             })) || [],
         };

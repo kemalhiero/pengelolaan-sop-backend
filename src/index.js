@@ -16,12 +16,13 @@ import userRoute from './routes/userRoute.js';
 import authRoute from './routes/authRoute.js';
 import recordRoute from './routes/recordRoute.js';
 import lawTypeRoute from './routes/lawTypeRoute.js';
+import feedbackRoute from './routes/feedbackRoute.js';
 import equipmentRoute from './routes/equipmentRoute.js';
 import legalBasisRoute from './routes/legalBasisRoute.js';
 import relatedSopRoute from './routes/relatedSopRoute.js';
 import implementerRoute from './routes/implementerRoute.js';
 import organizationRoute from './routes/organizationRoute.js';
-import ImplementQualificationRoute from './routes/ImplementQualificationRoute.js';
+import implementQualificationRoute from './routes/implementQualificationRoute.js';
 
 app
   .use('/api/sop', sopRoute)
@@ -31,10 +32,11 @@ app
   .use('/api/law', legalBasisRoute)
   .use('/api/lawtype', lawTypeRoute)
   .use('/api/org', organizationRoute)
+  .use('/api/feedback', feedbackRoute)
   .use('/api/equipment', equipmentRoute)
   .use('/api/relatedsop', relatedSopRoute)
   .use('/api/implementer', implementerRoute)
-  .use('/api/iq', ImplementQualificationRoute);
+  .use('/api/iq', implementQualificationRoute);
 
 app.get('/', (req, res) => {
   res.send('Bismillah wisuda tahun ini!')

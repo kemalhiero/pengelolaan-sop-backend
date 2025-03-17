@@ -42,7 +42,7 @@ const addSopDetail = async (req, res, next) => {
 
         const dataSopDetail = await modelSopDetail.create({
             number, description, id_sop: id, version,
-            is_approved: 2, status: 2,
+            status: 2,
             revision_date: new Date(), pic_position
         });
         console.log(dataSopDetail.dataValues.id_sop_detail);
@@ -63,7 +63,7 @@ const getAllSop = async (req, res, next) => {       //ambil semua sop
             include: [
                 // {
                 //     model: modelSopDetail,
-                //     attributes: ['number', 'is_approved', 'status', 'version']
+                //     attributes: ['number', 'status', 'version']
                 // }, 
                 {
                     model: modelOrganization,
@@ -150,7 +150,7 @@ const getManagedSop = async (req, res, next) => {       //ambil semua sop
 const getAllSopDetail = async (req, res, next) => {    // ambil semua data tabel sop-detail
     try {
         const dataSop = await modelSopDetail.findAll({
-            attributes: ['number', 'is_approved', 'status', 'version'],
+            attributes: ['number', 'status', 'version'],
             include: [
                 {
                     model: modelSop,
@@ -168,7 +168,6 @@ const getAllSopDetail = async (req, res, next) => {    // ambil semua data tabel
             is_active: item.sop.is_active,
             number: item.number,
             version: item.version,
-            is_approved: item.is_approved,
             status: item.status,
             name: item.sop.organization.name,
         }));
@@ -204,7 +203,7 @@ const getSopById = async (req, res, next) => {          //untuk ambil sop besert
             attributes: [
                 ['id_sop_detail', 'id'],
                 'number', 'version', 'revision_date', 'effective_date',
-                'is_approved', 'status', 'warning', 'section',
+                'status', 'warning', 'section',
                 'description', 'pic_position'
             ],
             include: {
@@ -240,7 +239,7 @@ const getSopById = async (req, res, next) => {          //untuk ambil sop besert
 
 const getSopVersion = async (req, res, next) => {
     try {
-        const {id, version} = req.query;
+        const { id, version } = req.query;
         if (!id || !version) return res.status(404).json({ message: 'atribut id atau version masih kosong!' });
 
         const dataSopDetail = await modelSopDetail.findOne({
@@ -248,7 +247,7 @@ const getSopVersion = async (req, res, next) => {
             attributes: [
                 ['id_sop_detail', 'id'],
                 'number', 'version', 'revision_date', 'effective_date',
-                'is_approved', 'status', 'warning', 'section',
+                'status', 'warning', 'section',
                 'description', 'pic_position'
             ],
             include: [
@@ -259,20 +258,25 @@ const getSopVersion = async (req, res, next) => {
                 },
                 {
                     model: modelSop,
-                    attributes: ['name', 'is_active']
+                    attributes: ['name', 'is_active'],
+                    include: {
+                        model: modelOrganization,
+                        attributes: [['id_org', 'id'], 'name']
+                    }
                 }
 
             ]
         });
         if (!dataSopDetail) return res.status(404).json({ message: 'data tidak ditemukan!' });
-        
+
         // Transform data untuk menghapus struktur nested yang tidak diinginkan
         const transformedSopDetail = {
             ...dataSopDetail.get({ plain: true }),
             revision_date: dateFormat(dataSopDetail.revision_date),
             effective_date: dateFormat(dataSopDetail.effective_date),
             name: dataSopDetail.sop.name,
-            is_active: dataSopDetail.sop.is_active
+            is_active: dataSopDetail.sop.is_active,
+            organization: dataSopDetail.sop.organization
         };
 
         // Remove nested sop object since we've flattened it
@@ -352,7 +356,7 @@ const getLatestSopInYear = async (req, res, next) => {
 const getAssignedSop = async (req, res, next) => {
     try {
         const dataSop = await modelSopDetail.findAll({
-            attributes: ['number', 'is_approved', 'status', 'version'],
+            attributes: ['number', 'status', 'version'],
             include: [
                 {
                     model: modelSop,
@@ -380,7 +384,6 @@ const getAssignedSop = async (req, res, next) => {
                 // is_active: item.sop.is_active,
                 number: item.number,                 //ntar aktifin lagi kalau perlu
                 // version: item.version,
-                is_approved: item.is_approved,
                 creation_date: formattedCreationDate,
                 status: item.status,
                 org_name: item.sop.organization.name,
@@ -420,7 +423,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
                 {
                     model: modelSopDetail,
                     attributes: ['id_sop_detail', 'number', 'description'],
-                    where: { is_approved: 2 },
+                    where: { status: 2 },
                     include: {
                         model: modelUser,
                         attributes: ['identity_number', 'name'],

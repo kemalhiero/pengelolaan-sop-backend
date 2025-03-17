@@ -17,9 +17,14 @@ export default sequelize.define('feedback',
             allowNull: false
         },
         feedback: {
-            type: DataTypes.STRING(200),
+            type: DataTypes.STRING(500),
             allowNull: false
-        }
+        },
+        is_internal: {
+            type: DataTypes.BOOLEAN(),
+            defaultValue: false,
+            allowNull: false
+        },
     }, {
     freezeTableName: true
 }
