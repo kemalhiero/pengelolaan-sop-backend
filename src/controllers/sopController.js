@@ -472,18 +472,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
 const updateSopDetail = async (req, res, next) => {
     try {
         const { id } = req.query;
-        const updateData = req.body;    // jadinya harus sama input yang ada sama penulisan atribut di model sop detail
-
-        const [sop, sopDetail] = await Promise.all([
-            modelSop.findByPk(id),
-            modelSopDetail.findOne({ where: { id_sop: id } })
-        ]);
-
-        if (!sop || !sopDetail) {
-            const error = new Error('Data sop tidak ditemukan');
-            error.status = 404;
-            throw error;
-        }
+        const updateData = req.body;    // semua atribut yang ada di tabel sop detail
 
         // Filter hanya field yang ada di request body
         const data_baru = Object.keys(updateData).reduce((acc, key) => {
@@ -494,7 +483,7 @@ const updateSopDetail = async (req, res, next) => {
         }, {});
         data_baru.revision_date = new Date()
 
-        const data = await sopDetail.update(data_baru);
+        const data = await modelSopDetail.update(data_baru, { where: { id_sop_detail: id } });
 
         return res.status(200).json({
             message: 'sukses memperbarui data',

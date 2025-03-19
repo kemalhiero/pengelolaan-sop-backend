@@ -20,9 +20,9 @@ export default sequelize.define('feedback',
             type: DataTypes.STRING(500),
             allowNull: false
         },
-        is_internal: {
-            type: DataTypes.BOOLEAN(),
-            defaultValue: false,
+        type: {
+            type: DataTypes.ENUM('setuju', 'revisi', 'umum'),
+            defaultValue: 'umum',
             allowNull: false
         },
     }, {
