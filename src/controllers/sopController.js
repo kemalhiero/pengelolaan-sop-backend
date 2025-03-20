@@ -43,7 +43,7 @@ const addSopDetail = async (req, res, next) => {
         const dataSopDetail = await modelSopDetail.create({
             number, description, id_sop: id, version,
             status: 2,
-            revision_date: new Date(), pic_position
+            pic_position
         });
         console.log(dataSopDetail.dataValues.id_sop_detail);
 
@@ -202,9 +202,9 @@ const getSopById = async (req, res, next) => {          //untuk ambil sop besert
             where: { id_sop: id },
             attributes: [
                 ['id_sop_detail', 'id'],
-                'number', 'version', 'revision_date', 'effective_date',
+                'number', 'version', 'effective_date',
                 'status', 'warning', 'section',
-                'description', 'pic_position'
+                'description', 'pic_position', 'updatedAt'
             ],
             include: {
                 model: modelUser,
@@ -215,7 +215,7 @@ const getSopById = async (req, res, next) => {          //untuk ambil sop besert
         // Transform data untuk menghapus struktur nested yang tidak diinginkan
         const transformedSopDetail = dataSopDetail.map(detail => ({
             ...detail.get({ plain: true }),
-            revision_date: dateFormat(detail.revision_date),
+            revision_date: dateFormat(detail.updatedAt),
             effective_date: dateFormat(detail.effective_date)
         }));
 
@@ -239,16 +239,15 @@ const getSopById = async (req, res, next) => {          //untuk ambil sop besert
 
 const getSopVersion = async (req, res, next) => {
     try {
-        const { id, version } = req.query;
-        if (!id || !version) return res.status(404).json({ message: 'atribut id atau version masih kosong!' });
+        const { id } = req.params;
+        if (!id) return res.status(404).json({ message: 'atribut id masih kosong!' });
 
-        const dataSopDetail = await modelSopDetail.findOne({
-            where: { id_sop: id, version },
+        const dataSopDetail = await modelSopDetail.findByPk(id, {
             attributes: [
                 ['id_sop_detail', 'id'],
-                'number', 'version', 'revision_date', 'effective_date',
+                'number', 'version', 'effective_date',
                 'status', 'warning', 'section',
-                'description', 'pic_position'
+                'description', 'pic_position', 'updatedAt'
             ],
             include: [
                 {
@@ -258,7 +257,7 @@ const getSopVersion = async (req, res, next) => {
                 },
                 {
                     model: modelSop,
-                    attributes: ['name', 'is_active'],
+                    attributes: ['id_sop','name', 'is_active'],
                     include: {
                         model: modelOrganization,
                         attributes: [['id_org', 'id'], 'name']
@@ -272,9 +271,10 @@ const getSopVersion = async (req, res, next) => {
         // Transform data untuk menghapus struktur nested yang tidak diinginkan
         const transformedSopDetail = {
             ...dataSopDetail.get({ plain: true }),
-            revision_date: dateFormat(dataSopDetail.revision_date),
+            revision_date: dateFormat(dataSopDetail.updatedAt),
             effective_date: dateFormat(dataSopDetail.effective_date),
             name: dataSopDetail.sop.name,
+            id_sop: dataSopDetail.sop.id_sop,
             is_active: dataSopDetail.sop.is_active,
             organization: dataSopDetail.sop.organization
         };
@@ -356,11 +356,11 @@ const getLatestSopInYear = async (req, res, next) => {
 const getAssignedSop = async (req, res, next) => {
     try {
         const dataSop = await modelSopDetail.findAll({
-            attributes: ['number', 'status', 'version'],
+            attributes: ['id_sop_detail', 'number', 'status', 'version'],
             include: [
                 {
                     model: modelSop,
-                    attributes: ['id_sop', 'name', 'is_active', 'createdAt'],
+                    attributes: ['name', 'is_active', 'createdAt'],
                     include: {
                         model: modelOrganization,
                         attributes: ['name']
@@ -379,7 +379,7 @@ const getAssignedSop = async (req, res, next) => {
             const formattedCreationDate = dateFormat(item.sop.createdAt);
 
             return {
-                id: item.sop.id_sop,
+                id: item.id_sop_detail,
                 name: item.sop.name,
                 // is_active: item.sop.is_active,
                 number: item.number,                 //ntar aktifin lagi kalau perlu
@@ -405,65 +405,64 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
         const { id } = req.params;
         if (!id) return res.status(404).json({ message: 'atribut id masih kosong!' });
 
-        const dataSop = await modelSop.findByPk(id, {
-            attributes: { exclude: ['id_org', 'is_active'] },
+        const dataSop = await modelSopDetail.findByPk(id, {
+            attributes: [
+                'number', 'description',
+                'effective_date', 'createdAt', 'updatedAt',
+            ],
             include: [
                 {
-                    model: modelOrganization,
+                    model: modelSop,
                     attributes: ['name'],
                     include: {
-                        model: modelUser,
-                        attributes: ['identity_number', 'name'],
+                        model: modelOrganization,
+                        attributes: ['name'],
                         include: {
-                            model: modelRole,
-                            attributes: ['role_name']
-                        },
+                            model: modelUser,
+                            attributes: ['identity_number', 'name'],
+                            include: {
+                                model: modelRole,
+                                attributes: ['role_name'],
+                            },
+                        }
                     }
                 },
                 {
-                    model: modelSopDetail,
-                    attributes: ['id_sop_detail', 'number', 'description'],
-                    where: { status: 2 },
-                    include: {
-                        model: modelUser,
-                        attributes: ['identity_number', 'name'],
-                        through: { attributes: [] }
-                    }
+                    model: modelUser,
+                    attributes: ['identity_number', 'name'],
+                    through: { attributes: [] }
                 }
             ]
         });
+        if (!dataSop) return res.status(404).json({ message: 'data tidak ditemukan!' });
 
+        // Transform data untuk menghapus struktur nested yang tidak diinginkan
         const data = {
-            id: dataSop.id_sop,
-            name: dataSop.name,
+            name: dataSop.sop.name,
             creation_date: dateFormat(dataSop.createdAt),
             last_update_date: dateFormat(dataSop.updatedAt),
-            organization: dataSop.organization.name,
-            pic: dataSop.organization.users.map(item => {
+            organization: dataSop.sop.organization.name,
+            pic: dataSop.sop.organization.users.map(item => {
                 return {
                     id_number: item.identity_number,
                     name: item.name,
                     role: item.role.role_name,
                 }
             }),
-            number: dataSop.sop_details[0].number,
-            description: dataSop.sop_details[0].description,
-            drafter: dataSop.sop_details[0].users.map(item => {
+            number: dataSop.number,
+            description: dataSop.description,
+            drafter: dataSop.users.map(item => {
                 return {
                     id_number: item.identity_number,
                     name: item.name
                 }
             }),
-            id_sop_detail: dataSop.sop_details[0].id_sop_detail
         };
-
-        if (!dataSop) return res.status(204).json({ message: 'data kosong!' });
 
         return res.status(200).json({
             message: 'sukses mendapatkan data',
             data
         });
-
     } catch (error) {
         next(error);
     }
@@ -481,7 +480,6 @@ const updateSopDetail = async (req, res, next) => {
             }
             return acc;
         }, {});
-        data_baru.revision_date = new Date()
 
         const data = await modelSopDetail.update(data_baru, { where: { id_sop_detail: id } });
 

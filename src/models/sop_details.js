@@ -21,9 +21,6 @@ export default sequelize.define('sop_details',
             type: DataTypes.SMALLINT.UNSIGNED,
             allowNull: false
         },
-        revision_date: {
-            type: DataTypes.DATE
-        },
         effective_date: {
             type: DataTypes.DATE
         },

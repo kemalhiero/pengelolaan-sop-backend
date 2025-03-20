@@ -15,7 +15,7 @@ router.route('/detail')
     .post(verifyToken ,sopController.addSopDetail)
     .patch(verifyToken ,sopController.updateSopDetail);
 
-router.get('/version', sopController.getSopVersion);
+router.get('/version/:id', sopController.getSopVersion);
 
 router.route('/step')
     .get(sopController.getSopStepbySopDetail)
