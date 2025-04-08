@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import * as feedbackController from '../controllers/feedbackController.js';
 import { verifyToken } from '../middlewares/auth.js';
+import { addDraftFeedback, getDraftFeedback } from '../controllers/feedbackController.js';
 
 const router = Router();
 
-router.post('/draft', verifyToken, feedbackController.addDraftFeedback);
-router.get('/draft/:idsopdetail', feedbackController.getDraftFeedback);
+router.post('/draft', verifyToken, addDraftFeedback);
+router.get('/draft/:idsopdetail', getDraftFeedback);
 
 export default router;

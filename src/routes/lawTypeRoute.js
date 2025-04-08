@@ -1,12 +1,14 @@
 import { Router } from 'express';
-import * as lawTypeController from '../controllers/lawTypeController.js';
 import { verifyToken } from '../middlewares/auth.js';
+import { addLawType, deleteLawType, getLawType, updateLawType } from '../controllers/lawTypeController.js';
 
 const router = Router();
 router.route('/')
-    .get(verifyToken ,lawTypeController.getLawType)
-    .post(verifyToken ,lawTypeController.addLawType)
-    .delete(verifyToken ,lawTypeController.deleteLawType)
-    .patch(verifyToken ,lawTypeController.updateLawType)
+    .get(verifyToken, getLawType)
+    .post(verifyToken, addLawType)
+
+router.route('/:id')
+    .patch(verifyToken, updateLawType)
+    .delete(verifyToken, deleteLawType);
 
 export default router;

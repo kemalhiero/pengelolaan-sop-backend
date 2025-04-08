@@ -29,7 +29,7 @@ const addSopIQ = async (req, res, next) => {
 
 const getSopIQ = async (req, res, next) => {
     try {
-        const { id } = req.query;
+        const { id } = req.params;
 
         const dataSopIq = await modelImplementQualificationCOntroller.findAll({
             where: {
@@ -52,20 +52,18 @@ const getSopIQ = async (req, res, next) => {
 
 const deleteSopIQ = async (req, res, next) => {
     try {
-        const { id } = req.query;
+        const { id } = req.params;
 
         if (isNaN(Number(id))) {
             console.error('ID harus berupa angka')
             return res.status(400).json({ message: 'ID harus berupa angka' })
         };
 
-        const dataIQ = await modelImplementQualificationCOntroller.findByPk(id, { attributes: ['id_qualification'] });
-        if (!dataIQ) {
-            console.error('Data kualifikasi pelaksana tidak ditemukan!')
-            return res.status(404).json({ message: 'Data kualifikasi pelaksana tidak ditemukan!' })
-        };
-
-        await dataIQ.destroy();
+        const deletedCount = await modelImplementQualificationCOntroller.destroy({ where: { id_qualification: id } });
+        if (deletedCount === 0) {
+            console.error('Data tidak ditemukan')
+            return res.status(404).json({ message: 'Data tidak ditemukan' })
+        }
 
         return res.status(200).json({
             message: 'sukses menghapus data',

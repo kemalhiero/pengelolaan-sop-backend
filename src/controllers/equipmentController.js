@@ -22,6 +22,7 @@ const addEquipment = async (req, res, next) => {
         res.status(201).json({
             message: 'sukses menambahkan data'
         });
+
     } catch (error) {
         next(error);
     }
@@ -29,7 +30,11 @@ const addEquipment = async (req, res, next) => {
 
 const getSopEquipment = async (req, res, next) => {
     try {
-        const { id } = req.query;
+        const { id } = req.params;
+        if (!id) {
+            console.error('Masukkan ID terlebih dahulu!')
+            return res.status(400).json({ message: 'Masukkan ID terlebih dahulu!' })
+        };
 
         const dataPeralatanSop = await modelEquipment.findAll({
             where: {
@@ -40,11 +45,12 @@ const getSopEquipment = async (req, res, next) => {
                 'equipment'
             ]
         });
-    
+
         res.status(200).json({
             message: 'sukses mengambil data',
             data: dataPeralatanSop
-        }); 
+        });
+
     } catch (error) {
         next(error);
     }
@@ -52,7 +58,7 @@ const getSopEquipment = async (req, res, next) => {
 
 const deleteEquipment = async (req, res, next) => {
     try {
-        const { id } = req.query;
+        const { id } = req.params;
 
         if (isNaN(Number(id))) {
             console.error('ID harus berupa angka!')

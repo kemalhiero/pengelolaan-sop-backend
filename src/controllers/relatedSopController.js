@@ -29,7 +29,11 @@ const addRelatedSop = async (req, res, next) => {
 };
 
 const getRelatedSop = async (req, res, next) => {
-    const { id } = req.query;
+    const { id } = req.params;
+    if (isNaN(Number(id))) {
+        console.error('ID harus berupa angka')
+        return res.status(400).json({ message: 'ID harus berupa angka' })
+    }
 
     const dataSopTerkait = await modelRelatedSop.findAll({
         where: {
@@ -49,20 +53,17 @@ const getRelatedSop = async (req, res, next) => {
 
 const deleteRelatedSop = async (req, res, next) => {
     try {
-        const { id } = req.query;
-
+        const { id } = req.params;
         if (isNaN(Number(id))) {
             console.error('ID harus berupa angka')
             return res.status(400).json({ message: 'ID harus berupa angka' })
         };
 
-        const dataRelatedSop = await modelRelatedSop.findByPk(id, { attributes: ['id_relation_sop'] });
-        if (!dataRelatedSop) {
+        const deletedCount = await modelRelatedSop.destroy({ where: { id_relation_sop: id } });
+        if (deletedCount === 0) {
             console.error('Data sop terkait tidak ditemukan!')
             return res.status(404).json({ message: 'Data sop terkait tidak ditemukan!' })
-        }
-
-        await dataRelatedSop.destroy();
+        };
 
         return res.status(200).json({
             message: 'sukses menghapus data',

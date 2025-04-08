@@ -20,7 +20,10 @@ router.route('/drafter')
     .get(verifyToken, controller.getAllDrafter)
     .post(verifyToken, controller.addDrafter);
 
-router.post('/drafter/sop', verifyToken, controller.addSopDrafter);
+router.post('/drafter/sop', verifyToken, controller.addSopDrafter)
+router.delete('/drafter/sop/:userId/:sopDetailId', verifyToken, controller.removeSopDrafter);
+
+
 router.get('/drafter/sopdetail/:id', controller.getDrafterByIdDetail);
 router.get('/drafter/:id', controller.getDrafterDetail);
 

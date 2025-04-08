@@ -79,6 +79,7 @@ const getOrg = async (req, res, next) => {
             message: 'sukses mendapat data',
             data
         });
+
     } catch (error) {
         next(error);
     }
@@ -86,11 +87,7 @@ const getOrg = async (req, res, next) => {
 
 const deleteOrg = async (req, res, next) => {
     try {
-        const { id } = req.query;
-        const organization = await modelOrganization.findByPk(id);
-        if (!organization) {
-            return res.status(404).json({ message: 'Data organisasi tidak ditemukan!' });
-        }
+        const { id } = req.params;
 
         // Update semua id_org_pic ke NULL
         await modelUser.update({ id_org_pic: null }, {
@@ -98,11 +95,15 @@ const deleteOrg = async (req, res, next) => {
         });
 
         // Hapus data organisasi
-        await organization.destroy();
+        const deletedCount = await modelOrganization.destroy({ where: { id_org: id } });
+        if (deletedCount === 0) {
+            return res.status(404).json({ message: 'Data organisasi tidak ditemukan!' });
+        }
 
         return res.status(200).json({
             message: 'Sukses menghapus data organisasi',
         });
+
     } catch (error) {
         next(error);
     }
@@ -110,7 +111,9 @@ const deleteOrg = async (req, res, next) => {
 
 const updateOrg = async (req, res, next) => {
     try {
-        const { id } = req.query;
+        const { id } = req.params;
+        if (isNaN(Number(id))) return res.status(400).json({ message: 'ID harus berupa angka' });
+
         const { pic, name, about } = req.body;
 
         // Cari organisasi berdasarkan ID
@@ -152,6 +155,7 @@ const updateOrg = async (req, res, next) => {
         return res.status(200).json({
             message: 'Sukses memperbarui data organisasi',
         });
+
     } catch (error) {
         next(error);
     }

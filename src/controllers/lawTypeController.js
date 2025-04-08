@@ -52,14 +52,14 @@ const getLawType = async (req, res, next) => {
 
 const deleteLawType = async (req, res, next) => {
     try {
-        const { id } = req.query;
-        const lawType = await modelLawType.findByPk(id);
+        const { id } = req.params;
+        if (isNaN(Number(id))) return res.status(400).json({ message: 'ID harus berupa angka' });
 
-        if (!lawType) {
+        const deletedCount = await modelLawType.destroy({ where: { id_law_type: id } });
+        if (deletedCount === 0) {
+            console.error('Data tidak ditemukan')
             return res.status(404).json({ message: 'data tidak ditemukan' })
-        }
-
-        await lawType.destroy();
+        };
 
         return res.status(200).json({
             message: 'sukses menghapus data',
@@ -72,7 +72,9 @@ const deleteLawType = async (req, res, next) => {
 
 const updateLawType = async (req, res, next) => {
     try {
-        const { id } = req.query;
+        const { id } = req.params;
+        if (isNaN(Number(id))) return res.status(400).json({ message: 'ID harus berupa angka' });
+
         const { law_type, description } = req.body;
         const lawType = await modelLawType.findByPk(id);
 
@@ -91,6 +93,4 @@ const updateLawType = async (req, res, next) => {
     }
 }
 
-export {
-    addLawType, getLawType, deleteLawType, updateLawType
-}
+export { addLawType, getLawType, deleteLawType, updateLawType };

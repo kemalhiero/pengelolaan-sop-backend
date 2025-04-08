@@ -14,6 +14,7 @@ const currentYear = new Date().getFullYear();
 const addSop = async (req, res, next) => {
     try {
         const { id_org, name } = req.body;
+        if (!id_org || !name) return res.status(404).json({ message: 'pastikan data tidak kosong!' });
 
         const data = await modelSop.create({
             id_org, name, is_active: 2
@@ -23,6 +24,7 @@ const addSop = async (req, res, next) => {
             message: 'sukses menambahkan data',
             data,
         });
+
     } catch (error) {
         next(error);
     }
@@ -30,15 +32,14 @@ const addSop = async (req, res, next) => {
 
 const addSopDetail = async (req, res, next) => {
     try {
-        const { number, description, version, pic_position } = req.body;
-        const { id } = req.query;
+        const { id } = req.params;
+        if (!id) return res.status(404).json({ message: 'atribut id masih kosong!' });
 
-        const sop = await modelSop.findByPk(id);
-        if (!sop) {
-            const error = new Error('Data sop tidak ditemukan');
-            error.status = 404;
-            throw error;
-        };
+        const { number, description, version, pic_position } = req.body;
+        if (!number || !description || !version || !pic_position) return res.status(404).json({ message: 'pastikan data tidak kosong!' });
+
+        const sop = await modelSop.findByPk(id, { attributes: ['id_sop'] });
+        if (!sop) return res.status(404).json({ message: 'sop tidak ditemukan!' });
 
         const dataSopDetail = await modelSopDetail.create({
             number, description, id_sop: id, version,
@@ -51,6 +52,7 @@ const addSopDetail = async (req, res, next) => {
             message: 'sukses menambahkan data',
             data: dataSopDetail,
         });
+
     } catch (error) {
         next(error);
     }
@@ -88,6 +90,7 @@ const getAllSop = async (req, res, next) => {       //ambil semua sop
             message: 'sukses mendapatkan data',
             data
         });
+
     } catch (error) {
         next(error);
     }
@@ -142,6 +145,7 @@ const getManagedSop = async (req, res, next) => {       //ambil semua sop
             message: 'sukses mendapatkan data',
             data
         });
+
     } catch (error) {
         next(error);
     }
@@ -176,6 +180,7 @@ const getAllSopDetail = async (req, res, next) => {    // ambil semua data tabel
             message: 'sukses mendapatkan data',
             data
         });
+
     } catch (error) {
         next(error);
     }
@@ -191,7 +196,7 @@ const getSopById = async (req, res, next) => {          //untuk ambil sop besert
             include: [
                 {
                     model: modelOrganization,
-                    attributes: ['name']
+                    attributes: [['id_org', 'id'], 'name']
                 }
             ]
         });
@@ -224,7 +229,7 @@ const getSopById = async (req, res, next) => {          //untuk ambil sop besert
             name: dataSop.name,
             creation_date: dateFormat(dataSop.createdAt),
             is_active: dataSop.is_active,
-            organization: dataSop.organization.name,
+            organization: dataSop.organization,
             version: transformedSopDetail
         };
 
@@ -232,6 +237,7 @@ const getSopById = async (req, res, next) => {          //untuk ambil sop besert
             message: 'sukses mendapatkan data',
             data
         });
+
     } catch (error) {
         next(error);
     }
@@ -252,12 +258,12 @@ const getSopVersion = async (req, res, next) => {
             include: [
                 {
                     model: modelUser,
-                    attributes: ['identity_number', 'name'],
+                    attributes: [['id_user', 'id'], 'identity_number', 'name'],
                     through: { attributes: [] }
                 },
                 {
                     model: modelSop,
-                    attributes: ['id_sop','name', 'is_active'],
+                    attributes: ['id_sop', 'name', 'is_active'],
                     include: {
                         model: modelOrganization,
                         attributes: [['id_org', 'id'], 'name']
@@ -286,6 +292,7 @@ const getSopVersion = async (req, res, next) => {
             message: 'sukses mendapatkan data',
             data: transformedSopDetail
         });
+
     } catch (error) {
         next(error);
     }
@@ -293,7 +300,7 @@ const getSopVersion = async (req, res, next) => {
 
 const getLatestSopVersion = async (req, res, next) => {
     try {
-        const { id } = req.query;
+        const { id } = req.params;
 
         const latestSop = await modelSopDetail.findOne({
             order: [['version', 'DESC']],
@@ -311,6 +318,7 @@ const getLatestSopVersion = async (req, res, next) => {
             message: 'sukses mendapatkan data',
             data: latestSop
         });
+
     } catch (error) {
         next(error);
     }
@@ -318,7 +326,7 @@ const getLatestSopVersion = async (req, res, next) => {
 
 const getLatestSopInYear = async (req, res, next) => {
     try {
-        const { year } = req.query;
+        const { year } = req.params;
 
         // Validasi tahun
         const yearNumber = parseInt(year);
@@ -395,6 +403,7 @@ const getAssignedSop = async (req, res, next) => {
             message: 'sukses mendapatkan data',
             data
         });
+
     } catch (error) {
         next(error);
     }
@@ -463,6 +472,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
             message: 'sukses mendapatkan data',
             data
         });
+
     } catch (error) {
         next(error);
     }
@@ -487,6 +497,7 @@ const updateSopDetail = async (req, res, next) => {
             message: 'sukses memperbarui data',
             data
         });
+
     } catch (error) {
         next(error);
     }
@@ -526,6 +537,7 @@ const addSopStep = async (req, res, next) => {
         return res.status(200).json({
             message: 'sukses menambahkan data',
         });
+
     } catch (error) {
         next(error);
     }
@@ -533,7 +545,7 @@ const addSopStep = async (req, res, next) => {
 
 const getSopStepbySopDetail = async (req, res, next) => {
     try {
-        const { id } = req.query;
+        const { id } = req.params;
         const dataSopDetail = await modelSopDetail.findByPk(id, {
             attributes: [['id_sop_detail', 'id']]
         });
@@ -551,6 +563,7 @@ const getSopStepbySopDetail = async (req, res, next) => {
             message: 'sukses mendapatkan data',
             data: dataStep
         });
+
     } catch (error) {
         next(error);
     }
@@ -558,7 +571,7 @@ const getSopStepbySopDetail = async (req, res, next) => {
 
 const updateSopStep = async (req, res, next) => {
     try {
-        const { id } = req.query;
+        const { id } = req.params;
         const updateData = req.body;
         const dataSopStep = await modelSopStep.findByPk(id);
         if (!dataSopStep) return res.status(404).json({ message: 'Data tahapan sop tidak ditemukan' });
@@ -589,7 +602,7 @@ const updateSopStep = async (req, res, next) => {
 
 const deleteSopStep = async (req, res, next) => {
     try {
-        const { id } = req.query;
+        const { id } = req.params;
         const dataSopStep = await modelSopStep.findByPk(id);
         if (!dataSopStep) return res.status(404).json({ message: 'Data tahapan sop tidak ditemukan' });
 
@@ -598,6 +611,7 @@ const deleteSopStep = async (req, res, next) => {
         return res.status(200).json({
             message: 'sukses menghapus data',
         });
+
     } catch (error) {
         next(error);
     }

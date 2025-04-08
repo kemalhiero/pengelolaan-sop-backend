@@ -1,11 +1,13 @@
 import { Router } from 'express';
-import * as equipmentController from '../controllers/equipmentController.js';
 import { verifyToken } from '../middlewares/auth.js';
+import { addEquipment, deleteEquipment, getSopEquipment } from '../controllers/equipmentController.js';
 
 const router = Router();
 router.route('/')
-    .get(verifyToken, equipmentController.getSopEquipment)
-    .post(verifyToken, equipmentController.addEquipment)
-    .delete(verifyToken, equipmentController.deleteEquipment);
-    
+    .post(verifyToken, addEquipment);
+
+router.route('/:id')
+    .get(verifyToken, getSopEquipment)
+    .delete(verifyToken, deleteEquipment);
+
 export default router;

@@ -111,7 +111,7 @@ const addSopImplementer = async (req, res, next) => {
 
 const getSopImplementer = async (req, res, next) => {
     try {
-        const { id } = req.query;
+        const { id } = req.params;
 
         const dataSopDetail = await modelSopDetail.findByPk(id, { attributes: ['id_sop_detail'] });
         if (!dataSopDetail) {
@@ -141,17 +141,17 @@ const getSopImplementer = async (req, res, next) => {
 
 const deleteSopImplementer = async (req, res, next) => {
     try {
-        const { id_sop_detail, id_implementer } = req.query;
+        const { sopDetailId, implementerId } = req.query;
 
-        if (isNaN(Number(id_sop_detail)) || isNaN(Number(id_implementer))) {
+        if (isNaN(Number(sopDetailId)) || isNaN(Number(implementerId))) {
             console.error('ID harus berupa angka')
             return res.status(400).json({ message: 'ID harus berupa angka' })
         };
 
         const dataSopDetail = await modelSopDetailImplementer.findOne({
             where: {
-                id_sop_detail,
-                id_implementer
+                id_sop_detail: sopDetailId,
+                id_implementer: implementerId
             }
         });
         if (!dataSopDetail) {

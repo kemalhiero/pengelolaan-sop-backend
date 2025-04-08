@@ -7,19 +7,20 @@ router.route('/')
     .get(sopController.getAllSop)
     .post(verifyToken, sopController.addSop);
 
-router.get('/latest/sop', sopController.getLatestSopVersion);
-router.get('/latest/year', sopController.getLatestSopInYear);
+router.get('/latest/sop/:id', sopController.getLatestSopVersion);
+router.get('/latest/year/:id', sopController.getLatestSopInYear);
 
-router.route('/detail')
-    .get(sopController.getAllSopDetail)
+router.get('/detail',sopController.getAllSopDetail);
+router.route('/detail/:id')
     .post(verifyToken ,sopController.addSopDetail)
     .patch(verifyToken ,sopController.updateSopDetail);
 
 router.get('/version/:id', sopController.getSopVersion);
 
-router.route('/step')
+router.post('/step',verifyToken, sopController.addSopStep);
+
+router.route('/step/:id')
     .get(sopController.getSopStepbySopDetail)
-    .post(verifyToken, sopController.addSopStep)
     .patch(verifyToken, sopController.updateSopStep)
     .delete(verifyToken, sopController.deleteSopStep);
 

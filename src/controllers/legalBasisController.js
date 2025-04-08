@@ -62,12 +62,13 @@ const getLegal = async (req, res, next) => {
 
 const deleteLegal = async (req, res, next) => {
     try {
-        const { id } = req.query;
-        const legal = await modelLegal.findByPk(id, { attributes: ['id_legal'] });
+        const { id } = req.params;
+        if (isNaN(Number(id))) return res.status(400).json({ message: 'ID harus berupa angka' });
 
-        if (!legal) return res.status(404).json({ message: 'data tidak ditemukan' });
-
-        await legal.destroy();
+        const deletedCount = await legal.destroy({ where: { id_legal: id } });
+        if (deletedCount === 0) {
+            return res.status(404).json({ message: 'Data user atau sop tidak ditemukan' });
+        }
 
         return res.status(200).json({
             message: 'sukses menghapus data',
@@ -80,7 +81,9 @@ const deleteLegal = async (req, res, next) => {
 
 const updateLegal = async (req, res, next) => {
     try {
-        const { id } = req.query;
+        const { id } = req.params;
+        if (isNaN(Number(id))) return res.status(400).json({ message: 'ID harus berupa angka' });
+
         const { id_law_type, number, year, about } = req.body;
         const legal = await modelLegal.findByPk(id, { attributes: ['id_legal'] });
 
@@ -118,6 +121,7 @@ const addSopLegal = async (req, res, next) => {
         return res.status(200).json({
             message: 'sukses menambahkan data',
         });
+
     } catch (error) {
         next(error);
     }
@@ -125,7 +129,11 @@ const addSopLegal = async (req, res, next) => {
 
 const getSopLegal = async (req, res, next) => {
     try {
-        const { id } = req.query;
+        const { id } = req.params;
+        if (isNaN(Number(sopDetailId))) {
+            console.error('ID harus berupa angka')
+            return res.status(400).json({ message: 'ID harus berupa angka' })
+        };
 
         const dataLegal = await modelLegal.findAll({
             attributes: ['id_legal', 'number', 'year', 'about'],
@@ -164,28 +172,28 @@ const getSopLegal = async (req, res, next) => {
 
 const deleteSopLegal = async (req, res, next) => {
     try {
-        const { id_sop_detail, id_legal } = req.query;
-
-        if (isNaN(Number(id_sop_detail)) || isNaN(Number(id_legal))) {
+        const { sopDetailId, legalId } = req.params;
+        if (isNaN(Number(sopDetailId)) || isNaN(Number(legalId))) {
             console.error('ID harus berupa angka')
             return res.status(400).json({ message: 'ID harus berupa angka' })
         };
 
-        const dataSopLegal = await modelLegalBasisSopDetail.findOne({
+        const deletedCount = await modelLegalBasisSopDetail.destroy({
             where: {
-                id_sop_detail, id_legal
+                id_sop_detail: sopDetailId,
+                id_legal: legalId
             }
         });
-        if (!dataSopLegal) {
+
+        if (!deletedCount) {
             console.error('Data dasar hukum sop tidak ditemukan!')
             return res.status(404).json({ message: 'Data dasar hukum sop tidak ditemukan!' })
         };
 
-        await dataSopLegal.destroy();
-
         return res.status(200).json({
             message: 'sukses menghapus data',
         });
+
     } catch (error) {
         next(error);
     }
@@ -194,4 +202,4 @@ const deleteSopLegal = async (req, res, next) => {
 export {
     addLegal, getLegal, deleteLegal, updateLegal,
     addSopLegal, getSopLegal, deleteSopLegal
-}
+};

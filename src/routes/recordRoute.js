@@ -1,11 +1,13 @@
 import { Router } from 'express';
-import * as recordController from '../controllers/recordController.js';
 import { verifyToken } from '../middlewares/auth.js';
+import { addRecord, deleteSopRecord, getSopRecord } from '../controllers/recordController.js';
 
 const router = Router();
 router.route('/')
-    .get(verifyToken, recordController.getSopRecord)
-    .post(verifyToken, recordController.addRecord)
-    .delete(verifyToken, recordController.deleteSopRecord);
-    
+    .post(verifyToken, addRecord);
+
+router.route('/:id')
+    .get(verifyToken, getSopRecord)
+    .delete(verifyToken, deleteSopRecord);
+
 export default router;

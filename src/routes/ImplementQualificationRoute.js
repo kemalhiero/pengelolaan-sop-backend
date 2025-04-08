@@ -1,14 +1,13 @@
 import { Router } from 'express';
-import * as implementQualificationController from '../controllers/implementQualificationController.js';
 import { verifyToken } from '../middlewares/auth.js';
+import { addSopIQ, deleteSopIQ, getSopIQ } from '../controllers/implementQualificationController.js';
 
 const router = Router();
-router.route('/')
-    .get(verifyToken, implementQualificationController.getSopIQ)
-    .post(verifyToken, implementQualificationController.addSopIQ)
-    .delete(verifyToken, implementQualificationController.deleteSopIQ);
-    
-// router.route('/sop')
-//     .post(implementQualificationController.addSopImplementer)
+
+router.post('/', verifyToken, addSopIQ);
+
+router.route('/:id')
+    .get(verifyToken, getSopIQ)
+    .delete(verifyToken, deleteSopIQ);
 
 export default router;

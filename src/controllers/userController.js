@@ -511,6 +511,26 @@ const addSopDrafter = async (req, res, next) => {
     }
 };
 
+const removeSopDrafter = async (req, res, next) => {
+    try {
+        const { userId, sopDetailId } = req.params;
+        
+        const deletedCount = await modelDrafter.destroy({
+            where: { id_user: userId, id_sop_detail: sopDetailId }
+        });
+
+        if (deletedCount === 0) {
+            return res.status(404).json({ message: 'Data user atau sop tidak ditemukan' });
+        }
+        
+        return res.status(200).json({
+            message: 'sukses menghapus data',
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 const getDrafterByIdDetail = async (req, res, next) => {      //ambil pembuat dokumen berdasarkan id detail sop
     try {
         const { id } = req.params;
@@ -541,7 +561,7 @@ const getDrafterByIdDetail = async (req, res, next) => {      //ambil pembuat do
     }
 };
 
-const addDrafter = async (req, res, next) => {
+const addDrafter = async (req, res, next) => {      //ubah role user jadi penyusun
     try {
         const { id } = req.body;
 
@@ -785,7 +805,7 @@ export {
     getUserByRole, getUserProfile, updateProfile,
     uploadProfilePhoto, deleteProfilePhoto,
     uploadSignatureFile,
-    getAllDrafter, getDrafterByIdDetail, addSopDrafter, addDrafter, getDrafterDetail,
+    getAllDrafter, getDrafterByIdDetail, addSopDrafter, removeSopDrafter, addDrafter, getDrafterDetail,
     getHodCandidate, updateHod, getAllHod, getCurrentHod,
     getAllPic, addPic, getUnassignedPic, getPicCandidate, getPicDetail
 };

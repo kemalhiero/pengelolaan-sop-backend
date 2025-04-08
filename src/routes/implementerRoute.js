@@ -1,19 +1,22 @@
 import { Router } from 'express';
-import * as implementerController from '../controllers/implementerController.js';
 import { verifyToken } from '../middlewares/auth.js';
+import {
+    addImplementer, getImplementer, updateImplementer, deleteImplementer,
+    addSopImplementer, getSopImplementer, deleteSopImplementer
+} from '../controllers/implementerController.js';
 
 const router = Router();
 router.route('/')
-    .get(verifyToken, implementerController.getImplementer)
-    .post(verifyToken, implementerController.addImplementer);
+    .get(verifyToken, getImplementer)
+    .post(verifyToken, addImplementer);
 
-router.route('/sop')
-    .get(verifyToken, implementerController.getSopImplementer)
-    .post(verifyToken, implementerController.addSopImplementer)
-    .delete(verifyToken, implementerController.deleteSopImplementer);
+router.post('/sop', verifyToken, addSopImplementer);
+router.get('/sop/:id',verifyToken, getSopImplementer)
+
+router.delete('/sop/:sopDetailId/:implementerId', verifyToken, deleteSopImplementer)
 
 router.route('/:id')
-    .patch(verifyToken, implementerController.updateImplementer)
-    .delete(verifyToken, implementerController.deleteImplementer);
+    .patch(verifyToken, updateImplementer)
+    .delete(verifyToken, deleteImplementer);
 
 export default router;

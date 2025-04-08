@@ -1,11 +1,13 @@
 import { Router } from 'express';
-import * as relatedSopController from '../controllers/relatedSopController.js';
 import { verifyToken } from '../middlewares/auth.js';
+import { addRelatedSop, deleteRelatedSop, getRelatedSop } from '../controllers/relatedSopController.js';
 
 const router = Router();
 router.route('/')
-    .get(verifyToken, relatedSopController.getRelatedSop)
-    .post(verifyToken, relatedSopController.addRelatedSop)
-    .delete(verifyToken, relatedSopController.deleteRelatedSop);
+    .post(verifyToken, addRelatedSop);
+
+router.route('/:id')
+    .get(verifyToken, getRelatedSop)
+    .delete(verifyToken, deleteRelatedSop);
 
 export default router;
