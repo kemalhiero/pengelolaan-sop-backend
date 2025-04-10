@@ -37,9 +37,12 @@ export default sequelize.define('sop_details',
         },
         description: {         // bisa tapi tidak wajib saat di awal
             type: DataTypes.STRING(1000),
+            validate: {
+                len: [0, 1000],
+            },
         },
-        pic_position: {
-            type: DataTypes.STRING(50)
+        signer: {
+            type: DataTypes.STRING(100),
         },
     }, {
     freezeTableName: true,

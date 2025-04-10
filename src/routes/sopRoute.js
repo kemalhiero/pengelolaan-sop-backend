@@ -8,12 +8,13 @@ router.route('/')
     .post(verifyToken, sopController.addSop);
 
 router.get('/latest/sop/:id', sopController.getLatestSopVersion);
-router.get('/latest/year/:id', sopController.getLatestSopInYear);
+router.get('/latest/year/:year', sopController.getLatestSopInYear);
 
 router.get('/detail',sopController.getAllSopDetail);
 router.route('/detail/:id')
     .post(verifyToken ,sopController.addSopDetail)
-    .patch(verifyToken ,sopController.updateSopDetail);
+    .patch(verifyToken ,sopController.updateSopDetail)
+    .delete(verifyToken ,sopController.deleteSopDetail);
 
 router.get('/version/:id', sopController.getSopVersion);
 

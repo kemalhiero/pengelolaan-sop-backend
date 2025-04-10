@@ -82,20 +82,17 @@ const deleteLegal = async (req, res, next) => {
 const updateLegal = async (req, res, next) => {
     try {
         const { id } = req.params;
+        const { id_law_type, number, year, about } = req.body;
+
         if (isNaN(Number(id))) return res.status(400).json({ message: 'ID harus berupa angka' });
 
-        const { id_law_type, number, year, about } = req.body;
-        const legal = await modelLegal.findByPk(id, { attributes: ['id_legal'] });
-
-        if (!legal) return res.status(404).json({ message: 'data tidak ditemukan' });
-
-        await legal.update({
-            id_law_type, number, year, about
+        const [updated] = await modelLegal.update({ id_law_type, number, year, about }, {
+            where: { id_legal: id }
         });
 
-        return res.status(200).json({
-            message: 'sukses memperbarui data',
-        });
+        if (!updated) return res.status(404).json({ message: 'Data tidak ditemukan' });
+
+        return res.status(200).json({ message: 'Sukses memperbarui data' });
 
     } catch (error) {
         next(error);
@@ -130,7 +127,7 @@ const addSopLegal = async (req, res, next) => {
 const getSopLegal = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (isNaN(Number(sopDetailId))) {
+        if (isNaN(Number(id))) {
             console.error('ID harus berupa angka')
             return res.status(400).json({ message: 'ID harus berupa angka' })
         };
@@ -184,7 +181,6 @@ const deleteSopLegal = async (req, res, next) => {
                 id_legal: legalId
             }
         });
-
         if (!deletedCount) {
             console.error('Data dasar hukum sop tidak ditemukan!')
             return res.status(404).json({ message: 'Data dasar hukum sop tidak ditemukan!' })

@@ -35,18 +35,16 @@ const addSopDetail = async (req, res, next) => {
         const { id } = req.params;
         if (!id) return res.status(404).json({ message: 'atribut id masih kosong!' });
 
-        const { number, description, version, pic_position } = req.body;
-        if (!number || !description || !version || !pic_position) return res.status(404).json({ message: 'pastikan data tidak kosong!' });
+        const { number, description, version, signer } = req.body;
+        if (!number || !description || !version) return res.status(404).json({ message: 'pastikan data tidak kosong!' });
 
         const sop = await modelSop.findByPk(id, { attributes: ['id_sop'] });
         if (!sop) return res.status(404).json({ message: 'sop tidak ditemukan!' });
 
         const dataSopDetail = await modelSopDetail.create({
             number, description, id_sop: id, version,
-            status: 2,
-            pic_position
+            status: 2, signer
         });
-        console.log(dataSopDetail.dataValues.id_sop_detail);
 
         return res.status(201).json({
             message: 'sukses menambahkan data',
@@ -209,7 +207,7 @@ const getSopById = async (req, res, next) => {          //untuk ambil sop besert
                 ['id_sop_detail', 'id'],
                 'number', 'version', 'effective_date',
                 'status', 'warning', 'section',
-                'description', 'pic_position', 'updatedAt'
+                'description', 'updatedAt'
             ],
             include: {
                 model: modelUser,
@@ -253,7 +251,7 @@ const getSopVersion = async (req, res, next) => {
                 ['id_sop_detail', 'id'],
                 'number', 'version', 'effective_date',
                 'status', 'warning', 'section',
-                'description', 'pic_position', 'updatedAt'
+                'description', 'updatedAt'
             ],
             include: [
                 {
@@ -339,7 +337,7 @@ const getLatestSopInYear = async (req, res, next) => {
         // Validasi rentang tahun yang masuk akal (misalnya 1900-2100)
         if (yearNumber < 2010 || yearNumber > currentYear) {
             return res.status(400).json({
-                message: `Tahun harus berada dalam rentang 1900-${currentYear}`
+                message: `Tahun harus berada dalam rentang 2010-${currentYear}`
             });
         }
 
@@ -480,7 +478,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
 
 const updateSopDetail = async (req, res, next) => {
     try {
-        const { id } = req.query;
+        const { id } = req.params;
         const updateData = req.body;    // semua atribut yang ada di tabel sop detail
 
         // Filter hanya field yang ada di request body
@@ -497,6 +495,27 @@ const updateSopDetail = async (req, res, next) => {
             message: 'sukses memperbarui data',
             data
         });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+const deleteSopDetail = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        if (isNaN(Number(id))) {
+            console.error('ID harus berupa angka')
+            return res.status(400).json({ message: 'ID harus berupa angka' })
+        };
+
+        const deletedCount = await modelSopDetail.destroy({ where: { id_sop_detail: id } });
+        if (deletedCount === 0) {
+            console.error('Data tidak ditemukan');
+            return res.status(404).json({ message: 'Data tidak ditemukan' });
+        }
+
+        return res.status(200).json({ message: 'sukses menghapus data' });
 
     } catch (error) {
         next(error);
@@ -603,14 +622,18 @@ const updateSopStep = async (req, res, next) => {
 const deleteSopStep = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const dataSopStep = await modelSopStep.findByPk(id);
-        if (!dataSopStep) return res.status(404).json({ message: 'Data tahapan sop tidak ditemukan' });
+        if (isNaN(Number(id))) {
+            console.error('ID harus berupa angka')
+            return res.status(400).json({ message: 'ID harus berupa angka' })
+        };
 
-        await dataSopStep.destroy();
+        const deletedCount = await modelSopStep.destroy({ where: { id_step: id } });
+        if (deletedCount === 0) {
+            console.error('Data tidak ditemukan');
+            return res.status(404).json({ message: 'Data tidak ditemukan' });
+        }
 
-        return res.status(200).json({
-            message: 'sukses menghapus data',
-        });
+        return res.status(200).json({ message: 'sukses menghapus data' });
 
     } catch (error) {
         next(error);
@@ -619,7 +642,7 @@ const deleteSopStep = async (req, res, next) => {
 
 export {
     addSop, getAllSop, getSopById, getAssignedSop, getManagedSop, getSopVersion,
-    addSopDetail, getAllSopDetail, updateSopDetail, getSectionandWarning, getLatestSopVersion, getLatestSopInYear,
+    addSopDetail, getAllSopDetail, updateSopDetail, deleteSopDetail, getSectionandWarning, getLatestSopVersion, getLatestSopInYear,
     getAssignedSopDetail,
     addSopStep, getSopStepbySopDetail, updateSopStep, deleteSopStep
 };

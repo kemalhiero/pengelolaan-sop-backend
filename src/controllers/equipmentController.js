@@ -65,13 +65,13 @@ const deleteEquipment = async (req, res, next) => {
             return res.status(400).json({ message: 'ID harus berupa angka!' })
         };
 
-        const dataEquipment = await modelEquipment.findByPk(id, { attributes: ['id_equipment'] });
-        if (!dataEquipment) {
+        const deletedCount = await modelEquipment.destroy({
+            where: { id_equipment: id }
+        });
+        if (deletedCount === 0) {
             console.error('Data peralatan tidak ditemukan!')
             return res.status(404).json({ message: 'Data peralatan tidak ditemukan!' })
         };
-
-        await dataEquipment.destroy();
 
         return res.status(200).json({
             message: 'sukses menghapus data',
