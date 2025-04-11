@@ -36,6 +36,8 @@ router.route('/assignment/:id')
 router.get( '/info/:id', verifyToken,sopController.getSectionandWarning);
 
 router.route('/:id')
-    .get(sopController.getSopById);
+    .get(sopController.getSopById)
+    .delete(verifyToken, sopController.deleteSop)
+    .patch(verifyToken, sopController.updateSop);
 
 export default router;

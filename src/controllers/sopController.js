@@ -149,6 +149,52 @@ const getManagedSop = async (req, res, next) => {       //ambil semua sop
     }
 };
 
+const deleteSop = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        if (isNaN(Number(id))) {
+            console.error('ID harus berupa angka')
+            return res.status(400).json({ message: 'ID harus berupa angka' })
+        };
+
+        const deletedCount = await modelSop.destroy({ where: { id_sop: id } });
+        if (deletedCount === 0) {
+            console.error('Data tidak ditemukan');
+            return res.status(404).json({ message: 'Data tidak ditemukan' });
+        }
+
+        return res.status(200).json({ message: 'sukses menghapus data' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const updateSop = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { id_org, name, is_active } = req.body;
+
+        if (!id) return res.status(404).json({ message: 'atribut id masih kosong!' });
+        if (isNaN(Number(id))) {
+            console.error('ID harus berupa angka')
+            return res.status(400).json({ message: 'ID harus berupa angka' })
+        };
+
+        const data = await modelSop.update({ id_org, name, is_active }, { where: { id_sop: id } });
+        if (data[0] === 0) {
+            console.error('Data tidak ditemukan');
+            return res.status(404).json({ message: 'Data tidak ditemukan' });
+        }
+
+        return res.status(200).json({
+            message: 'sukses memperbarui data',
+            data
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 const getAllSopDetail = async (req, res, next) => {    // ambil semua data tabel sop-detail
     try {
         const dataSop = await modelSopDetail.findAll({
@@ -641,7 +687,7 @@ const deleteSopStep = async (req, res, next) => {
 };
 
 export {
-    addSop, getAllSop, getSopById, getAssignedSop, getManagedSop, getSopVersion,
+    addSop, getAllSop, getSopById, getAssignedSop, getManagedSop, deleteSop, updateSop, getSopVersion,
     addSopDetail, getAllSopDetail, updateSopDetail, deleteSopDetail, getSectionandWarning, getLatestSopVersion, getLatestSopInYear,
     getAssignedSopDetail,
     addSopStep, getSopStepbySopDetail, updateSopStep, deleteSopStep
