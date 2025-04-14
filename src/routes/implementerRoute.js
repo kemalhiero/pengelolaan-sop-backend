@@ -11,7 +11,7 @@ router.route('/')
     .post(verifyToken, addImplementer);
 
 router.post('/sop', verifyToken, addSopImplementer);
-router.get('/sop/:id',verifyToken, getSopImplementer)
+router.get('/sop/:id', getSopImplementer)
 
 router.delete('/sop/:sopDetailId/:implementerId', verifyToken, deleteSopImplementer)
 

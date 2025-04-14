@@ -7,7 +7,7 @@ router.route('/')
     .post(verifyToken, addEquipment);
 
 router.route('/:id')
-    .get(verifyToken, getSopEquipment)
+    .get(getSopEquipment)
     .delete(verifyToken, deleteEquipment);
 
 export default router;

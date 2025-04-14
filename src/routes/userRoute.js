@@ -31,7 +31,7 @@ router.route('/hod')
     .get(verifyToken, controller.getAllHod)
     .patch(verifyToken, controller.updateHod);
 
-router.get('/hod/current', verifyToken, controller.getCurrentHod);
+router.get('/hod/current', controller.getCurrentHod);
 router.get('/hod/candidate', verifyToken, controller.getHodCandidate);
 
 router.route('/pic')

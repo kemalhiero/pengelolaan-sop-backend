@@ -10,15 +10,15 @@ router.route('/')
 router.get('/latest/sop/:id', sopController.getLatestSopVersion);
 router.get('/latest/year/:year', sopController.getLatestSopInYear);
 
-router.get('/detail',sopController.getAllSopDetail);
+router.get('/detail', sopController.getAllSopDetail);
 router.route('/detail/:id')
-    .post(verifyToken ,sopController.addSopDetail)
-    .patch(verifyToken ,sopController.updateSopDetail)
-    .delete(verifyToken ,sopController.deleteSopDetail);
+    .post(verifyToken, sopController.addSopDetail)
+    .patch(verifyToken, sopController.updateSopDetail)
+    .delete(verifyToken, sopController.deleteSopDetail);
 
 router.get('/version/:id', sopController.getSopVersion);
 
-router.post('/step',verifyToken, sopController.addSopStep);
+router.post('/step', verifyToken, sopController.addSopStep);
 
 router.route('/step/:id')
     .get(sopController.getSopStepbySopDetail)
@@ -33,7 +33,7 @@ router.get('/managed', verifyToken, sopController.getManagedSop);
 router.route('/assignment/:id')
     .get(verifyToken, sopController.getAssignedSopDetail);
 
-router.get( '/info/:id', verifyToken,sopController.getSectionandWarning);
+router.get('/info/:id', sopController.getSectionandWarning);
 
 router.route('/:id')
     .get(sopController.getSopById)

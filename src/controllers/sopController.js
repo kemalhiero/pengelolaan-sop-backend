@@ -59,12 +59,14 @@ const addSopDetail = async (req, res, next) => {
 const getAllSop = async (req, res, next) => {       //ambil semua sop
     try {
         const dataSop = await modelSop.findAll({
-            attributes: ['id_sop', 'name', 'is_active', 'createdAt'],
+            attributes: ['name', 'is_active', 'createdAt'],
             include: [
-                // {
-                //     model: modelSopDetail,
-                //     attributes: ['number', 'status', 'version']
-                // }, 
+                {
+                    model: modelSopDetail,
+                    attributes: ['id_sop_detail'],
+                    where: { status: 1 }, // Ambil hanya SOP yang sudah disetujui
+                    required: true, // Pastikan bahwa hanya SOP dengan detail yang sesuai yang diambil
+                },
                 {
                     model: modelOrganization,
                     attributes: ['name']
@@ -76,7 +78,7 @@ const getAllSop = async (req, res, next) => {       //ambil semua sop
             const formattedCreationDate = dateFormat(item.createdAt)
 
             return {
-                id: item.id_sop,
+                id: item.sop_details[0].id_sop_detail, // Ambil id dari detail sop pertama
                 name: item.name,
                 is_active: item.is_active,
                 creation_date: formattedCreationDate, // Gunakan tanggal yang sudah diformat

@@ -7,7 +7,7 @@ router.route('/')
     .post(verifyToken, addRecord);
 
 router.route('/:id')
-    .get(verifyToken, getSopRecord)
+    .get(getSopRecord)
     .delete(verifyToken, deleteSopRecord);
 
 export default router;

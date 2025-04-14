@@ -14,7 +14,7 @@ router.route('/:id')
     .patch(verifyToken, updateLegal)
     .delete(verifyToken, deleteLegal);
 
-router.get('/sop/:id', verifyToken, getSopLegal);
+router.get('/sop/:id', getSopLegal);
 router.post('/sop', verifyToken, addSopLegal);
 
 router.delete('/sop/:sopDetailId/:legalId', verifyToken, deleteSopLegal);

@@ -7,7 +7,7 @@ const router = Router();
 router.post('/', verifyToken, addSopIQ);
 
 router.route('/:id')
-    .get(verifyToken, getSopIQ)
+    .get(getSopIQ)
     .delete(verifyToken, deleteSopIQ);
 
 export default router;
