@@ -76,8 +76,8 @@ const getUserProfile = async (req, res, next) => {
             id_number: dataUser.dataValues.identity_number,
             name: dataUser.dataValues.name,
             gender: dataUser.dataValues.gender,
-            photo: dataUser.dataValues.photo ? `${env.CLOUDFLARE_R2_PUBLIC_BUCKET_URL}/${dataUser.dataValues.photo}` : null,
-            signature: dataUser.dataValues.signature ? `${env.CLOUDFLARE_R2_PUBLIC_BUCKET_URL}/${dataUser.dataValues.signature}` : null,
+            photo: dataUser.dataValues.photo ? encodeURI(`${env.CLOUDFLARE_R2_PUBLIC_BUCKET_URL}/${dataUser.dataValues.photo}`) : null,
+            signature: dataUser.dataValues.signature ? encodeURI(`${env.CLOUDFLARE_R2_PUBLIC_BUCKET_URL}/${dataUser.dataValues.signature}`) : null,
             email: dataUser.dataValues.email,
             role: dataUser.dataValues.role.role_name,
             org: dataUser.dataValues.organization.name,
@@ -724,43 +724,6 @@ const updateHod = async (req, res, next) => {
     }
 };
 
-const getAllHod = async (req, res, next) => {
-    try {
-        const hod = await modelUser.findAll({
-            attributes: ['id_user', 'identity_number', 'name'],
-            include: [
-                {
-                    model: modelRole,
-                    attributes: [],
-                    where: {
-                        role_name: 'kadep'
-                    }
-                },
-                {
-                    model: modelOrg,
-                    attributes: ['name']
-                }
-            ]
-        });
-
-        const data = hod.map(item => {
-            return {
-                id: item.id_user,
-                id_number: item.identity_number,
-                name: item.name,
-                status: item.organization?.name == 'Departemen Sistem Informasi' ? 1 : 0        //kalau 1 masih aktif, kalau 0 tidak
-            }
-        });
-
-        res.status(200).json({
-            message: 'sukses mendapatkan data',
-            data
-        });
-    } catch (error) {
-        next(error);
-    }
-};
-
 const getCurrentHod = async (req, res, next) => {
     try {
         const hod = await modelUser.findOne({
@@ -788,7 +751,7 @@ const getCurrentHod = async (req, res, next) => {
             id_number: hod.identity_number,
             name: hod.name,
             gender: hod.gender,
-            photo: hod.photo ? `${env.CLOUDFLARE_R2_PUBLIC_BUCKET_URL}/${hod.photo}` : null,
+            photo: hod.photo ? encodeURI(`${env.CLOUDFLARE_R2_PUBLIC_BUCKET_URL}/${hod.photo}`) : null,
             email: hod.email,
         };
 
@@ -806,6 +769,6 @@ export {
     uploadProfilePhoto, deleteProfilePhoto,
     uploadSignatureFile,
     getAllDrafter, getDrafterByIdDetail, addSopDrafter, removeSopDrafter, addDrafter, getDrafterDetail,
-    getHodCandidate, updateHod, getAllHod, getCurrentHod,
+    getHodCandidate, updateHod, getCurrentHod,
     getAllPic, addPic, getUnassignedPic, getPicCandidate, getPicDetail
 };

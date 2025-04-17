@@ -28,7 +28,6 @@ router.get('/drafter/sopdetail/:id', controller.getDrafterByIdDetail);
 router.get('/drafter/:id', controller.getDrafterDetail);
 
 router.route('/hod')
-    .get(verifyToken, controller.getAllHod)
     .patch(verifyToken, controller.updateHod);
 
 router.get('/hod/current', controller.getCurrentHod);

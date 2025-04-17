@@ -65,7 +65,7 @@ const loginUser = async (req, res, next) => {
         const token = jwt.sign({
             idnumber,
             role: userData.role.role_name,
-            photo: userData.dataValues.photo ? `${env.CLOUDFLARE_R2_PUBLIC_BUCKET_URL}/${userData.dataValues.photo}` : null
+            photo: userData.dataValues.photo ? encodeURI(`${env.CLOUDFLARE_R2_PUBLIC_BUCKET_URL}/${userData.dataValues.photo}`) : null
         }, env.JWT_SECRET, { expiresIn: '30d' });
 
         return res.status(200).json({
