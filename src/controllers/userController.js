@@ -133,12 +133,12 @@ const deleteProfilePhoto = async (req, res, next) => {
         const user = await modelUser.findByPk(req.user.id_user, {
             attributes: ['id_user', 'photo']
         });
-        if (!user || !user.dataValues.photo) return res.status(404).json({ message: 'user tidak ditemukan!' });
+        if (!user || !user.dataValues.photo) return res.status(404).json({ message: 'user atau foto tidak ditemukan!' });
 
         await deleteFile(user.dataValues.photo, 'profile-pictures');
         await user.update({ photo: null });
 
-        return res.status(200).json({ message: 'Foto profil berhasil dihapus' });
+        return res.status(200).json({ message: 'Foto profil berhasil dihapus!' });
     } catch (error) {
         next(error);
     }
@@ -157,6 +157,22 @@ const uploadSignatureFile = async (req, res, next) => {
         await user.update({ signature: fileUrl });
 
         return res.status(200).json({ message: 'Tanda tangan berhasil diunggah', fileUrl });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const deleteSignatureFile = async (req, res, next) => {
+    try {
+        const user = await modelUser.findByPk(req.user.id_user, {
+            attributes: ['id_user', 'signature']
+        });
+        if (!user || !user.dataValues.signature) return res.status(404).json({ message: 'user atau tanda tangan tidak ditemukan!' });
+
+        await deleteFile(user.dataValues.signature, 'signatures');
+        await user.update({ signature: null });
+
+        return res.status(200).json({ message: 'File tanda tangan berhasil dihapus!' }); 
     } catch (error) {
         next(error);
     }
@@ -767,7 +783,7 @@ const getCurrentHod = async (req, res, next) => {
 export {
     getUserByRole, getUserProfile, updateProfile,
     uploadProfilePhoto, deleteProfilePhoto,
-    uploadSignatureFile,
+    uploadSignatureFile, deleteSignatureFile,
     getAllDrafter, getDrafterByIdDetail, addSopDrafter, removeSopDrafter, addDrafter, getDrafterDetail,
     getHodCandidate, updateHod, getCurrentHod,
     getAllPic, addPic, getUnassignedPic, getPicCandidate, getPicDetail

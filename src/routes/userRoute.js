@@ -15,6 +15,7 @@ router.route('/profile/photo')
 
 router.route('/signature')
     .post(verifyToken, upload.single('file'), controller.uploadSignatureFile)
+    .delete(verifyToken, controller.deleteSignatureFile);
 
 router.route('/drafter')
     .get(verifyToken, controller.getAllDrafter)

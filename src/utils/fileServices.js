@@ -15,7 +15,7 @@ const uploadFile = async (file, folder = 'uploads') => {
     try {
         const params = {
             Bucket: env.CLOUDFLARE_R2_BUCKET_NAME,
-            Key: `${folder}/${Date.now()}-${file.originalname || file.name}`, // Nama file unik
+            Key: `${folder}/${Date.now()}`, // Nama file unik
             Body: file.buffer,
             ContentType: file.mimetype,
         };
