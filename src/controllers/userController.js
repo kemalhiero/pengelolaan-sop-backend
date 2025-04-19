@@ -121,6 +121,7 @@ const uploadProfilePhoto = async (req, res, next) => {
         // Upload file ke Cloudflare R2 menggunakan file service
         const fileUrl = await uploadFile(file, 'profile-pictures');
         await user.update({ photo: fileUrl });
+        console.log(fileUrl);
 
         return res.status(200).json({ message: 'Foto profil berhasil diunggah', fileUrl });
     } catch (error) {
@@ -172,7 +173,7 @@ const deleteSignatureFile = async (req, res, next) => {
         await deleteFile(user.dataValues.signature, 'signatures');
         await user.update({ signature: null });
 
-        return res.status(200).json({ message: 'File tanda tangan berhasil dihapus!' }); 
+        return res.status(200).json({ message: 'File tanda tangan berhasil dihapus!' });
     } catch (error) {
         next(error);
     }
@@ -530,7 +531,7 @@ const addSopDrafter = async (req, res, next) => {
 const removeSopDrafter = async (req, res, next) => {
     try {
         const { userId, sopDetailId } = req.params;
-        
+
         const deletedCount = await modelDrafter.destroy({
             where: { id_user: userId, id_sop_detail: sopDetailId }
         });
@@ -538,7 +539,7 @@ const removeSopDrafter = async (req, res, next) => {
         if (deletedCount === 0) {
             return res.status(404).json({ message: 'Data user atau sop tidak ditemukan' });
         }
-        
+
         return res.status(200).json({
             message: 'sukses menghapus data',
         });
@@ -778,7 +779,33 @@ const getCurrentHod = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-}
+};
+
+// penanda tangan
+const getSigner = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        if (!id) return res.status(404).json({ message: 'masukkan id penanda tangan!' });
+
+        const data = await modelUser.findByPk(id, {
+            attributes: [['identity_number', 'id_number'], 'name'],
+            include: {
+                model: modelRole,
+                attributes: [],
+                where: { role_name: { [Op.in]: ['kadep', 'pj'] } }
+            }
+        });
+
+        if (!data.dataValues) return res.status(404).json({ message: 'data user tidak ditemukan!' });
+
+        res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 
 export {
     getUserByRole, getUserProfile, updateProfile,
@@ -786,5 +813,6 @@ export {
     uploadSignatureFile, deleteSignatureFile,
     getAllDrafter, getDrafterByIdDetail, addSopDrafter, removeSopDrafter, addDrafter, getDrafterDetail,
     getHodCandidate, updateHod, getCurrentHod,
+    getSigner,
     getAllPic, addPic, getUnassignedPic, getPicCandidate, getPicDetail
 };

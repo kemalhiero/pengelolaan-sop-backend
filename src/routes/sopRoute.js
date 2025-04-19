@@ -29,6 +29,7 @@ router.route('/assignment')
     .get(verifyToken, sopController.getAssignedSop);
 
 router.get('/managed', verifyToken, sopController.getManagedSop);
+router.patch('/confirm/:id', verifyToken, sopController.confirmSopandBpmn);
 
 router.route('/assignment/:id')
     .get(verifyToken, sopController.getAssignedSopDetail);

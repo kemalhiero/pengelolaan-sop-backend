@@ -1,13 +1,13 @@
+import { nanoid } from 'nanoid';
+import { literal } from 'sequelize';
+import dateFormat from '../utils/dateFormat.js';
+
 import modelSop from '../models/sop.js';
 import modelRole from '../models/roles.js';
 import modelUser from '../models/users.js';
 import modelSopStep from '../models/sop_step.js'
 import modelSopDetail from '../models/sop_details.js';
 import modelOrganization from '../models/organization.js';
-
-import { nanoid } from 'nanoid';
-import { literal } from 'sequelize';
-import dateFormat from '../utils/dateFormat.js';
 
 const currentYear = new Date().getFullYear();
 
@@ -43,7 +43,7 @@ const addSopDetail = async (req, res, next) => {
 
         const dataSopDetail = await modelSopDetail.create({
             number, description, id_sop: id, version,
-            status: 2, signer
+            status: 2, signer_id: signer
         });
 
         return res.status(201).json({
@@ -299,7 +299,7 @@ const getSopVersion = async (req, res, next) => {
                 ['id_sop_detail', 'id'],
                 'number', 'version', 'effective_date',
                 'status', 'warning', 'section',
-                'description', 'updatedAt'
+                'description', 'signer_id', 'signature_url', 'updatedAt'
             ],
             include: [
                 {
@@ -688,9 +688,41 @@ const deleteSopStep = async (req, res, next) => {
     }
 };
 
+const confirmSopandBpmn = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body; // status 1 untuk menyetujui, 0 untuk menolak
+
+        if (status !== 1 && status !== 0) {
+            return res.status(400).json({ message: 'Status tidak valid. Gunakan 1 untuk menyetujui dan 0 untuk menolak.' });
+        }
+
+        const dataSopDetail = await modelSopDetail.findByPk(id);
+        if (!dataSopDetail) return res.status(404).json({ message: 'Data sop detail tidak ditemukan' });
+
+        await dataSopDetail.update({
+            status,
+            signer_id: req.user.id_user,
+            signature_url: req.user.signature,
+        });
+
+        const sopUtama = await modelSop.findByPk(dataSopDetail.dataValues.id_sop, { attributes: ['id_sop'] });
+        if (sopUtama.dataValues.is_active === 2) {
+            await sopUtama.update({ is_active: 1 });
+            
+        }
+
+        return res.status(200).json({ message: 'sukses mengkonfirmasi SOP' });
+
+    } catch (error) {
+        next(error);
+    }
+}
+
 export {
     addSop, getAllSop, getSopById, getAssignedSop, getManagedSop, deleteSop, updateSop, getSopVersion,
     addSopDetail, getAllSopDetail, updateSopDetail, deleteSopDetail, getSectionandWarning, getLatestSopVersion, getLatestSopInYear,
     getAssignedSopDetail,
-    addSopStep, getSopStepbySopDetail, updateSopStep, deleteSopStep
+    addSopStep, getSopStepbySopDetail, updateSopStep, deleteSopStep,
+    confirmSopandBpmn,
 };

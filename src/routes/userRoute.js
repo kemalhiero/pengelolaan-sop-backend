@@ -17,6 +17,8 @@ router.route('/signature')
     .post(verifyToken, upload.single('file'), controller.uploadSignatureFile)
     .delete(verifyToken, controller.deleteSignatureFile);
 
+router.get('/signer/:id', controller.getSigner);
+
 router.route('/drafter')
     .get(verifyToken, controller.getAllDrafter)
     .post(verifyToken, controller.addDrafter);

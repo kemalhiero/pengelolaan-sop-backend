@@ -1,5 +1,7 @@
 import sequelize from "../config/db.js";
-import {DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
+
+import modelUser from './users.js';
 
 export default sequelize.define('sop_details',
     {
@@ -41,8 +43,17 @@ export default sequelize.define('sop_details',
                 len: [0, 1000],
             },
         },
-        signer: {
-            type: DataTypes.STRING(100),
+        signer_id: {
+            type: DataTypes.STRING(15),
+            allowNull: false,
+            references: {
+                model: modelUser,
+                key: 'id_user',
+            },
+        },
+        signature_url: {
+            type: DataTypes.STRING(255),
+            allowNull: false,
         },
     }, {
     freezeTableName: true,
