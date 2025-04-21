@@ -709,8 +709,19 @@ const confirmSopandBpmn = async (req, res, next) => {
         const sopUtama = await modelSop.findByPk(dataSopDetail.dataValues.id_sop, { attributes: ['id_sop'] });
         if (sopUtama.dataValues.is_active === 2) {
             await sopUtama.update({ is_active: 1 });
-            
         }
+
+        // Update status menjadi 0 hanya untuk SOP detail lain yang statusnya belum 0
+        await modelSopDetail.update(
+            { status: 0 },
+            {
+            where: {
+                id_sop: dataSopDetail.dataValues.id_sop,
+                id_sop_detail: { [modelSopDetail.sequelize.Op.ne]: dataSopDetail.dataValues.id_sop_detail },
+                status: { [modelSopDetail.sequelize.Op.ne]: 0 }
+            }
+            }
+        );
 
         return res.status(200).json({ message: 'sukses mengkonfirmasi SOP' });
 

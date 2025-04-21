@@ -1,12 +1,13 @@
 import { Op, literal } from 'sequelize';
 import { env } from 'node:process';
+import { uploadFile, deleteFile, resizeImage } from '../utils/fileServices.js';
+
 import modelSopDetail from '../models/sop_details.js';
 import modelOrg from '../models/organization.js';
 import modelDrafter from '../models/drafter.js';
 import modelUser from '../models/users.js';
 import modelRole from '../models/roles.js';
 import modelSop from '../models/sop.js';
-import { uploadFile, deleteFile } from '../utils/fileServices.js';
 
 const getUserByRole = async (req, res, next) => {
     try {
@@ -118,10 +119,12 @@ const uploadProfilePhoto = async (req, res, next) => {
         });
         if (!user) return res.status(404).json({ message: 'user tidak ditemukan!' });
 
-        // Upload file ke Cloudflare R2 menggunakan file service
-        const fileUrl = await uploadFile(file, 'profile-pictures');
+        // Crop gambar di tengah ke ukuran 200x200 px
+        const resizedBuffer = await resizeImage(file.buffer, 200, 200);
+        const resizedFile = { ...file, buffer: resizedBuffer };
+
+        const fileUrl = await uploadFile(resizedFile, 'profile-pictures');
         await user.update({ photo: fileUrl });
-        console.log(fileUrl);
 
         return res.status(200).json({ message: 'Foto profil berhasil diunggah', fileUrl });
     } catch (error) {
@@ -154,7 +157,10 @@ const uploadSignatureFile = async (req, res, next) => {
         });
         if (!user) return res.status(404).json({ message: 'user tidak ditemukan!' });
 
-        const fileUrl = await uploadFile(file, 'signatures');
+        // Crop tanda tangan di tengah ke ukuran 200x200 px
+        const resizedBuffer = await resizeImage(file.buffer, 200, 200);
+        const resizedFile = { ...file, buffer: resizedBuffer };
+        const fileUrl = await uploadFile(resizedFile, 'signatures');
         await user.update({ signature: fileUrl });
 
         return res.status(200).json({ message: 'Tanda tangan berhasil diunggah', fileUrl });
@@ -169,8 +175,10 @@ const deleteSignatureFile = async (req, res, next) => {
             attributes: ['id_user', 'signature']
         });
         if (!user || !user.dataValues.signature) return res.status(404).json({ message: 'user atau tanda tangan tidak ditemukan!' });
-
-        await deleteFile(user.dataValues.signature, 'signatures');
+        
+        //dibatalkan karena tanda tangan yang digunakan harus sesuai dengan anda tangan yang diberikan saat pengesahan
+        // await deleteFile(user.dataValues.signature, 'signatures');   
+        
         await user.update({ signature: null });
 
         return res.status(200).json({ message: 'File tanda tangan berhasil dihapus!' });

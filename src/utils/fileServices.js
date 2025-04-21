@@ -1,7 +1,50 @@
-// fileService.js
-import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { env } from 'node:process';
+import sharp from 'sharp';
+import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import s3Client from '../config/s3Client.js';
+
+/**
+ * Resize image buffer.
+ * @param {Buffer} buffer - Image buffer.
+ * @param {number} width - Target width.
+ * @param {number} height - Target height.
+ * @returns {Promise<Buffer>}
+ */
+export const resizeImage = async (buffer, width, height) => {
+    return sharp(buffer)
+        .resize(width, height)
+        .toBuffer();
+};
+
+/**
+ * Crop image buffer.
+ * @param {Buffer} buffer - Image buffer.
+ * @param {number} width - Crop width.
+ * @param {number} height - Crop height.
+ * @param {number} left - Left offset.
+ * @param {number} top - Top offset.
+ * @returns {Promise<Buffer>}
+ */
+export const cropImage = async (buffer, width, height, left = 0, top = 0) => {
+    return sharp(buffer)
+        .extract({ width, height, left, top })
+        .toBuffer();
+};
+
+/**
+ * Crop image buffer to the center.
+ * @param {Buffer} buffer - Image buffer.
+ * @param {number} width - Crop width.
+ * @param {number} height - Crop height.
+ * @returns {Promise<Buffer>}
+ */
+export const cropImageCenter = async (buffer, width, height) => {
+    const image = sharp(buffer);
+    const metadata = await image.metadata();
+    const left = Math.floor((metadata.width - width) / 2);
+    const top = Math.floor((metadata.height - height) / 2);
+    return image.extract({ width, height, left, top }).toBuffer();
+};
 
 /**
  * Uploads a file to the specified folder in the Cloudflare R2 bucket.
@@ -11,7 +54,7 @@ import s3Client from '../config/s3Client.js';
  * @returns {Promise<string>} - The URL of the uploaded file.
  * @throws {Error} - Throws an error if the file upload fails.
  */
-const uploadFile = async (file, folder = 'uploads') => {
+export const uploadFile = async (file, folder = 'uploads') => {
     try {
         const params = {
             Bucket: env.CLOUDFLARE_R2_BUCKET_NAME,
@@ -38,7 +81,7 @@ const uploadFile = async (file, folder = 'uploads') => {
  * @returns {Promise<boolean>} - Returns true if the file was successfully deleted.
  * @throws {Error} - Throws an error if the file URL is invalid or if the file deletion fails.
  */
-const deleteFile = async (fileUrl, folder = 'uploads') => {
+export const deleteFile = async (fileUrl, folder = 'uploads') => {
     try {
         if (!fileUrl) {
             throw new Error('URL file tidak valid');
@@ -57,5 +100,3 @@ const deleteFile = async (fileUrl, folder = 'uploads') => {
         throw new Error('Gagal menghapus file');
     }
 };
-
-export { uploadFile, deleteFile };
