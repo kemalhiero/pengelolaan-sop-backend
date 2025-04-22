@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { literal } from 'sequelize';
+import { literal, Op } from 'sequelize'; // Tambahkan Op di sini
 import dateFormat from '../utils/dateFormat.js';
 
 import modelSop from '../models/sop.js';
@@ -462,7 +462,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
 
         const dataSop = await modelSopDetail.findByPk(id, {
             attributes: [
-                'number', 'description',
+                'number', 'status', 'description',
                 'effective_date', 'createdAt', 'updatedAt',
             ],
             include: [
@@ -505,6 +505,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
                 }
             }),
             number: dataSop.number,
+            status: dataSop.status,
             description: dataSop.description,
             drafter: dataSop.users.map(item => {
                 return {
@@ -691,44 +692,39 @@ const deleteSopStep = async (req, res, next) => {
 const confirmSopandBpmn = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { status } = req.body; // status 1 untuk menyetujui, 0 untuk menolak
-
-        if (status !== 1 && status !== 0) {
-            return res.status(400).json({ message: 'Status tidak valid. Gunakan 1 untuk menyetujui dan 0 untuk menolak.' });
-        }
 
         const dataSopDetail = await modelSopDetail.findByPk(id);
         if (!dataSopDetail) return res.status(404).json({ message: 'Data sop detail tidak ditemukan' });
-
-        await dataSopDetail.update({
-            status,
-            signer_id: req.user.id_user,
-            signature_url: req.user.signature,
-        });
 
         const sopUtama = await modelSop.findByPk(dataSopDetail.dataValues.id_sop, { attributes: ['id_sop'] });
         if (sopUtama.dataValues.is_active === 2) {
             await sopUtama.update({ is_active: 1 });
         }
-
+        
         // Update status menjadi 0 hanya untuk SOP detail lain yang statusnya belum 0
         await modelSopDetail.update(
             { status: 0 },
             {
-            where: {
-                id_sop: dataSopDetail.dataValues.id_sop,
-                id_sop_detail: { [modelSopDetail.sequelize.Op.ne]: dataSopDetail.dataValues.id_sop_detail },
-                status: { [modelSopDetail.sequelize.Op.ne]: 0 }
-            }
+                where: {
+                    id_sop: dataSopDetail.dataValues.id_sop,
+                    id_sop_detail: { [Op.ne]: dataSopDetail.dataValues.id_sop_detail },
+                    status: { [Op.ne]: 0 }
+                }
             }
         );
+
+        await dataSopDetail.update({
+            status: 1,
+            signer_id: req.user.id_user,
+            signature_url: req.user.signature,
+        });
 
         return res.status(200).json({ message: 'sukses mengkonfirmasi SOP' });
 
     } catch (error) {
         next(error);
     }
-}
+};
 
 export {
     addSop, getAllSop, getSopById, getAssignedSop, getManagedSop, deleteSop, updateSop, getSopVersion,

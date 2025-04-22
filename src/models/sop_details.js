@@ -45,7 +45,6 @@ export default sequelize.define('sop_details',
         },
         signer_id: {
             type: DataTypes.STRING(15),
-            allowNull: false,
             references: {
                 model: modelUser,
                 key: 'id_user',
@@ -53,7 +52,6 @@ export default sequelize.define('sop_details',
         },
         signature_url: {
             type: DataTypes.STRING(255),
-            allowNull: false,
         },
     }, {
     freezeTableName: true,

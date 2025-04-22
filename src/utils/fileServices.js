@@ -56,9 +56,17 @@ export const cropImageCenter = async (buffer, width, height) => {
  */
 export const uploadFile = async (file, folder = 'uploads') => {
     try {
+        // Generate a random 16-character alphanumeric string for the filename
+        const randomName = [...Array(16)]
+            .map(() => Math.random().toString(36)[2])
+            .join('');
+        // Get file extension from original filename if available
+        const ext = file.originalname
+            ? '.' + file.originalname.split('.').pop()
+            : '';
         const params = {
             Bucket: env.CLOUDFLARE_R2_BUCKET_NAME,
-            Key: `${folder}/${Date.now()}`, // Nama file unik
+            Key: `${folder}/${randomName}${ext}`,
             Body: file.buffer,
             ContentType: file.mimetype,
         };
