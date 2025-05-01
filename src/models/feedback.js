@@ -3,7 +3,7 @@ import { DataTypes } from 'sequelize';
 
 export default sequelize.define('feedback',
     {
-        id_feedback: {
+        id: {
             type: DataTypes.STRING(25),
             primaryKey: true,
             allowNull: false

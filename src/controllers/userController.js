@@ -804,7 +804,7 @@ const getSigner = async (req, res, next) => {
             }
         });
 
-        if (!data.dataValues) return res.status(404).json({ message: 'data user tidak ditemukan!' });
+        if (!data?.dataValues) return res.status(404).json({ message: 'data user tidak ditemukan!' });
 
         res.status(200).json({
             message: 'sukses mendapatkan data',
