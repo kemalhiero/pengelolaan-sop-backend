@@ -219,7 +219,7 @@ const getAllSopDetail = async (req, res, next) => {    // ambil semua data tabel
             number: item.number,
             version: item.version,
             status: item.status,
-            name: item.sop.organization.name,
+            org_name: item.sop.organization.name,
         }));
 
         return res.status(200).json({
