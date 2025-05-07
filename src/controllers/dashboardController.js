@@ -1,7 +1,11 @@
 import modelOrganization from '../models/organization.js';
 import modelSopDetail from '../models/sop_details.js';
+import modelFeedback from '../models/feedback.js';
+import modelUser from '../models/users.js';
+import modelRole from '../models/roles.js';
 import modelSop from '../models/sop.js';
 
+// beranda
 const nominalSopEachOrg = async (req, res, next) => {
     try {
         const organization = await modelOrganization.findAll({
@@ -79,4 +83,182 @@ const sopDistributionByStatus = async (req, res, next) => {
     }
 };
 
-export { nominalSopEachOrg, sopDistributionByStatus };
+// dashboard admin
+const nominalSopEachOrgByStatus = async (req, res, next) => {
+    try {
+        const organization = await modelOrganization.findAll({
+            attributes: ['name'],
+            include: {
+                model: modelSop,
+                attributes: ['id_sop'],
+                include: {
+                    model: modelSopDetail,
+                    attributes: [['id_sop_detail', 'id'], 'status'],
+                }
+            }
+        });
+
+        const data = organization.map(item => {
+            const total = item.sops.reduce((total, sop) => {
+                return total + sop.sop_details.length;
+            }, 0);
+
+            const berlaku = item.sops.reduce((total, sop) => {
+                return total + sop.sop_details.filter(sopDetail => sopDetail.status === 1).length;
+            }, 0);
+
+            const tidak_berlaku = item.sops.reduce((total, sop) => {
+                return total + sop.sop_details.filter(sopDetail => sopDetail.status === 0).length;
+            }, 0);
+
+            const progress = item.sops.reduce((total, sop) => {
+                return total + sop.sop_details.filter(sopDetail => sopDetail.status >= 2).length;
+            }, 0);
+
+            return {
+                name: item.name,
+                total_sop: {
+                    total, berlaku, tidak_berlaku, progress
+                }
+            };
+        });
+
+        return res.status(200).json({
+            message: 'sukses mendapat data',
+            data
+        });
+    } catch (error) {
+        next(error)
+    }
+};
+
+const annualSopMakingTrend = async (req, res, next) => {
+    try {
+        const dataSop = await modelSopDetail.findAll({
+            attributes: ['createdAt'],
+        });
+
+        const result = dataSop.reduce((acc, item) => {
+            const year = new Date(item.createdAt).getFullYear();
+            acc[year] = (acc[year] || 0) + 1;
+            return acc;
+        }, {});
+
+        return res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data: result
+        });
+    } catch (error) {
+        next(error)
+    }
+};
+
+const nominalUserEachRole = async (req, res, next) => {
+    try {
+        const dataUser = await modelUser.findAll({
+            attributes: ['id_role'],
+            include: {
+                model: modelRole,
+                attributes: ['role_name']
+            }
+        });
+
+        const result = dataUser.reduce((acc, item) => {
+            const roleName = item.role.role_name;
+            acc[roleName] = (acc[roleName] || 0) + 1;
+            return acc;
+        }, {});
+
+        return res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data: result
+        });
+    } catch (error) {
+        next(error)
+    }
+};
+
+const nominalFeedbackTopSop = async (req, res, next) => {
+    try {
+        const dataFeedback = await modelFeedback.findAll({
+            attributes: ['id_sop_detail'],
+            include: {
+                model: modelSopDetail,
+                attributes: ['id_sop'],
+                include: {
+                    model: modelSop,
+                    attributes: ['name'],
+                    include: {
+                        model: modelOrganization,
+                        attributes: ['name']
+                    }
+                },
+            },
+            where: {
+                type: 'umum'
+            },
+            limit: 8,
+            order: [['createdAt', 'DESC']]
+        });
+
+        const resultObj = dataFeedback.reduce((acc, item) => {
+            const sopName = item.sop_detail.sop.name;
+            const orgName = item.sop_detail.sop.organization.name;
+            const key = `${sopName}||${orgName}`;
+            acc[key] = acc[key] || { name: sopName, org: orgName, count: 0 };
+            acc[key].count += 1;
+            return acc;
+        }, {});
+
+        const result = Object.values(resultObj);
+
+        return res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data: result
+        });
+    } catch (error) {
+        next(error)
+    }
+};
+
+const mostRevisedSop = async (req, res, next) => {
+    try {
+        const dataSop = await modelSopDetail.findAll({
+            attributes: ['id_sop'],
+            include: {
+                model: modelSop,
+                attributes: ['name'],
+                include: {
+                    model: modelOrganization,
+                    attributes: ['name']
+                }
+            },
+            order: [['updatedAt', 'DESC']],
+            limit: 8
+        });
+
+        const resultObj = dataSop.reduce((acc, item) => {
+            const sopName = item.sop.name;
+            const orgName = item.sop.organization.name;
+            const key = `${sopName}||${orgName}`;
+            acc[key] = acc[key] || { name: sopName, org: orgName, count: 0 };
+            acc[key].count += 1;
+            return acc;
+        }, {});
+
+        const result = Object.values(resultObj);
+
+        return res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data: result
+        });
+    } catch (error) {
+        next(error)
+    }
+};
+
+export {
+    nominalSopEachOrg, sopDistributionByStatus,
+    nominalSopEachOrgByStatus, annualSopMakingTrend, nominalUserEachRole,
+    nominalFeedbackTopSop, mostRevisedSop
+};

@@ -700,8 +700,8 @@ const confirmSopandBpmn = async (req, res, next) => {
         if (sopUtama.dataValues.is_active === 2) {
             await sopUtama.update({ is_active: 1 });
         }
-        
-        // Update status menjadi 0 hanya untuk SOP detail lain yang statusnya belum 0
+
+        // Update status menjadi 0 hanya untuk SOP detail versi yang lain
         await modelSopDetail.update(
             { status: 0 },
             {
@@ -717,6 +717,7 @@ const confirmSopandBpmn = async (req, res, next) => {
             status: 1,
             signer_id: req.user.id_user,
             signature_url: req.user.signature,
+            effective_date: new Date()
         });
 
         return res.status(200).json({ message: 'sukses mengkonfirmasi SOP' });
