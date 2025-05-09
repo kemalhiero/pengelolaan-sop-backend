@@ -17,7 +17,8 @@ export default sequelize.define('sop_details',
         },
         number: {
             type: DataTypes.STRING(50),
-            allowNull: false
+            allowNull: false,
+            unique: true,
         },
         version: {
             type: DataTypes.SMALLINT.UNSIGNED,

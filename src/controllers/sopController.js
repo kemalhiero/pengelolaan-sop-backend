@@ -14,7 +14,9 @@ const currentYear = new Date().getFullYear();
 const addSop = async (req, res, next) => {
     try {
         const { id_org, name } = req.body;
-        if (!id_org || !name) return res.status(404).json({ message: 'pastikan data tidak kosong!' });
+        if (id_org === undefined || id_org === null || !name) {
+            return res.status(404).json({ message: 'pastikan data tidak kosong!' });
+        }
 
         const data = await modelSop.create({
             id_org, name, is_active: 2
@@ -40,6 +42,13 @@ const addSopDetail = async (req, res, next) => {
 
         const sop = await modelSop.findByPk(id, { attributes: ['id_sop'] });
         if (!sop) return res.status(404).json({ message: 'sop tidak ditemukan!' });
+
+        // Cek apakah nomor sudah ada untuk SOP ini
+        const existingSopDetail = await modelSopDetail.findOne({
+            where: { number },
+            attributes: ['id_sop_detail']
+        });
+        if (existingSopDetail) return res.status(409).json({ message: 'Nomor SOP sudah digunakan pada SOP ini, gunakan nomor lain!' });
 
         const dataSopDetail = await modelSopDetail.create({
             number, description, id_sop: id, version,

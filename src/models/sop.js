@@ -16,7 +16,13 @@ export default sequelize.define('sop',
         name: {
             type: DataTypes.STRING(100),
             allowNull: false,
-            unique: true
+            unique: true,
+            validate: {
+                len: {
+                    args: [5, 100],
+                    msg: "Nama harus terdiri dari minimal 5 dan maksimal 100 karakter."
+                }
+            },
         },
         is_active: {
             type: DataTypes.TINYINT.UNSIGNED,
