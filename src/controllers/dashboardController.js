@@ -134,23 +134,18 @@ const nominalSopEachOrgByStatus = async (req, res, next) => {
 
 const annualSopMakingTrend = async (req, res, next) => {
     try {
-        let dataSop = [];
-        if (req.user.role === 'kadep') {
-            dataSop = await modelSopDetail.findAll({
-                attributes: ['createdAt'],
-            });
-        } else if (req.user.role === 'pj') {
-            dataSop = await modelSopDetail.findAll({
-                attributes: ['createdAt'],
-                include: {
-                    model: modelSop,
-                    where: {
-                        id_org: req.user.id_org_pic
-                    },
-                    attributes: []
-                }
-            });
-        };
+        const where = req.user.role === 'pj' ? {
+            include: {
+                model: modelSop,
+                where: { id_org: req.user.id_org_pic },
+                attributes: []
+            }
+        } : {};
+
+        const dataSop = await modelSopDetail.findAll({
+            attributes: ['createdAt'],
+            ...where
+        });
 
         const result = dataSop.reduce((acc, item) => {
             const year = new Date(item.createdAt).getFullYear();
@@ -169,27 +164,15 @@ const annualSopMakingTrend = async (req, res, next) => {
 
 const nominalUserEachRole = async (req, res, next) => {
     try {
-        let dataUser = [];
-        if (req.user.role === 'kadep') {
-            dataUser = await modelUser.findAll({
-                attributes: ['id_role'],
-                include: {
-                    model: modelRole,
-                    attributes: ['role_name']
-                }
-            });
-        } else if (req.user.role === 'pj') {
-            dataUser = await modelUser.findAll({
-                attributes: ['id_role'],
-                include: {
-                    model: modelRole,
-                    attributes: ['role_name']
-                },
-                where: {
-                    id_org_pic: req.user.id_org_pic
-                }
-            });
-        };
+        const where = req.user.role === 'pj' ? { id_org_pic: req.user.id_org_pic } : {};
+        const dataUser = await modelUser.findAll({
+            attributes: ['id_role'],
+            include: {
+                model: modelRole,
+                attributes: ['role_name']
+            },
+            where
+        });
 
         const result = dataUser.reduce((acc, item) => {
             const roleName = item.role.role_name;
@@ -209,52 +192,30 @@ const nominalUserEachRole = async (req, res, next) => {
 const nominalFeedbackTopSop = async (req, res, next) => {
     try {
         let dataFeedback = [];
-        if (req.user.role === 'kadep') {
-            dataFeedback = await modelFeedback.findAll({
-                attributes: ['id_sop_detail'],
+        const feedbackOptions = {
+            attributes: ['id_sop_detail'],
+            include: {
+                model: modelSopDetail,
+                attributes: ['id_sop'],
                 include: {
-                    model: modelSopDetail,
-                    attributes: ['id_sop'],
+                    model: modelSop,
+                    attributes: ['name'],
                     include: {
-                        model: modelSop,
-                        attributes: ['name'],
-                        include: {
-                            model: modelOrganization,
-                            attributes: ['name']
-                        }
-                    },
-                },
-                where: {
-                    type: 'umum'
-                },
-                limit: 8,
-                order: [['createdAt', 'DESC']]
-            });
-        } else if (req.user.role === 'pj') {
-            dataFeedback = await modelFeedback.findAll({
-                attributes: ['id_sop_detail'],
-                include: {
-                    model: modelSopDetail,
-                    attributes: ['id_sop'],
-                    include: {
-                        model: modelSop,
-                        attributes: ['name'],
-                        where: {
-                            id_org: req.user.id_org_pic
-                        },
-                        include: {
-                            model: modelOrganization,
-                            attributes: ['name'],
-                        }
-                    },
-                },
-                where: {
-                    type: 'umum'
-                },
-                limit: 8,
-                order: [['createdAt', 'DESC']]
-            });
+                        model: modelOrganization,
+                        attributes: ['name']
+                    }
+                }
+            },
+            where: { type: 'umum' },
+            limit: 8,
+            order: [['createdAt', 'DESC']]
         };
+
+        if (req.user.role === 'pj') {
+            feedbackOptions.include.include.where = { id_org: req.user.id_org_pic };
+        }
+
+        dataFeedback = await modelFeedback.findAll(feedbackOptions);
 
         // Jika semua item sop_detail null, kembalikan array kosong
         if (dataFeedback.every(item => item.sop_detail === null)) {
@@ -286,39 +247,26 @@ const nominalFeedbackTopSop = async (req, res, next) => {
 
 const mostRevisedSop = async (req, res, next) => {
     try {
-        let dataSop = [];
-        if (req.user.role === 'kadep') {
-            dataSop = await modelSopDetail.findAll({
-                attributes: ['id_sop'],
-                include: {
-                    model: modelSop,
-                    attributes: ['name'],
-                    include: {
-                        model: modelOrganization,
-                        attributes: ['name']
-                    }
-                },
-                order: [['updatedAt', 'DESC']],
-                limit: 8
-            });
-        } else if (req.user.role === 'pj') {
-            dataSop = await modelSopDetail.findAll({
-                attributes: ['id_sop'],
-                include: {
-                    model: modelSop,
-                    attributes: ['name'],
-                    where: {
-                        id_org: req.user.id_org_pic
-                    },
-                    include: {
-                        model: modelOrganization,
-                        attributes: ['name'],
-                    }
-                },
-                order: [['updatedAt', 'DESC']],
-                limit: 8
-            });
+        const sopInclude = {
+            model: modelSop,
+            attributes: ['name'],
+            include: {
+                model: modelOrganization,
+                attributes: ['name']
+            }
+        };
+
+        // Tambahkan filter organisasi jika role 'pj'
+        if (req.user.role === 'pj') {
+            sopInclude.where = { id_org: req.user.id_org_pic };
         }
+
+        const dataSop = await modelSopDetail.findAll({
+            attributes: ['id_sop'],
+            include: sopInclude,
+            order: [['updatedAt', 'DESC']],
+            limit: 8
+        });
 
         const resultObj = dataSop.reduce((acc, item) => {
             const sopName = item.sop?.name;

@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { verifyToken } from '../middlewares/auth.js';
+import { authorizeRole, verifyToken } from '../middlewares/auth.js';
 import { addDraftFeedback, getDraftFeedback, getGeneralFeedback, getAllFeedback, deleteDraftFeedback } from '../controllers/feedbackController.js';
 
 const router = Router();
 
 router.route('/draft')
-    .get(verifyToken, getAllFeedback) // Get all feedback
+    .get(verifyToken, authorizeRole(['kadep', 'pj']), getAllFeedback) // Get all general feedback
     .post(verifyToken, addDraftFeedback);
 
 router.route('/draft/:id')
