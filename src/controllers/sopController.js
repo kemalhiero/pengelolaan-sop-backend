@@ -108,7 +108,7 @@ const getAllSop = async (req, res, next) => {       //ambil semua sop
 const getManagedSop = async (req, res, next) => {       //ambil semua sop
     try {
         let dataSop;
-        if (req.user.dataValues.role == 'kadep') {
+        if (req.user.role == 'kadep') {
             dataSop = await modelSop.findAll({
                 attributes: ['id_sop', 'name', 'is_active', 'createdAt'],
                 include: [
@@ -118,7 +118,7 @@ const getManagedSop = async (req, res, next) => {       //ambil semua sop
                     }
                 ]
             });
-        } else if (req.user.dataValues.role == 'pj') {
+        } else if (req.user.role == 'pj') {
             dataSop = await modelSop.findAll({
                 attributes: ['id_sop', 'name', 'is_active', 'createdAt'],
                 include: [

@@ -51,7 +51,7 @@ const verifyToken = async (req, res, next) => {
             message: "User sudah tidak ada, token sudah tidak bisa digunakan"
         }))
     };
-    req.user = currentUser;
+    req.user = currentUser.dataValues;
     next()
 };
 

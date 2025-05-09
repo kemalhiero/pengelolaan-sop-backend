@@ -3,7 +3,7 @@ import { verifyToken } from '../middlewares/auth.js';
 import {
     nominalSopEachOrg, sopDistributionByStatus,
     nominalSopEachOrgByStatus, annualSopMakingTrend, nominalUserEachRole,
-    nominalFeedbackTopSop, mostRevisedSop
+    nominalFeedbackTopSop, mostRevisedSop, sopOrgDistributionByStatus
 } from '../controllers/dashboardController.js';
 
 const router = Router();
@@ -14,6 +14,7 @@ router.get('/sop-dist-by-status', sopDistributionByStatus);
 router.get('/most-revised-sop', verifyToken, mostRevisedSop);
 router.get('/annual-sop-trend', verifyToken, annualSopMakingTrend);
 router.get('/nominal-user-each-role', verifyToken, nominalUserEachRole);
+router.get('/sop-org-dist-by-status', verifyToken, sopOrgDistributionByStatus);
 router.get('/nominal-feedback-top-sop', verifyToken, nominalFeedbackTopSop);
 router.get('/nominal-sop-each-org-by-status', verifyToken, nominalSopEachOrgByStatus);
 

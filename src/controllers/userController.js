@@ -191,7 +191,7 @@ const deleteSignatureFile = async (req, res, next) => {
 const getAllPic = async (req, res, next) => {
     try {
         let dataPic;
-        if (req.user.dataValues.role == 'kadep') {
+        if (req.user.role == 'kadep') {
             dataPic = await modelUser.findAll({
                 attributes: ['id_user', 'identity_number', 'name'],
                 include: [
@@ -208,7 +208,7 @@ const getAllPic = async (req, res, next) => {
                     }
                 ]
             });
-        } else if (req.user.dataValues.role == 'pj') {
+        } else if (req.user.role == 'pj') {
             dataPic = await modelUser.findAll({
                 attributes: ['id_user', 'identity_number', 'name'],
                 include: [
@@ -223,7 +223,7 @@ const getAllPic = async (req, res, next) => {
                         model: modelOrg,
                         attributes: ['name'],
                         where: {
-                            id_org: req.user.dataValues.id_org_pic
+                            id_org: req.user.id_org_pic
                         }
                     }
                 ]
@@ -249,7 +249,7 @@ const getAllPic = async (req, res, next) => {
 const getPicCandidate = async (req, res, next) => {
     try {
         let dataPic;
-        if (req.user.dataValues.role == 'kadep') {
+        if (req.user.role == 'kadep') {
             dataPic = await modelUser.findAll({
                 attributes: ['id_user', 'identity_number', 'name'],
                 include: [
@@ -269,7 +269,7 @@ const getPicCandidate = async (req, res, next) => {
                     }
                 ],
             });
-        } else if (req.user.dataValues.role == 'pj') {
+        } else if (req.user.role == 'pj') {
             dataPic = await modelUser.findAll({
                 attributes: ['id_user', 'identity_number', 'name'],
                 include: [
@@ -444,7 +444,7 @@ const getPicDetail = async (req, res, next) => {
 const getAllDrafter = async (req, res, next) => {
     try {
         let dataDrafter;
-        if (req.user.dataValues.role == 'kadep') {
+        if (req.user.role == 'kadep') {
             dataDrafter = await modelUser.findAll({
                 attributes: ['id_user', 'identity_number', 'name'],
                 include: [
@@ -466,7 +466,7 @@ const getAllDrafter = async (req, res, next) => {
                     }
                 ]
             });
-        } else if (req.user.dataValues.role == 'pj') {
+        } else if (req.user.role == 'pj') {
             dataDrafter = await modelUser.findAll({
                 attributes: ['id_user', 'identity_number', 'name'],
                 include: [
@@ -488,7 +488,7 @@ const getAllDrafter = async (req, res, next) => {
                     }
                 ],
                 where: {
-                    id_org_pic: req.user.dataValues.id_org_pic
+                    id_org_pic: req.user.id_org_pic
                 }
             });
         }
