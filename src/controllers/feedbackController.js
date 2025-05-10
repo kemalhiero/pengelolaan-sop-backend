@@ -106,6 +106,7 @@ const getGeneralFeedback = async (req, res, next) => {
 
 const getAllFeedback = async (req, res, next) => {
     try {
+        const where = req.user.role === 'pj' ? { id_org: req.user.id_org_pic } : {};
         const feedback = await modelFeedback.findAll({
             where: {
                 type: 'umum'
@@ -126,6 +127,7 @@ const getAllFeedback = async (req, res, next) => {
                     include: {
                         model: modelSop,
                         attributes: ['name'],
+                        where
                     }
                 }
             ],

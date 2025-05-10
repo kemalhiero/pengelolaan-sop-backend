@@ -81,7 +81,7 @@ const getUserProfile = async (req, res, next) => {
             signature: dataUser.dataValues.signature ? encodeURI(`${env.CLOUDFLARE_R2_PUBLIC_BUCKET_URL}/${dataUser.dataValues.signature}`) : null,
             email: dataUser.dataValues.email,
             role: dataUser.dataValues.role.role_name,
-            org: dataUser.dataValues.organization.name,
+            org: dataUser.dataValues.organization?.name || "-",
         };
 
         res.status(200).json({
