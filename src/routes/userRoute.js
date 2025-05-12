@@ -6,8 +6,8 @@ import multer from 'multer';
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-router.get('/', verifyToken, controller.getUserByRole);
 router.get('/profile', verifyToken, controller.getUserProfile);
+router.get('/role/:role', verifyToken, controller.getUserByRole);
 
 router.route('/profile/photo')
     .post(verifyToken, upload.single('file'), controller.uploadProfilePhoto)

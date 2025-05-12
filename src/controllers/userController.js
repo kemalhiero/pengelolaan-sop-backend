@@ -11,7 +11,7 @@ import modelSop from '../models/sop.js';
 
 const getUserByRole = async (req, res, next) => {
     try {
-        const { role } = req.query;
+        const { role } = req.params;
         if (!role) return res.status(400).json({ message: 'Parameter role harus disertakan' });
 
         let dataRole = await modelRole.findAll({
@@ -27,6 +27,10 @@ const getUserByRole = async (req, res, next) => {
             });
         }
 
+        // Cek jika requestedRoles mengandung 'sivitas-akademika'
+        const isSivitas = requestedRoles.includes('sivitas-akademika');
+        const where = (req.user.role === 'pj' && !isSivitas) ? { id_org_pic: req.user.id_org_pic } : {};
+
         const user = await modelUser.findAll({
             attributes: ['id_user', 'identity_number', 'name'],
             include: {
@@ -37,7 +41,8 @@ const getUserByRole = async (req, res, next) => {
                     }
                 },
                 attributes: []
-            }
+            },
+            where
         });
 
         const data = user.map(item => ({
@@ -50,7 +55,6 @@ const getUserByRole = async (req, res, next) => {
             message: 'sukses mendapatkan data',
             data,
         });
-
     } catch (error) {
         next(error);
     }

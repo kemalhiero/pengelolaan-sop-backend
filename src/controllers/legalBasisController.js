@@ -35,7 +35,6 @@ const getLegal = async (req, res, next) => {
                     group: 'id_sop',
                     through: { attributes: [] }
                 }
-
             ]
         });
 
@@ -65,7 +64,7 @@ const deleteLegal = async (req, res, next) => {
         const { id } = req.params;
         if (isNaN(Number(id))) return res.status(400).json({ message: 'ID harus berupa angka' });
 
-        const deletedCount = await legal.destroy({ where: { id_legal: id } });
+        const deletedCount = await modelLegal.destroy({ where: { id_legal: id } });
         if (deletedCount === 0) {
             return res.status(404).json({ message: 'Data user atau sop tidak ditemukan' });
         }

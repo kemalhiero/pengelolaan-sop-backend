@@ -482,16 +482,18 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
                         model: modelOrganization,
                         attributes: ['name'],
                         include: {
-                            model: modelUser,
+                            model: modelUser,   //ambil pic/penanggung jawab
                             attributes: ['identity_number', 'name'],
                             include: {
                                 model: modelRole,
-                                attributes: ['role_name'],
+                                where: {
+                                    role_name: 'pj'
+                                }
                             },
                         }
                     }
                 },
-                {
+                {                       //ambil penyusun
                     model: modelUser,
                     attributes: ['identity_number', 'name'],
                     through: { attributes: [] }
@@ -510,7 +512,6 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
                 return {
                     id_number: item.identity_number,
                     name: item.name,
-                    role: item.role.role_name,
                 }
             }),
             number: dataSop.number,
@@ -528,7 +529,6 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
             message: 'sukses mendapatkan data',
             data
         });
-
     } catch (error) {
         next(error);
     }
@@ -553,7 +553,6 @@ const updateSopDetail = async (req, res, next) => {
             message: 'sukses memperbarui data',
             data
         });
-
     } catch (error) {
         next(error);
     }
