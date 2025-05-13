@@ -16,7 +16,6 @@ export default sequelize.define('sop',
         name: {
             type: DataTypes.STRING(100),
             allowNull: false,
-            unique: true,
             validate: {
                 len: {
                     args: [5, 100],

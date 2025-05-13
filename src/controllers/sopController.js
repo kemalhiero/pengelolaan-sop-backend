@@ -26,7 +26,6 @@ const addSop = async (req, res, next) => {
             message: 'sukses menambahkan data',
             data,
         });
-
     } catch (error) {
         next(error);
     }
@@ -48,7 +47,7 @@ const addSopDetail = async (req, res, next) => {
             where: { number },
             attributes: ['id_sop_detail']
         });
-        if (existingSopDetail) return res.status(409).json({ message: 'Nomor SOP sudah digunakan pada SOP ini, gunakan nomor lain!' });
+        if (existingSopDetail) return res.status(409).json({ message: 'Nomor SOP sudah digunakan, ganti dengan nomor lain!' });
 
         const dataSopDetail = await modelSopDetail.create({
             number, description, id_sop: id, version,
@@ -59,7 +58,6 @@ const addSopDetail = async (req, res, next) => {
             message: 'sukses menambahkan data',
             data: dataSopDetail,
         });
-
     } catch (error) {
         next(error);
     }
@@ -99,7 +97,6 @@ const getAllSop = async (req, res, next) => {       //ambil semua sop
             message: 'sukses mendapatkan data',
             data
         });
-
     } catch (error) {
         next(error);
     }
@@ -154,7 +151,6 @@ const getManagedSop = async (req, res, next) => {       //ambil semua sop
             message: 'sukses mendapatkan data',
             data
         });
-
     } catch (error) {
         next(error);
     }
@@ -235,7 +231,6 @@ const getAllSopDetail = async (req, res, next) => {    // ambil semua data tabel
             message: 'sukses mendapatkan data',
             data
         });
-
     } catch (error) {
         next(error);
     }
@@ -292,7 +287,6 @@ const getSopById = async (req, res, next) => {          //untuk ambil sop besert
             message: 'sukses mendapatkan data',
             data
         });
-
     } catch (error) {
         next(error);
     }
@@ -347,33 +341,6 @@ const getSopVersion = async (req, res, next) => {
             message: 'sukses mendapatkan data',
             data: transformedSopDetail
         });
-
-    } catch (error) {
-        next(error);
-    }
-};
-
-const getLatestSopVersion = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-
-        const latestSop = await modelSopDetail.findOne({
-            order: [['version', 'DESC']],
-            limit: 1,
-            where: { id_sop: id },
-            attributes: ['number', 'version'],
-            // include: {
-            //     model: modelUser,
-            //     attributes: ['id_user', 'identity_number', 'name'],
-            //     through: {attributes:[]}
-            // }
-        });
-
-        return res.status(200).json({
-            message: 'sukses mendapatkan data',
-            data: latestSop
-        });
-
     } catch (error) {
         next(error);
     }
@@ -398,18 +365,22 @@ const getLatestSopInYear = async (req, res, next) => {
             });
         }
 
-        const latestSop = await modelSopDetail.findOne({
+        let latestSop = await modelSopDetail.findOne({
             where: literal(`YEAR(createdAt) = ${year}`),
             order: [['createdAt', 'DESC']],
             attributes: ['number', 'version']
         });
-        if (!latestSop) return res.status(404).json({ message: 'data tidak ditemukan' })
+        if (!latestSop) {
+            latestSop = {
+                number: `T/000/UN16.17.02/OT.01.00/${currentYear}`,
+                version: 0
+            };
+        }
 
         return res.status(200).json({
             message: 'sukses mendapatkan data',
             data: latestSop
         });
-
     } catch (error) {
         next(error);
     }
@@ -458,7 +429,6 @@ const getAssignedSop = async (req, res, next) => {
             message: 'sukses mendapatkan data',
             data
         });
-
     } catch (error) {
         next(error);
     }
@@ -737,7 +707,7 @@ const confirmSopandBpmn = async (req, res, next) => {
 
 export {
     addSop, getAllSop, getSopById, getAssignedSop, getManagedSop, deleteSop, updateSop, getSopVersion,
-    addSopDetail, getAllSopDetail, updateSopDetail, deleteSopDetail, getSectionandWarning, getLatestSopVersion, getLatestSopInYear,
+    addSopDetail, getAllSopDetail, updateSopDetail, deleteSopDetail, getSectionandWarning, getLatestSopInYear,
     getAssignedSopDetail,
     addSopStep, getSopStepbySopDetail, updateSopStep, deleteSopStep,
     confirmSopandBpmn,

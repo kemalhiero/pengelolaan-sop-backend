@@ -7,7 +7,6 @@ router.route('/')
     .get(sopController.getAllSop)
     .post(verifyToken, sopController.addSop);
 
-router.get('/latest/sop/:id', sopController.getLatestSopVersion);
 router.get('/latest/year/:year', sopController.getLatestSopInYear);
 
 router.get('/detail', sopController.getAllSopDetail);

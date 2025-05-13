@@ -18,7 +18,9 @@ export default sequelize.define('sop_details',
         number: {
             type: DataTypes.STRING(50),
             allowNull: false,
-            unique: true,
+            unique: {
+                msg: 'Nomor tersebut sudah digunakan. Gantikan dengan nomor lain.'
+            }
         },
         version: {
             type: DataTypes.SMALLINT.UNSIGNED,
