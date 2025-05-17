@@ -21,7 +21,7 @@ export default sequelize.define('feedback',
             allowNull: false
         },
         type: {
-            type: DataTypes.ENUM('setuju', 'revisi', 'umum'),
+            type: DataTypes.ENUM('setuju', 'revisi', 'catatan', 'umum'),
             defaultValue: 'umum',
             allowNull: false
         },

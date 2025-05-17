@@ -18,6 +18,20 @@ const addSop = async (req, res, next) => {
             return res.status(404).json({ message: 'pastikan data tidak kosong!' });
         }
 
+        const existingSop = await modelSop.findOne({
+            where: {
+                id_org,
+                // Bandingkan lower-case agar benar-benar beda, tidak hanya beda huruf besar/kecil
+                [Op.and]: [
+                    literal(`LOWER(name) = LOWER('${name.replace(/'/g, "''")}')`)
+                ]
+            }
+        });
+
+        if (existingSop) {
+            return res.status(409).json({ message: 'Nama SOP sudah digunakan di organisasi ini, gunakan nama lain!' });
+        }
+
         const data = await modelSop.create({
             id_org, name, is_active: 2
         });
