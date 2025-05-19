@@ -316,7 +316,7 @@ const getSopVersion = async (req, res, next) => {
                 ['id_sop_detail', 'id'],
                 'number', 'version', 'effective_date',
                 'status', 'warning', 'section',
-                'description', 'signer_id', 'signature_url', 'updatedAt'
+                'description', 'signer_id', 'signature_url', 'createdAt', 'updatedAt'
             ],
             include: [
                 {
@@ -340,6 +340,7 @@ const getSopVersion = async (req, res, next) => {
         // Transform data untuk menghapus struktur nested yang tidak diinginkan
         const transformedSopDetail = {
             ...dataSopDetail.get({ plain: true }),
+            creation_date: dateFormat(dataSopDetail.createdAt),
             revision_date: dateFormat(dataSopDetail.updatedAt),
             effective_date: dateFormat(dataSopDetail.effective_date),
             name: dataSopDetail.sop.name,
@@ -685,10 +686,10 @@ const confirmSopandBpmn = async (req, res, next) => {
     try {
         const { id } = req.params;
 
-        const dataSopDetail = await modelSopDetail.findByPk(id);
+        const dataSopDetail = await modelSopDetail.findByPk(id, { attributes: ['id_sop_detail', 'id_sop', 'status'] });
         if (!dataSopDetail) return res.status(404).json({ message: 'Data sop detail tidak ditemukan' });
 
-        const sopUtama = await modelSop.findByPk(dataSopDetail.dataValues.id_sop, { attributes: ['id_sop'] });
+        const sopUtama = await modelSop.findByPk(dataSopDetail.dataValues.id_sop, { attributes: ['id_sop', 'is_active'] });
         if (sopUtama.dataValues.is_active === 2) {
             await sopUtama.update({ is_active: 1 });
         }
