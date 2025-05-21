@@ -10,7 +10,7 @@ export default sequelize.define('data_record' ,
             allowNull: false
         }, 
         id_sop_detail: {
-            type: DataTypes.TINYINT.UNSIGNED,
+            type: DataTypes.UUID,
             allowNull: false
         },
         data_record: {

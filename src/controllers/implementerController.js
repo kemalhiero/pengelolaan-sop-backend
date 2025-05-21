@@ -1,6 +1,7 @@
 import modelSopDetail from '../models/sop_details.js';
 import modelImplementer from '../models/implementer.js';
 import modelSopDetailImplementer from '../models/sop_detail_implementer.js';
+import { validateUUID } from '../utils/validation.js';
 
 const getImplementer = async (req, res, next) => {
     try {
@@ -141,11 +142,10 @@ const getSopImplementer = async (req, res, next) => {
 
 const deleteSopImplementer = async (req, res, next) => {
     try {
-        const { sopDetailId, implementerId } = req.query;
-
-        if (isNaN(Number(sopDetailId)) || isNaN(Number(implementerId))) {
-            console.error('ID harus berupa angka')
-            return res.status(400).json({ message: 'ID harus berupa angka' })
+        const { sopDetailId, implementerId } = req.params;
+        if (!validateUUID(sopDetailId) || isNaN(Number(implementerId))) {
+            console.error('idsopdetail harus berupa UUID dan id implementer harus berupa angka')
+            return res.status(400).json({ message: 'idsopdetail harus berupa UUID dan id implementer harus berupa angka' })
         };
 
         const dataSopDetail = await modelSopDetailImplementer.findOne({

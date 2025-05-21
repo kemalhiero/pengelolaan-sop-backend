@@ -24,14 +24,11 @@ router.route('/step/:id')
     .patch(verifyToken, sopController.updateSopStep)
     .delete(verifyToken, sopController.deleteSopStep);
 
-router.route('/assignment')
-    .get(verifyToken, sopController.getAssignedSop);
+router.get('/assignment', verifyToken, sopController.getAssignedSop);
+router.get('/assignment/:id', verifyToken, sopController.getAssignedSopDetail);
 
 router.get('/managed', verifyToken, sopController.getManagedSop);
 router.patch('/confirm/:id', verifyToken, sopController.confirmSopandBpmn);
-
-router.route('/assignment/:id')
-    .get(verifyToken, sopController.getAssignedSopDetail);
 
 router.get('/info/:id', sopController.getSectionandWarning);
 

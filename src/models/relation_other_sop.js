@@ -10,7 +10,7 @@ export default sequelize.define('relation_other_sop',
             allowNull: false
         },
         id_sop_detail: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.UUID,
             allowNull: false
         },
         related_sop: {

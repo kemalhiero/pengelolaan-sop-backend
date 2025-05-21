@@ -2,6 +2,7 @@ import modelLegal from '../models/legal_basis.js';
 import modelLawType from '../models/law_types.js';
 import modelSopDetail from '../models/sop_details.js';
 import modelLegalBasisSopDetail from '../models/legal_basis_sop_details.js';
+import { validateUUID } from '../utils/validation.js';
 
 const addLegal = async (req, res, next) => {
     try {
@@ -126,10 +127,10 @@ const addSopLegal = async (req, res, next) => {
 const getSopLegal = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (isNaN(Number(id))) {
-            console.error('ID harus berupa angka')
-            return res.status(400).json({ message: 'ID harus berupa angka' })
-        };
+        if (!validateUUID(id)) {
+            console.error('ID harus berupa UUID')
+            return res.status(400).json({ message: 'ID harus berupa UUID' })
+        }
 
         const dataLegal = await modelLegal.findAll({
             attributes: ['id_legal', 'number', 'year', 'about'],
@@ -169,10 +170,10 @@ const getSopLegal = async (req, res, next) => {
 const deleteSopLegal = async (req, res, next) => {
     try {
         const { sopDetailId, legalId } = req.params;
-        if (isNaN(Number(sopDetailId)) || isNaN(Number(legalId))) {
-            console.error('ID harus berupa angka')
-            return res.status(400).json({ message: 'ID harus berupa angka' })
-        };
+        if (!validateUUID(sopDetailId) || isNaN(Number(legalId))) {
+            console.error('ID sopDetail harus berupa UUID dan legalId harus berupa angka');
+            return res.status(400).json({ message: 'ID sopDetail harus berupa UUID dan legalId harus berupa angka' });
+        }
 
         const deletedCount = await modelLegalBasisSopDetail.destroy({
             where: {

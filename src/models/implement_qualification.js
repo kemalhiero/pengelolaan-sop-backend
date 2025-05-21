@@ -10,7 +10,7 @@ export default sequelize.define('implement_qualification',
             allowNull: false
         },
         id_sop_detail: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.UUID,
             allowNull: false
         },
         qualification: {

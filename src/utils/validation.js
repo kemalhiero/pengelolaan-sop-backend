@@ -1,3 +1,5 @@
+import { validate } from 'uuid';
+
 /**
  * Validates if the given text starts with an alphabetic character.
  *
@@ -9,4 +11,14 @@ const validateText = (text) => {
     return !regex.test(text);
 };
 
-export { validateText };
+/**
+ * Validates if the given string is a valid UUID.
+ *
+ * @param {string} uuid - The string to be validated.
+ * @returns {boolean} - Returns true if the string is a valid UUID, otherwise false.
+ */
+const validateUUID = (uuid) => {
+    return validate(uuid);
+};
+
+export { validateText, validateUUID };

@@ -6,10 +6,16 @@ import modelUser from './users.js';
 export default sequelize.define('sop_details',
     {
         id_sop_detail: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
             primaryKey: true,
-            autoIncrement: true,
-            allowNull: false
+            allowNull: false,
+            validate: {
+                isUUID: {
+                    args: 4,
+                    msg: 'ID SOP Detail harus berupa UUID v4 yang valid.'
+                }
+            }
         },
         id_sop: {
             type: DataTypes.INTEGER.UNSIGNED,

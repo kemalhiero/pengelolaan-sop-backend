@@ -1,3 +1,10 @@
+/**
+ * Formats a given date or timestamp into a string with the format "DD/MM/YYYY HH:mm".
+ * Returns '-' if the input is null, undefined, or an invalid date.
+ *
+ * @param {string|number|Date} d - The date value to format. Can be a Date object, timestamp, or date string.
+ * @returns {string} The formatted date string or '-' if the input is invalid.
+ */
 const dateFormat = (d) => {
     // Pengecekan awal untuk null/undefined
     if (!d) {
@@ -7,7 +14,7 @@ const dateFormat = (d) => {
     try {
         // Untuk handling timestamp string dari Sequelize
         const date = new Date(d);
-        
+
         // Validasi tambahan untuk memastikan tanggal valid
         if (isNaN(date.getTime())) {
             return '-';

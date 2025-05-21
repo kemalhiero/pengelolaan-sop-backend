@@ -9,7 +9,7 @@ export default sequelize.define('sop_step',
             allowNull: false
         },
         id_sop_detail: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.UUID,
             allowNull: false
         },
         id_next_step_if_no: {

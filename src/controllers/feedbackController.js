@@ -7,6 +7,7 @@ import modelRole from '../models/roles.js';
 import modelSopDetail from '../models/sop_details.js';
 import modelSop from '../models/sop.js';
 import dateFormat from '../utils/dateFormat.js';
+import { validateUUID } from '../utils/validation.js';
 
 const addDraftFeedback = async (req, res, next) => {
     try {
@@ -27,12 +28,17 @@ const addDraftFeedback = async (req, res, next) => {
 const getDraftFeedback = async (req, res, next) => {
     try {
         const { id } = req.params;  // Assuming id is the sop_detail id
+        if (!validateUUID(id)) {
+            console.error('ID harus berupa UUID')
+            return res.status(400).json({ message: 'ID harus berupa UUID' })
+        }
+
         const feedback = await modelFeedback.findAll({
             where: {
                 id_sop_detail: id,
                 type: { [Op.ne]: 'umum' }
             },
-            attributes: { exclude: ['id', 'id_sop_detail', 'id_user'] },
+            attributes: { exclude: ['id_sop_detail', 'id_user'] },
             include: {
                 model: modelUser,
                 attributes: ['name'],
@@ -73,7 +79,7 @@ const getGeneralFeedback = async (req, res, next) => {
                 type: 'umum'
             },
             attributes: { exclude: ['id_sop_detail', 'id_user'] },
-            include:{
+            include: {
                 model: modelUser,
                 attributes: [['identity_number', 'id_number'], 'name'],
                 include: {

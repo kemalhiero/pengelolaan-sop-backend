@@ -6,7 +6,7 @@ import modelUser from './users.js';
 export default sequelize.define('drafter',
     {
         id_sop_detail: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.UUID,
             primaryKey: true,
             allowNull: false,
             references: {

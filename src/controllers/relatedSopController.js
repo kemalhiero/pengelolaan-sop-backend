@@ -1,13 +1,13 @@
 import modelRelatedSop from '../models/relation_other_sop.js';
-import { validateText } from '../utils/validation.js';
+import { validateText, validateUUID } from '../utils/validation.js';
 
 const addRelatedSop = async (req, res, next) => {
     try {
         const { id_sop_detail, related_sop } = req.body;
 
         if (!related_sop || !id_sop_detail) {
-            console.error('ID harus berupa angka')
-            return res.status(400).json({ message: 'ID harus berupa angka' })
+            console.error('id sop detail harus berupa uuid dan ID related sop harus berupa angka')
+            return res.status(400).json({ message: 'id sop detail harus berupa uuid dan ID related sop harus berupa angka' })
         };
 
         if (!validateText(related_sop)) {
@@ -30,9 +30,9 @@ const addRelatedSop = async (req, res, next) => {
 
 const getRelatedSop = async (req, res, next) => {
     const { id } = req.params;
-    if (isNaN(Number(id))) {
-        console.error('ID harus berupa angka')
-        return res.status(400).json({ message: 'ID harus berupa angka' })
+    if (!validateUUID(id)) {
+        console.error('ID harus berupa UUID')
+        return res.status(400).json({ message: 'ID harus berupa UUID' })
     }
 
     const dataSopTerkait = await modelRelatedSop.findAll({
@@ -54,10 +54,10 @@ const getRelatedSop = async (req, res, next) => {
 const deleteRelatedSop = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (isNaN(Number(id))) {
-            console.error('ID harus berupa angka')
-            return res.status(400).json({ message: 'ID harus berupa angka' })
-        };
+        if (!validateUUID(id)) {
+            console.error('ID harus berupa UUID')
+            return res.status(400).json({ message: 'ID harus berupa UUID' })
+        }
 
         const deletedCount = await modelRelatedSop.destroy({ where: { id_relation_sop: id } });
         if (deletedCount === 0) {

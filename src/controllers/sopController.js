@@ -8,6 +8,7 @@ import modelUser from '../models/users.js';
 import modelSopStep from '../models/sop_step.js'
 import modelSopDetail from '../models/sop_details.js';
 import modelOrganization from '../models/organization.js';
+import { validateUUID } from '../utils/validation.js';
 
 const currentYear = new Date().getFullYear();
 
@@ -95,17 +96,13 @@ const getAllSop = async (req, res, next) => {       //ambil semua sop
             ]
         });
 
-        const data = dataSop.map(item => {
-            const formattedCreationDate = dateFormat(item.createdAt)
-
-            return {
-                id: item.sop_details[0].id_sop_detail, // Ambil id dari detail sop pertama
-                name: item.name,
-                is_active: item.is_active,
-                creation_date: formattedCreationDate, // Gunakan tanggal yang sudah diformat
-                org_name: item.organization.name,
-            };
-        });
+        const data = dataSop.map(item => ({
+            id: item.sop_details[0].id_sop_detail, // Ambil id dari detail sop pertama
+            name: item.name,
+            is_active: item.is_active,
+            creation_date: dateFormat(item.createdAt), // Gunakan tanggal yang sudah diformat
+            org_name: item.organization.name,
+        }));
 
         return res.status(200).json({
             message: 'sukses mendapatkan data',
@@ -150,16 +147,13 @@ const getManagedSop = async (req, res, next) => {       //ambil semua sop
         };
 
 
-        const data = dataSop?.map(item => {
-            const formattedCreationDate = dateFormat(item.createdAt)
-            return {
-                id: item.id_sop,
-                name: item.name,
-                is_active: item.is_active,
-                creation_date: formattedCreationDate, // Gunakan tanggal yang sudah diformat
-                org_name: item.organization?.name,
-            };
-        }) || [];
+        const data = dataSop?.map(item => ({
+            id: item.id_sop,
+            name: item.name,
+            is_active: item.is_active,
+            creation_date: dateFormat(item.createdAt), // Gunakan tanggal yang sudah diformat
+            org_name: item.organization?.name,
+        })) || [];
 
         return res.status(200).json({
             message: 'sukses mendapatkan data',
@@ -401,44 +395,52 @@ const getLatestSopInYear = async (req, res, next) => {
     }
 };
 
-// TODO tambahkan filter berdasarkan penyusun yang sedang login saat ini
 const getAssignedSop = async (req, res, next) => {
     try {
-        const dataSop = await modelSopDetail.findAll({
-            attributes: ['id_sop_detail', 'number', 'status', 'version'],
-            include: [
-                {
+        let dataSop = [];
+        if (req.user.role == 'penyusun') {
+            dataSop = await modelSopDetail.findAll({
+                attributes: ['id_sop_detail', 'number', 'status'],
+                include: [
+                    {
+                        model: modelSop,
+                        attributes: ['name', 'createdAt'],
+                        include: {
+                            model: modelOrganization,
+                            attributes: ['name']
+                        }
+                    },
+                    {
+                        model: modelUser,
+                        attributes: [],
+                        where: { email: req.user.email },
+                        through: { attributes: [] }
+                    }
+                ]
+            });
+        } else if (req.user.role == 'pj' || req.user.role == 'kadep') {
+            dataSop = await modelSopDetail.findAll({
+                attributes: ['id_sop_detail', 'number', 'status'],
+                include: {
                     model: modelSop,
-                    attributes: ['name', 'is_active', 'createdAt'],
+                    attributes: ['name', 'createdAt'],
+                    where: { id_org: req.user.id_org_pic },
                     include: {
                         model: modelOrganization,
-                        attributes: ['name']
+                        attributes: ['name'],
                     }
-                },
-                {
-                    model: modelUser,
-                    attributes: ['identity_number', 'name'],
-                    where: { email: req.user.email },
-                    through: { attributes: [] }
                 }
-            ]
-        });
+            });
+        }
 
-        const data = dataSop.map(item => {
-            const formattedCreationDate = dateFormat(item.sop.createdAt);
-
-            return {
-                id: item.id_sop_detail,
-                name: item.sop.name,
-                // is_active: item.sop.is_active,
-                number: item.number,                 //ntar aktifin lagi kalau perlu
-                // version: item.version,
-                creation_date: formattedCreationDate,
-                status: item.status,
-                org_name: item.sop.organization.name,
-                // user: item.users
-            };
-        });
+        const data = dataSop.map(item => ({
+            id: item.id_sop_detail,
+            name: item.sop.name,
+            number: item.number,                 //ntar aktifin lagi kalau perlu
+            creation_date: dateFormat(item.sop.createdAt),
+            status: item.status,
+            org_name: item.sop.organization.name,
+        }));
 
         return res.status(200).json({
             message: 'sukses mendapatkan data',
@@ -493,21 +495,17 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
             creation_date: dateFormat(dataSop.createdAt),
             last_update_date: dateFormat(dataSop.updatedAt),
             organization: dataSop.sop.organization.name,
-            pic: dataSop.sop.organization.users.map(item => {
-                return {
-                    id_number: item.identity_number,
-                    name: item.name,
-                }
-            }),
+            pic: dataSop.sop.organization.users.map(item => ({
+                id_number: item.identity_number,
+                name: item.name,
+            })),
             number: dataSop.number,
             status: dataSop.status,
             description: dataSop.description,
-            drafter: dataSop.users.map(item => {
-                return {
-                    id_number: item.identity_number,
-                    name: item.name
-                }
-            }),
+            drafter: dataSop.users.map(item => ({
+                id_number: item.identity_number,
+                name: item.name
+            })),
         };
 
         return res.status(200).json({
@@ -546,10 +544,10 @@ const updateSopDetail = async (req, res, next) => {
 const deleteSopDetail = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (isNaN(Number(id))) {
-            console.error('ID harus berupa angka')
-            return res.status(400).json({ message: 'ID harus berupa angka' })
-        };
+        if (!validateUUID(id)) {
+            console.error('ID harus berupa UUID')
+            return res.status(400).json({ message: 'ID harus berupa UUID' })
+        }
 
         const deletedCount = await modelSopDetail.destroy({ where: { id_sop_detail: id } });
         if (deletedCount === 0) {
@@ -558,7 +556,6 @@ const deleteSopDetail = async (req, res, next) => {
         }
 
         return res.status(200).json({ message: 'sukses menghapus data' });
-
     } catch (error) {
         next(error);
     }
@@ -598,7 +595,6 @@ const addSopStep = async (req, res, next) => {
         return res.status(200).json({
             message: 'sukses menambahkan data',
         });
-
     } catch (error) {
         next(error);
     }
@@ -624,7 +620,6 @@ const getSopStepbySopDetail = async (req, res, next) => {
             message: 'sukses mendapatkan data',
             data: dataStep
         });
-
     } catch (error) {
         next(error);
     }
@@ -652,10 +647,7 @@ const updateSopStep = async (req, res, next) => {
 
         await dataSopStep.update(data_baru);
 
-        return res.status(200).json({
-            message: 'sukses memperbarui data',
-        });
-
+        return res.status(200).json({ message: 'sukses memperbarui data' });
     } catch (error) {
         next(error);
     }
@@ -664,10 +656,6 @@ const updateSopStep = async (req, res, next) => {
 const deleteSopStep = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (isNaN(Number(id))) {
-            console.error('ID harus berupa angka')
-            return res.status(400).json({ message: 'ID harus berupa angka' })
-        };
 
         const deletedCount = await modelSopStep.destroy({ where: { id_step: id } });
         if (deletedCount === 0) {
@@ -676,7 +664,6 @@ const deleteSopStep = async (req, res, next) => {
         }
 
         return res.status(200).json({ message: 'sukses menghapus data' });
-
     } catch (error) {
         next(error);
     }
@@ -714,7 +701,6 @@ const confirmSopandBpmn = async (req, res, next) => {
         });
 
         return res.status(200).json({ message: 'sukses mengkonfirmasi SOP' });
-
     } catch (error) {
         next(error);
     }

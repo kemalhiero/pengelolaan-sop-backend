@@ -6,7 +6,7 @@ import modelImplementer from './implementer.js';
 export default sequelize.define('sop_detail_implementer',
     {
         id_sop_detail: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.UUID,
             primaryKey: true,
             allowNull: false,
             references: {

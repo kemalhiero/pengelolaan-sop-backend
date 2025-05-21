@@ -6,7 +6,7 @@ import modelSopDetail from './sop_details.js';
 export default sequelize.define('legal_basis_sop_details',
     {
         id_sop_detail: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.UUID,
             primaryKey: true,
             allowNull: false,
             references: {
