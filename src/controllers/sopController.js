@@ -585,11 +585,15 @@ const getSectionandWarning = async (req, res, next) => {
 
 const addSopStep = async (req, res, next) => {
     try {
-        const { id_sop_detail, seq_number, name, type, id_implementer, fittings, time, time_unit, output, description } = req.body;
+        const {
+            id_sop_detail, seq_number, name, type, id_implementer, fittings, time, time_unit, output, description,
+            id_next_step_if_yes, id_next_step_if_no
+        } = req.body;
 
         await modelSopStep.create({
             id_step: nanoid(10),
-            id_sop_detail, seq_number, name, type, id_implementer, fittings, time, time_unit, output, description
+            id_sop_detail, seq_number, name, type, id_implementer, fittings, time, time_unit, output, description,
+            id_next_step_if_yes, id_next_step_if_no
         });
 
         return res.status(200).json({
