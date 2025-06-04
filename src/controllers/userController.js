@@ -319,7 +319,7 @@ const getPicCandidate = async (req, res, next) => {
 
 const addPic = async (req, res, next) => {
     try {
-        const { id } = req.body;
+        const { id, org } = req.body;
 
         const pic = await modelUser.findByPk(id, {
             attributes: ['id_user'],
@@ -337,7 +337,8 @@ const addPic = async (req, res, next) => {
         });
 
         await pic.update({
-            id_role: role.id_role
+            id_role: role.id_role,
+            id_org_pic: org
         });
 
         return res.status(200).json({

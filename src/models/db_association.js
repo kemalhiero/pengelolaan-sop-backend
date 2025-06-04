@@ -18,6 +18,10 @@ import modelSopDetailImplementer from './sop_detail_implementer.js';
 import modelLegalBasisSopDetail from './legal_basis_sop_details.js';
 import modelImplementQualification from './implement_qualification.js';
 
+// relasi one to one
+modelOrganization.hasOne(modelUser, { foreignKey: 'id_org_pic' });     //satu organisasi cuma bisa satu pj
+modelUser.belongsTo(modelOrganization, { foreignKey: 'id_org_pic' });
+
 // relasi one to many
 modelRoles.hasMany(modelUser, { foreignKey: 'id_role' });
 modelUser.belongsTo(modelRoles, { foreignKey: 'id_role' });
@@ -36,9 +40,6 @@ modelSop.belongsTo(modelOrganization, { foreignKey: 'id_org' });
 
 // modelUser.hasMany(modelSopDetails, { foreignKey: 'signer_id' });     //satu user bisa menandatangani beberapa sop (tapi cuma role ter tentu saja)
 // modelSopDetails.belongsTo(modelUser, { foreignKey: 'signer_id' });
-
-modelOrganization.hasMany(modelUser, { foreignKey: 'id_org_pic' });     //satu organisasi bisa beberapa pj sekaligus
-modelUser.belongsTo(modelOrganization, { foreignKey: 'id_org_pic' });
 
 modelLawTypes.hasMany(modelLegal, { foreignKey: 'id_law_type' });
 modelLegal.belongsTo(modelLawTypes, { foreignKey: 'id_law_type' });
@@ -78,7 +79,11 @@ modelImplementer.belongsToMany(modelSopDetails, { through: modelSopDetailImpleme
 modelSopDetails.belongsToMany(modelImplementer, { through: modelSopDetailImplementer, foreignKey: 'id_sop_detail' });
 
 // self referencing
-modelOrganization.hasMany(modelOrganization, { foreignKey: 'id_org_parent', as: 'children' });
-modelOrganization.belongsTo(modelOrganization, { foreignKey: 'id_org_parent', as: 'parent' });
+modelOrganization.hasMany(modelOrganization, { foreignKey: 'id_org_parent', as: 'org_children' });
+modelOrganization.belongsTo(modelOrganization, { foreignKey: 'id_org_parent', as: 'org_parent' });
 
-//sop step ada 2 self referencing
+modelStep.hasMany(modelStep, { foreignKey: 'id_next_step_if_no', as: 'no_step_children' });
+modelStep.belongsTo(modelStep, { foreignKey: 'id_next_step_if_no', as: 'no_step_parent' });
+
+modelStep.hasMany(modelStep, { foreignKey: 'id_next_step_if_yes', as: 'yes_step_children' });
+modelStep.belongsTo(modelStep, { foreignKey: 'id_next_step_if_yes', as: 'yes_step_parent' });
