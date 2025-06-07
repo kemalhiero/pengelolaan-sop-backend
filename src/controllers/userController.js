@@ -301,7 +301,7 @@ const getPicCandidate = async (req, res, next) => {
             });
         }
 
-        const data = dataPic.map(item => ({
+        const data = dataPic?.map(item => ({
             id: item.id_user,
             id_number: item.identity_number,
             name: item.name,
@@ -440,6 +440,69 @@ const getPicDetail = async (req, res, next) => {
             message: 'sukses mendapatkan data',
             data
         });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const getCurrentPic = async (req, res, next) => {
+    try {
+        const pic = await modelUser.findOne({
+            attributes: { exclude: ['signature', 'password', 'id_role', 'id_org_pic'] },
+            include: [
+                {
+                    model: modelRole,
+                    attributes: [],
+                    where: {
+                        role_name: 'pj'
+                    }
+                },
+                {
+                    model: modelOrg,
+                    attributes: ['name'],
+                    where: {
+                        id_org: req.user.id_org_pic
+                    }
+                }
+            ]
+        });
+        if (!pic) return res.status(404).json({ message: 'Penanggung jawab tidak ditemukan!' });
+
+        const data = {
+            id: pic.id_user,
+            id_number: pic.identity_number,
+            name: pic.name,
+            gender: pic.gender,
+            photo: pic.photo ? encodeURI(`${env.CLOUDFLARE_R2_PUBLIC_BUCKET_URL}/${pic.photo}`) : null,
+            email: pic.email,
+            org: pic.organization.name,
+        };
+
+        res.status(200).json({
+            message: 'sukses mendapatkan data',
+            data
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const updatePic = async (req, res, next) => {
+    try {
+        const { id } = req.body; // id penanggung jawab yang baru
+        if (!id) return res.status(400).json({ message: 'ID penanggung jawab harus disertakan' });
+
+        // Turunkan role penanggung jawab lama & angkat penanggung jawab baru
+        await modelUser.update(
+            { id_role: 2 }, // user biasa
+            { where: { id_user: req.user.id_user } }
+        );
+        await modelUser.update(
+            { id_role: 3, id_org_pic: req.user.id_org_pic }, // penanggung jawab baru
+            { where: { id_user: id } }
+        );
+
+        return res.status(200).json({ message: 'Penanggung jawab berhasil diperbarui' });
     } catch (error) {
         next(error);
     }
@@ -729,11 +792,6 @@ const updateHod = async (req, res, next) => {
             attributes: ['id_role']
         });
 
-        const dsi = await modelOrg.findOne({
-            where: { name: 'Departemen Sistem Informasi' },
-            attributes: ['id_org']
-        });
-
         // turunin kadep lama
         await modelUser.update(
             { id_role: 2 },
@@ -743,7 +801,7 @@ const updateHod = async (req, res, next) => {
         // angkat kadep baru
         await hod.update({
             id_role: role.dataValues.id_role,
-            id_org_pic: dsi.dataValues.id_org
+            id_org_pic: 0 // Asumsi id_org untuk Departemen Sistem Informasi adalah 0
         });
 
         return res.status(200).json({
@@ -770,7 +828,7 @@ const getCurrentHod = async (req, res, next) => {
                     model: modelOrg,
                     attributes: [],
                     where: {
-                        name: 'Departemen Sistem Informasi'
+                        id_org: 0 // Asumsi id_org untuk Departemen Sistem Informasi adalah 0
                     }
                 }
             ]
@@ -827,5 +885,5 @@ export {
     getAllDrafter, getDrafterByIdDetail, addSopDrafter, removeSopDrafter, addDrafter, getDrafterDetail,
     getHodCandidate, updateHod, getCurrentHod,
     getSigner,
-    getAllPic, addPic, getUnassignedPic, getPicCandidate, getPicDetail
+    getAllPic, addPic, getUnassignedPic, getPicCandidate, getPicDetail, getCurrentPic, updatePic
 };

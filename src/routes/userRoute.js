@@ -38,10 +38,12 @@ router.get('/hod/candidate', verifyToken, controller.getHodCandidate);
 
 router.route('/pic')
     .get(verifyToken, controller.getAllPic)
-    .post(verifyToken, controller.addPic);
+    .post(verifyToken, controller.addPic)
+    .patch(verifyToken, controller.updatePic);
 
 router.get('/pic/candidate', verifyToken, controller.getPicCandidate);
 router.get('/pic/unassigned', verifyToken, controller.getUnassignedPic);
+router.get('/pic/current', verifyToken, controller.getCurrentPic);
 router.get('/pic/:id', verifyToken, controller.getPicDetail);
 
 export default router;
