@@ -9,6 +9,7 @@ import modelSopStep from '../models/sop_step.js'
 import modelSopDetail from '../models/sop_details.js';
 import modelOrganization from '../models/organization.js';
 import { validateUUID } from '../utils/validation.js';
+import { general, department, laboratory } from '../utils/letterCode.js';
 
 const currentYear = new Date().getFullYear();
 
@@ -375,13 +376,27 @@ const getLatestSopInYear = async (req, res, next) => {
         }
 
         let latestSop = await modelSopDetail.findOne({
-            where: literal(`YEAR(createdAt) = ${year}`),
+            where: literal(`YEAR(sop_details.createdAt) = ${year}`),
             order: [['createdAt', 'DESC']],
-            attributes: ['number', 'version']
+            attributes: ['number', 'version'],
+            include: {
+                model: modelSop,
+                attributes: ['id_org'],
+            }
         });
+
         if (!latestSop) {
+            // Tentukan letterCode berdasarkan id_org
+            let letterCodeValue;
+            if (latestSop?.sop?.id_org === 0) {
+                letterCodeValue = department;
+            } else if (latestSop?.sop?.id_org > 0) {
+                letterCodeValue = laboratory;
+            } else {
+                letterCodeValue = general;
+            }
             latestSop = {
-                number: `T/000/UN16.17.02/OT.01.00/${currentYear}`,
+                number: `T/000/${letterCodeValue}/${yearNumber}`,
                 version: 0
             };
         }
