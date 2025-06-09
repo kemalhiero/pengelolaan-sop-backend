@@ -179,10 +179,10 @@ const deleteSignatureFile = async (req, res, next) => {
             attributes: ['id_user', 'signature']
         });
         if (!user || !user.dataValues.signature) return res.status(404).json({ message: 'user atau tanda tangan tidak ditemukan!' });
-        
+
         //dibatalkan karena tanda tangan yang digunakan harus sesuai dengan anda tangan yang diberikan saat pengesahan
         // await deleteFile(user.dataValues.signature, 'signatures');   
-        
+
         await user.update({ signature: null });
 
         return res.status(200).json({ message: 'File tanda tangan berhasil dihapus!' });
@@ -421,11 +421,11 @@ const getPicDetail = async (req, res, next) => {
             gender: dataPic.dataValues.gender,
             email: dataPic.dataValues.email,
             org: dataPic.dataValues.organization?.name || '-',
-            team_member: dataPic.dataValues.organization?.users.map(item => ({
+            team_member: dataPic.dataValues.organization?.users?.map(item => ({
                 id_number: item.identity_number,
                 name: item.name
             })) || [],
-            sop: dataPic.dataValues.organization?.sops.flatMap(itemsop =>
+            sop: dataPic.dataValues.organization?.sops?.flatMap(itemsop =>
                 itemsop.sop_details.map(itemsopdetail => ({
                     number: itemsopdetail.number,
                     name: itemsop.name,
@@ -852,6 +852,87 @@ const getCurrentHod = async (req, res, next) => {
     }
 };
 
+// role dan organisasi pengguna
+const downgradeUserRole = async (req, res, next) => {
+    try {
+        const { id, role } = req.body;
+        console.log('downgrade user role', id, role);
+        if (!id || !role) return res.status(400).json({ message: 'ID dan role harus disertakan' });
+        const user = await modelUser.findByPk(id, {
+            attributes: ['id_user'],
+            include: {
+                model: modelRole,
+                attributes: ['role_name']
+            }
+        });
+        if (!user) return res.status(404).json({ message: 'user tidak ditemukan!' });
+        if (user.dataValues.role.role_name === role) {
+            console.log('user ini sudah menjadi', user.dataValues.role.role_name);
+            return res.status(404).json({ message: `user ini sudah menjadi ${role}!` });
+        }
+
+        const roleData = await modelRole.findOne({
+            where: { role_name: role },
+            attributes: ['id_role']
+        });
+        if (!roleData) return res.status(404).json({ message: 'Role tidak ditemukan!' });
+
+        await user.update({
+            id_role: roleData.dataValues.id_role,
+        });
+        console.log('berhasil menurunkan role user', user.dataValues.id_user, 'menjadi', role);
+        return res.status(200).json({ message: 'sukses menurunkan role user' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const changeUserOrganization = async (req, res, next) => {
+    try {
+        const { id, org } = req.body;
+        if (!id || org === null) return res.status(400).json({ message: 'ID dan organisasi harus disertakan' });
+
+        const user = await modelUser.findByPk(id, {
+            attributes: ['id_user', 'id_org_pic', 'id_role'],
+            include: {
+                model: modelRole,
+                attributes: ['role_name']
+            }
+        });
+        if (!user) return res.status(404).json({ message: 'user tidak ditemukan!' });
+        if (user.id_user === req.user.id_user) return res.status(400).json({ message: 'Anda tidak dapat mengubah organisasi Anda sendiri!' });
+        if (user.id_org_pic === org) return res.status(400).json({ message: 'User ini sudah berada di organisasi tersebut!' });
+
+        const organization = await modelOrg.findByPk(org, { attributes: ['id_org'] });
+        if (!organization) return res.status(404).json({ message: 'Organisasi tidak ditemukan!' });
+
+        // Jika user yang diubah adalah 'pj', cari user lain dengan role 'pj' di organisasi tujuan dan ubah jadi 'penyusun'
+        if (user.role.role_name === 'pj') {
+            const penyusunRole = await modelRole.findOne({ where: { role_name: 'penyusun' }, attributes: ['id_role'] });
+            await modelUser.update(
+                { id_role: penyusunRole.id_role },
+                {
+                    where: {
+                        id_org_pic: org,
+                        id_role: user.id_role,
+                        id_user: { [Op.ne]: user.id_user }
+                    }
+                }
+            );
+        }
+
+        const [updatedCount] = await modelUser.update(
+            { id_org_pic: org },
+            { where: { id_user: id } }
+        ); 
+        if (updatedCount === 0) return res.status(500).json({ message: 'Gagal mengubah organisasi user' });
+
+        return res.status(200).json({ message: 'sukses mengubah organisasi user' });
+    } catch (error) {
+        next(error);
+    }
+};
+
 // penanda tangan
 const getSigner = async (req, res, next) => {
     try {
@@ -885,5 +966,6 @@ export {
     getAllDrafter, getDrafterByIdDetail, addSopDrafter, removeSopDrafter, addDrafter, getDrafterDetail,
     getHodCandidate, updateHod, getCurrentHod,
     getSigner,
-    getAllPic, addPic, getUnassignedPic, getPicCandidate, getPicDetail, getCurrentPic, updatePic
+    getAllPic, addPic, getUnassignedPic, getPicCandidate, getPicDetail, getCurrentPic, updatePic,
+    downgradeUserRole, changeUserOrganization,
 };

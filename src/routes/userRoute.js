@@ -30,8 +30,7 @@ router.delete('/drafter/sop/:userId/:sopDetailId', verifyToken, controller.remov
 router.get('/drafter/sopdetail/:id', controller.getDrafterByIdDetail);
 router.get('/drafter/:id', controller.getDrafterDetail);
 
-router.route('/hod')
-    .patch(verifyToken, controller.updateHod);
+router.patch('/hod', verifyToken, controller.updateHod);
 
 router.get('/hod/current', controller.getCurrentHod);
 router.get('/hod/candidate', verifyToken, controller.getHodCandidate);
@@ -45,5 +44,8 @@ router.get('/pic/candidate', verifyToken, controller.getPicCandidate);
 router.get('/pic/unassigned', verifyToken, controller.getUnassignedPic);
 router.get('/pic/current', verifyToken, controller.getCurrentPic);
 router.get('/pic/:id', verifyToken, controller.getPicDetail);
+
+router.patch('/downgrade-role', verifyToken, controller.downgradeUserRole);
+router.patch('/change-org', verifyToken, controller.changeUserOrganization);
 
 export default router;
