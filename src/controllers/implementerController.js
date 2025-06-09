@@ -37,8 +37,7 @@ const getImplementer = async (req, res, next) => {
 const addImplementer = async (req, res, next) => {
     try {
         const { name, description } = req.body;
-
-        if (!name || !description) return res.status(404).json({ message: 'pastikan data tidak kosong!' });
+        if (!name) return res.status(404).json({ message: 'pastikan nama tidak kosong!' });
 
         await modelImplementer.create({ name, description });
 

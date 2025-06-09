@@ -41,7 +41,7 @@ export default sequelize.define('sop_details',
             allowNull: false,
         },
         warning: {
-            type: DataTypes.STRING(100)
+            type: DataTypes.STRING(1000)
         },
         section: {
             type: DataTypes.STRING(100),

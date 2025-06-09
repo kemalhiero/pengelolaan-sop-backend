@@ -510,10 +510,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
             creation_date: dateFormat(dataSop.createdAt),
             last_update_date: dateFormat(dataSop.updatedAt),
             organization: dataSop.sop.organization.name,
-            pic: dataSop.sop.organization.users?.map(item => ({
-                id_number: item.identity_number,
-                name: item.name,
-            })) || [],
+            pic: dataSop.sop.organization.user?.name,
             number: dataSop.number,
             status: dataSop.status,
             description: dataSop.description,
