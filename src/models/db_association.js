@@ -14,6 +14,7 @@ import modelImplementer from './implementer.js';
 import modelOrganization from './organization.js';
 import modelVerificationCode from './verification_code.js';
 import modelRelationOtherSop from './relation_other_sop.js';
+import modelSopDisplayConfig from './sop_display_config.js';
 import modelSopDetailImplementer from './sop_detail_implementer.js';
 import modelLegalBasisSopDetail from './legal_basis_sop_details.js';
 import modelImplementQualification from './implement_qualification.js';
@@ -21,6 +22,9 @@ import modelImplementQualification from './implement_qualification.js';
 // relasi one to one
 modelOrganization.hasOne(modelUser, { foreignKey: 'id_org_pic' });     //satu organisasi cuma bisa satu pj
 modelUser.belongsTo(modelOrganization, { foreignKey: 'id_org_pic' });
+
+modelSopDetails.hasOne(modelSopDisplayConfig, { foreignKey: 'id_sop_detail' });  // satu sop detail cuma bisa satu config
+modelSopDisplayConfig.belongsTo(modelSopDetails, { foreignKey: 'id_sop_detail' });
 
 // relasi one to many
 modelRoles.hasMany(modelUser, { foreignKey: 'id_role' });

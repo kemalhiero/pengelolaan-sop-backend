@@ -15,6 +15,10 @@ router.route('/detail/:id')
     .patch(verifyToken, sopController.updateSopDetail)
     .delete(verifyToken, sopController.deleteSopDetail);
 
+router.route('/detail/display/:id')
+    .get(sopController.getSopDisplayConfig)
+    .patch(sopController.saveSopDisplayConfig)
+
 router.get('/version/:id', sopController.getSopVersion);
 
 router.post('/step', verifyToken, sopController.addSopStep);

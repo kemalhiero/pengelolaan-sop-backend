@@ -8,6 +8,7 @@ import modelUser from '../models/users.js';
 import modelSopStep from '../models/sop_step.js'
 import modelSopDetail from '../models/sop_details.js';
 import modelOrganization from '../models/organization.js';
+import modelSopDisplayConfig from '../models/sop_display_config.js';
 import { validateUUID } from '../utils/validation.js';
 import { general, department, laboratory } from '../utils/letterCode.js';
 
@@ -489,13 +490,15 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
                             include: {
                                 model: modelRole,
                                 where: {
-                                    role_name: 'pj'
+                                    role_name: {
+                                        [Op.in]: ['pj', 'kadep'] // ambil hanya yang punya role pj atau kadep
+                                    }
                                 }
                             },
                         }
                     }
                 },
-                {                       //ambil penyusun
+                {   //ambil penyusun
                     model: modelUser,
                     attributes: ['identity_number', 'name'],
                     through: { attributes: [] }
@@ -722,10 +725,82 @@ const confirmSopandBpmn = async (req, res, next) => {
     }
 };
 
+const saveSopDisplayConfig = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        if (!id) return res.status(400).json({ message: 'ID sop detail tidak boleh kosong' });
+
+        const {
+            nominal_basic_page_steps,
+            nominal_steps_both_opc,
+            kegiatan_width,
+            kelengkapan_width,
+            waktu_width,
+            output_width,
+            ket_width
+        } = req.body;
+
+        // Menggunakan upsert
+        const [config, created] = await modelSopDisplayConfig.upsert({
+            id_sop_detail : id,
+            nominal_basic_page_steps,
+            nominal_steps_both_opc,
+            kegiatan_width,
+            kelengkapan_width,
+            waktu_width,
+            output_width,
+            ket_width
+        }, { returning: true });
+
+        if (created) {
+            return res.status(201).json({ message: 'Konfigurasi berhasil dibuat', data: config });
+        } else {
+            return res.status(200).json({ message: 'Konfigurasi berhasil diperbarui', data: config });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+const getSopDisplayConfig = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({ message: 'ID sop detail tidak boleh kosong' });
+        }
+
+        const config = await modelSopDisplayConfig.findOne({
+            where: { id_sop_detail: id },
+            attributes: [
+                'id_sop_detail',
+                'nominal_basic_page_steps',
+                'nominal_steps_both_opc',
+                'kegiatan_width',
+                'kelengkapan_width',
+                'waktu_width',
+                'output_width',
+                'ket_width'
+            ]
+        });
+
+        if (!config) {
+            return res.status(404).json({ message: 'Konfigurasi tidak ditemukan' });
+        }
+
+        return res.status(200).json({
+            message: 'sukses mendapatkan konfigurasi',
+            data: config
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export {
     addSop, getAllSop, getSopById, getAssignedSop, getManagedSop, deleteSop, updateSop, getSopVersion,
     addSopDetail, getAllSopDetail, updateSopDetail, deleteSopDetail, getSectionandWarning, getLatestSopInYear,
     getAssignedSopDetail,
     addSopStep, getSopStepbySopDetail, updateSopStep, deleteSopStep,
-    confirmSopandBpmn,
+    confirmSopandBpmn, saveSopDisplayConfig, getSopDisplayConfig
 };
