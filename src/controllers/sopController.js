@@ -77,14 +77,15 @@ const addSopDetail = async (req, res, next) => {
                         [Op.in]: ['pj', 'kadep']
                     }
                 },
-                attributes: []
+                attributes: ['role_name']
             }],
             attributes: ['id_user']
         });
 
         const dataSopDetail = await modelSopDetail.create({
             number, description, id_sop: id, version, status: 2,
-            signer_id: signer ? signer.dataValues.id_user : null
+            signer_id: signer ? signer.dataValues.id_user : null,
+            pic_position: signer ? signer.dataValues.role.role_name : null
         });
 
         return res.status(201).json({
@@ -328,7 +329,7 @@ const getSopVersion = async (req, res, next) => {
                 ['id_sop_detail', 'id'],
                 'number', 'version', 'effective_date',
                 'status', 'warning', 'section',
-                'description', 'signer_id', 'signature_url', 'createdAt', 'updatedAt'
+                'description', 'pic_position', 'signer_id', 'signature_url', 'createdAt', 'updatedAt'
             ],
             include: [
                 {
@@ -490,7 +491,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
 
         const dataSop = await modelSopDetail.findByPk(id, {
             attributes: [
-                'number', 'status', 'description',
+                'number', 'status', 'description', 'pic_position',
                 'effective_date', 'createdAt', 'updatedAt',
             ],
             include: [
@@ -524,7 +525,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
         if (!dataSop) return res.status(404).json({ message: 'data tidak ditemukan!' });
 
         // Transform data untuk menghapus struktur nested yang tidak diinginkan
-        const { sop, users, number, status, description, createdAt, updatedAt } = dataSop;
+        const { sop, users, number, status, description, pic_position, createdAt, updatedAt } = dataSop;
         const data = {
             name: sop.name,
             creation_date: dateFormat(createdAt),
@@ -541,6 +542,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
             number,
             status,
             description,
+            pic_position,
             drafter: users.map(({ identity_number, name }) => ({
                 id_number: identity_number,
                 name

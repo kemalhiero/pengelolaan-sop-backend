@@ -52,6 +52,12 @@ export default sequelize.define('sop_details',
                 len: [0, 1000],
             },
         },
+        pic_position: {
+            type: DataTypes.STRING(20),
+            validate: {
+                len: [0, 20],
+            },
+        },
         signer_id: {
             type: DataTypes.STRING(15),
             references: {
