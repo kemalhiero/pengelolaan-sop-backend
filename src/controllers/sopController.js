@@ -53,10 +53,10 @@ const addSopDetail = async (req, res, next) => {
         const { id } = req.params;
         if (!id) return res.status(404).json({ message: 'atribut id masih kosong!' });
 
-        const { number, description, version, signer } = req.body;
+        const { number, description, version } = req.body;
         if (!number || !description || !version) return res.status(404).json({ message: 'pastikan data tidak kosong!' });
 
-        const sop = await modelSop.findByPk(id, { attributes: ['id_sop'] });
+        const sop = await modelSop.findByPk(id, { attributes: ['id_sop', 'id_org'] });
         if (!sop) return res.status(404).json({ message: 'sop tidak ditemukan!' });
 
         // Cek apakah nomor sudah ada untuk SOP ini
@@ -66,9 +66,25 @@ const addSopDetail = async (req, res, next) => {
         });
         if (existingSopDetail) return res.status(409).json({ message: 'Nomor SOP sudah digunakan, ganti dengan nomor lain!' });
 
+        const signer = await modelUser.findOne({
+            where: {
+                id_org_pic: sop.dataValues.id_org
+            },
+            include: [{
+                model: modelRole,
+                where: {
+                    role_name: {
+                        [Op.in]: ['pj', 'kadep']
+                    }
+                },
+                attributes: []
+            }],
+            attributes: ['id_user']
+        });
+
         const dataSopDetail = await modelSopDetail.create({
-            number, description, id_sop: id, version,
-            status: 2, signer_id: signer
+            number, description, id_sop: id, version, status: 2,
+            signer_id: signer ? signer.dataValues.id_user : null
         });
 
         return res.status(201).json({
@@ -483,7 +499,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
                     attributes: ['name'],
                     include: {
                         model: modelOrganization,
-                        attributes: ['name'],
+                        attributes: ['id_org', 'name'],
                         include: {
                             model: modelUser,   //ambil pic/penanggung jawab
                             attributes: ['identity_number', 'name'],
@@ -508,18 +524,26 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
         if (!dataSop) return res.status(404).json({ message: 'data tidak ditemukan!' });
 
         // Transform data untuk menghapus struktur nested yang tidak diinginkan
+        const { sop, users, number, status, description, createdAt, updatedAt } = dataSop;
         const data = {
-            name: dataSop.sop.name,
-            creation_date: dateFormat(dataSop.createdAt),
-            last_update_date: dateFormat(dataSop.updatedAt),
-            organization: dataSop.sop.organization.name,
-            pic: dataSop.sop.organization.user?.name,
-            number: dataSop.number,
-            status: dataSop.status,
-            description: dataSop.description,
-            drafter: dataSop.users.map(item => ({
-                id_number: item.identity_number,
-                name: item.name
+            name: sop.name,
+            creation_date: dateFormat(createdAt),
+            last_update_date: dateFormat(updatedAt),
+            organization: {
+                id_org: sop.organization.id_org,
+                name: sop.organization.name
+            },
+            pic: sop.organization.user && {
+                id_number: sop.organization.user.identity_number,
+                name: sop.organization.user.name,
+                role: sop.organization.user.role?.role_name || null
+            },
+            number,
+            status,
+            description,
+            drafter: users.map(({ identity_number, name }) => ({
+                id_number: identity_number,
+                name
             })),
         };
 
@@ -714,7 +738,6 @@ const confirmSopandBpmn = async (req, res, next) => {
 
         await dataSopDetail.update({
             status: 1,
-            signer_id: req.user.id_user,
             signature_url: req.user.signature,
             effective_date: new Date()
         });
@@ -742,7 +765,7 @@ const saveSopDisplayConfig = async (req, res, next) => {
 
         // Menggunakan upsert
         const [config, created] = await modelSopDisplayConfig.upsert({
-            id_sop_detail : id,
+            id_sop_detail: id,
             nominal_basic_page_steps,
             nominal_steps_both_opc,
             kegiatan_width,
@@ -765,10 +788,7 @@ const saveSopDisplayConfig = async (req, res, next) => {
 const getSopDisplayConfig = async (req, res, next) => {
     try {
         const { id } = req.params;
-
-        if (!id) {
-            return res.status(400).json({ message: 'ID sop detail tidak boleh kosong' });
-        }
+        if (!id) return res.status(400).json({ message: 'ID sop detail tidak boleh kosong' });
 
         const config = await modelSopDisplayConfig.findOne({
             where: { id_sop_detail: id },
@@ -784,9 +804,7 @@ const getSopDisplayConfig = async (req, res, next) => {
             ]
         });
 
-        if (!config) {
-            return res.status(404).json({ message: 'Konfigurasi tidak ditemukan' });
-        }
+        if (!config) return res.status(404).json({ message: 'Konfigurasi tidak ditemukan' });
 
         return res.status(200).json({
             message: 'sukses mendapatkan konfigurasi',

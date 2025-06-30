@@ -924,7 +924,7 @@ const changeUserOrganization = async (req, res, next) => {
         const [updatedCount] = await modelUser.update(
             { id_org_pic: org },
             { where: { id_user: id } }
-        ); 
+        );
         if (updatedCount === 0) return res.status(500).json({ message: 'Gagal mengubah organisasi user' });
 
         return res.status(200).json({ message: 'sukses mengubah organisasi user' });
@@ -939,16 +939,22 @@ const getSigner = async (req, res, next) => {
         const { id } = req.params;
         if (!id) return res.status(404).json({ message: 'masukkan id penanda tangan!' });
 
-        const data = await modelUser.findByPk(id, {
-            attributes: [['identity_number', 'id_number'], 'name'],
+        const user = await modelUser.findByPk(id, {
+            attributes: ['identity_number', 'name'],
             include: {
                 model: modelRole,
-                attributes: [],
+                attributes: ['role_name'],
                 where: { role_name: { [Op.in]: ['kadep', 'pj'] } }
             }
         });
 
-        if (!data?.dataValues) return res.status(404).json({ message: 'data user tidak ditemukan!' });
+        if (!user?.dataValues) return res.status(404).json({ message: 'data user tidak ditemukan!' });
+
+        const data = {
+            id_number: user.identity_number,
+            name: user.name,
+            role: user.role?.role_name || null
+        };
 
         res.status(200).json({
             message: 'sukses mendapatkan data',

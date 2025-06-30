@@ -63,6 +63,5 @@ export default sequelize.define('users',
     },
     {
         freezeTableName: true,
-        timestamps: false,
     }
 );
