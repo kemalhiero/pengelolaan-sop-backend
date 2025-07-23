@@ -34,6 +34,12 @@ export default sequelize.define('sop_display_config',
         ket_width: {
             type: DataTypes.TINYINT.UNSIGNED,
         },
+        flowchart_arrow_config: {
+            type: DataTypes.TEXT("long"),
+        },
+        bpmn_arrow_config: {
+            type: DataTypes.TEXT("long"),
+        },
     }, {
     freezeTableName: true,
 }

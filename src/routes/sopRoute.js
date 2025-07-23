@@ -17,7 +17,10 @@ router.route('/detail/:id')
 
 router.route('/detail/display/:id')
     .get(sopController.getSopDisplayConfig)
-    .patch(sopController.saveSopDisplayConfig)
+    .patch(verifyToken, sopController.saveSopDisplayConfig);
+
+router.route('/detail/display/:id/arrow')
+    .patch(verifyToken, sopController.clearSopArrowConfig);
 
 router.get('/version/:id', sopController.getSopVersion);
 

@@ -27,7 +27,7 @@ export default sequelize.define('sop_step',
             allowNull: false,
         },
         type: {
-            type: DataTypes.ENUM('terminator', 'task', 'decision', 'arrow'),
+            type: DataTypes.ENUM('terminator', 'task', 'decision'),
             allowNull: false,
         },
         id_implementer: {
