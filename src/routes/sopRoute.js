@@ -15,13 +15,20 @@ router.route('/detail/:id')
     .patch(verifyToken, sopController.updateSopDetail)
     .delete(verifyToken, sopController.deleteSopDetail);
 
-router.route('/detail/display/:id')
-    .get(sopController.getSopDisplayConfig)
-    .patch(verifyToken, sopController.saveSopDisplayConfig);
+// Konfigurasi tampilan SOP
+router.patch('/detail/display/:id/layout', verifyToken, sopController.saveSopLayout);
 
-router.route('/detail/display/:id/arrow')
-    .patch(verifyToken, sopController.clearSopArrowConfig);
+router.route('/detail/display/:id/flowchart')
+    .patch(verifyToken, sopController.saveFlowchartConfig)
+    .delete(verifyToken, sopController.clearFlowchartConfig);
 
+router.route('/detail/display/:id/bpmn')
+    .patch(verifyToken, sopController.saveBpmnConfig)
+    .delete(verifyToken, sopController.clearBpmnConfig);
+
+router.get('/detail/display/:id', sopController.getSopDisplayConfig);
+
+// ambil data versi SOP
 router.get('/version/:id', sopController.getSopVersion);
 
 router.post('/step', verifyToken, sopController.addSopStep);

@@ -751,7 +751,7 @@ const confirmSopandBpmn = async (req, res, next) => {
 };
 
 // konfigurasi tampilan SOP
-const saveSopDisplayConfig = async (req, res, next) => {
+const saveSopLayout = async (req, res, next) => {           // menyimpat layout dan pagination saja
     try {
         const { id } = req.params;
         if (!id) return res.status(400).json({ message: 'ID sop detail tidak boleh kosong' });
@@ -764,8 +764,6 @@ const saveSopDisplayConfig = async (req, res, next) => {
             waktu_width,
             output_width,
             ket_width,
-            flowchart_arrow_config,
-            bpmn_arrow_config
         } = req.body;
 
         // Menggunakan upsert
@@ -778,9 +776,7 @@ const saveSopDisplayConfig = async (req, res, next) => {
             waktu_width,
             output_width,
             ket_width,
-            flowchart_arrow_config,
-            bpmn_arrow_config
-        }, { returning: true });
+        });
 
         if (created) {
             return res.status(201).json({ message: 'Konfigurasi berhasil dibuat', data: config });
@@ -792,7 +788,66 @@ const saveSopDisplayConfig = async (req, res, next) => {
     }
 };
 
-const getSopDisplayConfig = async (req, res, next) => {
+const saveFlowchartConfig = async (req, res, next) => {     // menyimpan konfigurasi panah dan label flowchart
+    try {
+        const { id } = req.params;
+        if (!id) return res.status(400).json({ message: 'ID sop detail tidak boleh kosong' });
+        const { flowchart_arrow_config, flowchart_label_config } = req.body;
+        if (!flowchart_arrow_config && !flowchart_label_config) {
+            return res.status(400).json({ message: 'Minimal satu konfigurasi harus diisi' });
+        }
+        const updateData = {};
+        if (flowchart_arrow_config) {
+            updateData.flowchart_arrow_config = flowchart_arrow_config;
+        }
+        if (flowchart_label_config) {
+            updateData.flowchart_label_config = flowchart_label_config;
+        }
+
+        const [updated] = await modelSopDisplayConfig.update(updateData, {
+            where: { id_sop_detail: id }
+        });
+
+        if (updated === 0) {
+            return res.status(404).json({ message: 'Konfigurasi tidak ditemukan' });
+        }
+
+        return res.status(200).json({ message: 'Konfigurasi berhasil diperbarui' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const saveBpmnConfig = async (req, res, next) => {          // menyimpan konfigurasi panah dan label BPMN
+    try {
+        const { id } = req.params;
+        if (!id) return res.status(400).json({ message: 'ID sop detail tidak boleh kosong' });
+        const { bpmn_arrow_config, bpmn_label_config } = req.body;
+        if (!bpmn_arrow_config && !bpmn_label_config) {
+            return res.status(400).json({ message: 'Minimal satu konfigurasi harus diisi' });
+        }
+        const updateData = {};
+        if (bpmn_arrow_config) {
+            updateData.bpmn_arrow_config = bpmn_arrow_config;
+        }
+        if (bpmn_label_config) {
+            updateData.bpmn_label_config = bpmn_label_config;
+        }
+        const [updated] = await modelSopDisplayConfig.update(updateData, {
+            where: { id_sop_detail: id }
+        });
+
+        if (updated === 0) {
+            return res.status(404).json({ message: 'Konfigurasi tidak ditemukan' });
+        }
+
+        return res.status(200).json({ message: 'Konfigurasi berhasil diperbarui' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const getSopDisplayConfig = async (req, res, next) => {     // mengambil semua konfigurasi tampilan SOP
     try {
         const { id } = req.params;
         if (!id) return res.status(400).json({ message: 'ID sop detail tidak boleh kosong' });
@@ -809,7 +864,9 @@ const getSopDisplayConfig = async (req, res, next) => {
                 'output_width',
                 'ket_width',
                 'flowchart_arrow_config',
-                'bpmn_arrow_config'
+                'bpmn_arrow_config',
+                'flowchart_label_config',
+                'bpmn_label_config'
             ]
         });
 
@@ -824,32 +881,37 @@ const getSopDisplayConfig = async (req, res, next) => {
     }
 };
 
-const clearSopArrowConfig = async (req, res, next) => {
+const clearFlowchartConfig = async (req, res, next) => {    // menghapus konfigurasi panah dan label flowchart
     try {
         const { id } = req.params;
-        const { type } = req.query; // type: 'flowchart' atau 'bpmn'
-
         if (!id) return res.status(400).json({ message: 'ID sop detail tidak boleh kosong' });
-        if (!type || !['document', 'bpmn'].includes(type)) {
-            return res.status(400).json({ message: 'Tipe konfigurasi harus "document" atau "bpmn"' });
-        }
 
-        const updateData = {};
-        if (type === 'document') {
-            updateData.flowchart_arrow_config = null;
-        } else if (type === 'bpmn') {
-            updateData.bpmn_arrow_config = null;
-        }
+        const [updated] = await modelSopDisplayConfig.update(
+            { flowchart_arrow_config: null, flowchart_label_config: null },
+            { where: { id_sop_detail: id } }
+        );
 
-        const [updated] = await modelSopDisplayConfig.update(updateData, {
-            where: { id_sop_detail: id }
-        });
+        if (updated === 0) return res.status(404).json({ message: 'Konfigurasi tidak ditemukan' });
 
-        if (updated === 0) {
-            return res.status(404).json({ message: 'Konfigurasi tidak ditemukan' });
-        }
+        return res.status(200).json({ message: 'Konfigurasi flowchart berhasil dihapus' });
+    } catch (error) {
+        next(error);
+    }
+};
 
-        return res.status(200).json({ message: `Konfigurasi panah ${type} berhasil dihapus` });
+const clearBpmnConfig = async (req, res, next) => {         // menghapus konfigurasi panah dan label BPMN
+    try {
+        const { id } = req.params;
+        if (!id) return res.status(400).json({ message: 'ID sop detail tidak boleh kosong' });
+
+        const [updated] = await modelSopDisplayConfig.update(
+            { bpmn_arrow_config: null, bpmn_label_config: null },
+            { where: { id_sop_detail: id } }
+        );
+
+        if (updated === 0) return res.status(404).json({ message: 'Konfigurasi tidak ditemukan' });
+
+        return res.status(200).json({ message: 'Konfigurasi BPMN berhasil dihapus' });
     } catch (error) {
         next(error);
     }
@@ -860,5 +922,6 @@ export {
     addSopDetail, getAllSopDetail, updateSopDetail, deleteSopDetail, getSectionandWarning, getLatestSopInYear,
     getAssignedSopDetail,
     addSopStep, getSopStepbySopDetail, updateSopStep, deleteSopStep,
-    confirmSopandBpmn, saveSopDisplayConfig, getSopDisplayConfig, clearSopArrowConfig
+    saveSopLayout, getSopDisplayConfig, saveBpmnConfig, saveFlowchartConfig, clearFlowchartConfig, clearBpmnConfig,
+    confirmSopandBpmn,
 };

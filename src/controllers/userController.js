@@ -674,7 +674,8 @@ const addDrafter = async (req, res, next) => {      //ubah role user jadi penyus
         });
 
         await drafter.update({
-            id_role: role.id_role
+            id_role: role.id_role,
+            id_org_pic: req.user.id_org_pic
         });
 
         return res.status(200).json({

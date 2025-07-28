@@ -40,6 +40,12 @@ export default sequelize.define('sop_display_config',
         bpmn_arrow_config: {
             type: DataTypes.TEXT("long"),
         },
+        flowchart_label_config: {
+            type: DataTypes.TEXT("long"),
+        },
+        bpmn_label_config: {
+            type: DataTypes.TEXT("long"),
+        },
     }, {
     freezeTableName: true,
 }
