@@ -796,7 +796,7 @@ const saveFlowchartConfig = async (req, res, next) => {     // menyimpan konfigu
         if (!flowchart_arrow_config && !flowchart_label_config) {
             return res.status(400).json({ message: 'Minimal satu konfigurasi harus diisi' });
         }
-        const updateData = {};
+        const updateData = { id_sop_detail: id };
         if (flowchart_arrow_config) {
             updateData.flowchart_arrow_config = flowchart_arrow_config;
         }
@@ -804,15 +804,13 @@ const saveFlowchartConfig = async (req, res, next) => {     // menyimpan konfigu
             updateData.flowchart_label_config = flowchart_label_config;
         }
 
-        const [updated] = await modelSopDisplayConfig.update(updateData, {
-            where: { id_sop_detail: id }
-        });
+        const [config, created] = await modelSopDisplayConfig.upsert(updateData);
 
-        if (updated === 0) {
-            return res.status(404).json({ message: 'Konfigurasi tidak ditemukan' });
+        if (created) {
+            return res.status(201).json({ message: 'Konfigurasi berhasil dibuat', data: config });
+        } else {
+            return res.status(200).json({ message: 'Konfigurasi berhasil diperbarui', data: config });
         }
-
-        return res.status(200).json({ message: 'Konfigurasi berhasil diperbarui' });
     } catch (error) {
         next(error);
     }
@@ -826,22 +824,21 @@ const saveBpmnConfig = async (req, res, next) => {          // menyimpan konfigu
         if (!bpmn_arrow_config && !bpmn_label_config) {
             return res.status(400).json({ message: 'Minimal satu konfigurasi harus diisi' });
         }
-        const updateData = {};
+        const updateData = { id_sop_detail: id };
         if (bpmn_arrow_config) {
             updateData.bpmn_arrow_config = bpmn_arrow_config;
         }
         if (bpmn_label_config) {
             updateData.bpmn_label_config = bpmn_label_config;
         }
-        const [updated] = await modelSopDisplayConfig.update(updateData, {
-            where: { id_sop_detail: id }
-        });
 
-        if (updated === 0) {
-            return res.status(404).json({ message: 'Konfigurasi tidak ditemukan' });
+        const [config, created] = await modelSopDisplayConfig.upsert(updateData);
+
+        if (created) {
+            return res.status(201).json({ message: 'Konfigurasi berhasil dibuat', data: config });
+        } else {
+            return res.status(200).json({ message: 'Konfigurasi berhasil diperbarui', data: config });
         }
-
-        return res.status(200).json({ message: 'Konfigurasi berhasil diperbarui' });
     } catch (error) {
         next(error);
     }

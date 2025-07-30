@@ -16,8 +16,8 @@ const registUser = async (req, res, next) => {
     try {
         const { name, id_number, email, gender, password, confirm_password } = req.body;
 
-        if (!isInstitutionalEmail(email)) return res.status(400).json({ message: 'Email harus menggunakan domain student.unand.ac.id atau it.unand.ac.id' });
-        if (password !== confirm_password) return res.status(401).send({ message: 'sandi tidak cocok' });
+        if (!isInstitutionalEmail(email)) return res.status(400).json({ message: 'Wajib menggunakan email institusi Universitas Andalas' });
+        if (password !== confirm_password) return res.status(401).send({ message: 'Sandi tidak cocok' });
 
         // hash password
         const salt = await bcrypt.genSalt();
