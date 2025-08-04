@@ -8,7 +8,6 @@ import modelUser from '../models/users.js';
 import modelSopStep from '../models/sop_step.js'
 import modelSopDetail from '../models/sop_details.js';
 import modelOrganization from '../models/organization.js';
-import modelSopDisplayConfig from '../models/sop_display_config.js';
 import { validateUUID } from '../utils/validation.js';
 import { general, department, laboratory } from '../utils/letterCode.js';
 
@@ -766,9 +765,7 @@ const saveSopLayout = async (req, res, next) => {           // menyimpat layout 
             ket_width,
         } = req.body;
 
-        // Menggunakan upsert
-        const [config, created] = await modelSopDisplayConfig.upsert({
-            id_sop_detail: id,
+        const [updated] = await modelSopDetail.update({
             nominal_basic_page_steps,
             nominal_steps_both_opc,
             kegiatan_width,
@@ -776,13 +773,15 @@ const saveSopLayout = async (req, res, next) => {           // menyimpat layout 
             waktu_width,
             output_width,
             ket_width,
+        }, {
+            where: { id_sop_detail: id }
         });
 
-        if (created) {
-            return res.status(201).json({ message: 'Konfigurasi berhasil dibuat', data: config });
-        } else {
-            return res.status(200).json({ message: 'Konfigurasi berhasil diperbarui', data: config });
+        if (updated === 0) {
+            return res.status(404).json({ message: 'Konfigurasi tidak ditemukan' });
         }
+
+        return res.status(200).json({ message: 'Konfigurasi berhasil diperbarui' });
     } catch (error) {
         next(error);
     }
@@ -796,7 +795,7 @@ const saveFlowchartConfig = async (req, res, next) => {     // menyimpan konfigu
         if (!flowchart_arrow_config && !flowchart_label_config) {
             return res.status(400).json({ message: 'Minimal satu konfigurasi harus diisi' });
         }
-        const updateData = { id_sop_detail: id };
+        const updateData = {};
         if (flowchart_arrow_config) {
             updateData.flowchart_arrow_config = flowchart_arrow_config;
         }
@@ -804,13 +803,15 @@ const saveFlowchartConfig = async (req, res, next) => {     // menyimpan konfigu
             updateData.flowchart_label_config = flowchart_label_config;
         }
 
-        const [config, created] = await modelSopDisplayConfig.upsert(updateData);
+        const [updated] = await modelSopDetail.update(updateData, {
+            where: { id_sop_detail: id }
+        });
 
-        if (created) {
-            return res.status(201).json({ message: 'Konfigurasi berhasil dibuat', data: config });
-        } else {
-            return res.status(200).json({ message: 'Konfigurasi berhasil diperbarui', data: config });
+        if (updated === 0) {
+            return res.status(404).json({ message: 'Konfigurasi tidak ditemukan' });
         }
+
+        return res.status(200).json({ message: 'Konfigurasi berhasil diperbarui' });
     } catch (error) {
         next(error);
     }
@@ -824,7 +825,7 @@ const saveBpmnConfig = async (req, res, next) => {          // menyimpan konfigu
         if (!bpmn_arrow_config && !bpmn_label_config) {
             return res.status(400).json({ message: 'Minimal satu konfigurasi harus diisi' });
         }
-        const updateData = { id_sop_detail: id };
+        const updateData = {};
         if (bpmn_arrow_config) {
             updateData.bpmn_arrow_config = bpmn_arrow_config;
         }
@@ -832,13 +833,15 @@ const saveBpmnConfig = async (req, res, next) => {          // menyimpan konfigu
             updateData.bpmn_label_config = bpmn_label_config;
         }
 
-        const [config, created] = await modelSopDisplayConfig.upsert(updateData);
+        const [updated] = await modelSopDetail.update(updateData, {
+            where: { id_sop_detail: id }
+        });
 
-        if (created) {
-            return res.status(201).json({ message: 'Konfigurasi berhasil dibuat', data: config });
-        } else {
-            return res.status(200).json({ message: 'Konfigurasi berhasil diperbarui', data: config });
+        if (updated === 0) {
+            return res.status(404).json({ message: 'Konfigurasi tidak ditemukan' });
         }
+
+        return res.status(200).json({ message: 'Konfigurasi berhasil diperbarui' });
     } catch (error) {
         next(error);
     }
@@ -849,10 +852,9 @@ const getSopDisplayConfig = async (req, res, next) => {     // mengambil semua k
         const { id } = req.params;
         if (!id) return res.status(400).json({ message: 'ID sop detail tidak boleh kosong' });
 
-        const config = await modelSopDisplayConfig.findOne({
+        const config = await modelSopDetail.findOne({
             where: { id_sop_detail: id },
             attributes: [
-                'id_sop_detail',
                 'nominal_basic_page_steps',
                 'nominal_steps_both_opc',
                 'kegiatan_width',
@@ -883,7 +885,7 @@ const clearFlowchartConfig = async (req, res, next) => {    // menghapus konfigu
         const { id } = req.params;
         if (!id) return res.status(400).json({ message: 'ID sop detail tidak boleh kosong' });
 
-        const [updated] = await modelSopDisplayConfig.update(
+        const [updated] = await modelSopDetail.update(
             { flowchart_arrow_config: null, flowchart_label_config: null },
             { where: { id_sop_detail: id } }
         );
@@ -901,7 +903,7 @@ const clearBpmnConfig = async (req, res, next) => {         // menghapus konfigu
         const { id } = req.params;
         if (!id) return res.status(400).json({ message: 'ID sop detail tidak boleh kosong' });
 
-        const [updated] = await modelSopDisplayConfig.update(
+        const [updated] = await modelSopDetail.update(
             { bpmn_arrow_config: null, bpmn_label_config: null },
             { where: { id_sop_detail: id } }
         );
