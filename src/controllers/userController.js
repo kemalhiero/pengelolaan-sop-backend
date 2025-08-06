@@ -945,7 +945,7 @@ const getSigner = async (req, res, next) => {
             include: {
                 model: modelRole,
                 attributes: ['role_name'],
-                where: { role_name: { [Op.in]: ['kadep', 'pj'] } }
+                // where: { role_name: { [Op.in]: ['kadep', 'pj'] } }
             }
         });
 

@@ -100,6 +100,7 @@ const getAllSop = async (req, res, next) => {       //ambil semua sop
     try {
         const dataSop = await modelSop.findAll({
             attributes: ['name', 'is_active', 'createdAt'],
+            where: { is_active: 1 },
             include: [
                 {
                     model: modelSopDetail,
