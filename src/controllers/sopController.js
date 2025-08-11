@@ -431,8 +431,11 @@ const getLatestSopInYear = async (req, res, next) => {
 const getAssignedSop = async (req, res, next) => {
     try {
         let dataSop = [];
-        if (req.user.role == 'penyusun') {
-            dataSop = await modelSopDetail.findAll({
+        const sopQueries = [];
+
+        // Query sebagai penyusun (berdasarkan email)
+        sopQueries.push(
+            modelSopDetail.findAll({
                 attributes: ['id_sop_detail', 'number', 'status'],
                 include: [
                     {
@@ -450,26 +453,39 @@ const getAssignedSop = async (req, res, next) => {
                         through: { attributes: [] }
                     }
                 ]
-            });
-        } else if (req.user.role == 'pj' || req.user.role == 'kadep') {
-            dataSop = await modelSopDetail.findAll({
-                attributes: ['id_sop_detail', 'number', 'status'],
-                include: {
-                    model: modelSop,
-                    attributes: ['name', 'createdAt'],
-                    where: { id_org: req.user.id_org_pic },
+            })
+        );
+
+        // Jika pj/kadep, tambahkan query berdasarkan organisasi
+        if (req.user.role === 'pj' || req.user.role === 'kadep') {
+            sopQueries.push(
+                modelSopDetail.findAll({
+                    attributes: ['id_sop_detail', 'number', 'status'],
                     include: {
-                        model: modelOrganization,
-                        attributes: ['name'],
+                        model: modelSop,
+                        attributes: ['name', 'createdAt'],
+                        where: { id_org: req.user.id_org_pic },
+                        include: {
+                            model: modelOrganization,
+                            attributes: ['name'],
+                        }
                     }
-                }
-            });
+                })
+            );
         }
+
+        // Jalankan semua query dan gabungkan hasilnya tanpa duplikat
+        const results = await Promise.all(sopQueries);
+        const map = new Map();
+        results.flat().forEach(item => {
+            map.set(item.id_sop_detail, item);
+        });
+        dataSop = Array.from(map.values());
 
         const data = dataSop.map(item => ({
             id: item.id_sop_detail,
             name: item.sop.name,
-            number: item.number,                 //ntar aktifin lagi kalau perlu
+            number: item.number,
             creation_date: dateFormat(item.sop.createdAt),
             status: item.status,
             org_name: item.sop.organization.name,
