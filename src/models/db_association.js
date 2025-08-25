@@ -38,7 +38,7 @@ modelResetToken.belongsTo(modelUser, { foreignKey: 'id_user' });
 modelOrganization.hasMany(modelSop, { foreignKey: 'id_org' });
 modelSop.belongsTo(modelOrganization, { foreignKey: 'id_org' });
 
-// modelUser.hasMany(modelSopDetails, { foreignKey: 'signer_id' });     //satu user bisa menandatangani beberapa sop (tapi cuma role ter tentu saja)
+// modelUser.hasMany(modelSopDetails, { foreignKey: 'signer_id' });     //satu user bisa menandatangani beberapa POS (tapi cuma role ter tentu saja)
 // modelSopDetails.belongsTo(modelUser, { foreignKey: 'signer_id' });
 
 modelLawTypes.hasMany(modelLegal, { foreignKey: 'id_law_type' });

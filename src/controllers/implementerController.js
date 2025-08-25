@@ -93,8 +93,8 @@ const addSopImplementer = async (req, res, next) => {
 
         // TODO buat pengecekan terlebih dahulu apakah kombinasi dari kedua data  yang sama sudah ada atau belum, kalau sudah buat validasinya, karena kalau sekarang hanya tampil error duplikat
         if (!dataImplementer || !dataSopDetail) {
-            console.error('Data pelaksana atau sop detail tidak ditemukan')
-            return res.status(404).json({ message: 'Data pelaksana atau sop detail tidak ditemukan' })
+            console.error('Data pelaksana atau POS detail tidak ditemukan')
+            return res.status(404).json({ message: 'Data pelaksana atau POS detail tidak ditemukan' })
         };
 
         await modelSopDetailImplementer.create({
@@ -115,8 +115,8 @@ const getSopImplementer = async (req, res, next) => {
 
         const dataSopDetail = await modelSopDetail.findByPk(id, { attributes: ['id_sop_detail'] });
         if (!dataSopDetail) {
-            console.error('Data pelaksana atau sop detail tidak ditemukan!')
-            return res.status(400).json({ message: 'Data pelaksana atau sop detail tidak ditemukan!' })
+            console.error('Data pelaksana atau POS detail tidak ditemukan!')
+            return res.status(400).json({ message: 'Data pelaksana atau POS detail tidak ditemukan!' })
         };
 
         const dataSopImplementer = await modelImplementer.findAll({
@@ -154,8 +154,8 @@ const deleteSopImplementer = async (req, res, next) => {
             }
         });
         if (!dataSopDetail) {
-            console.error('Data pelaksana sop tidak ditemukan!')
-            return res.status(404).json({ message: 'Data pelaksana sop tidak ditemukan!' })
+            console.error('Data pelaksana POS tidak ditemukan!')
+            return res.status(404).json({ message: 'Data pelaksana POS tidak ditemukan!' })
         };
 
         await dataSopDetail.destroy();

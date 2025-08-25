@@ -14,13 +14,13 @@ const nominalSopEachOrg = async (req, res, next) => {
                 model: modelSop,
                 attributes: ['id_sop'],
                 where: {
-                    is_active: 1        // hanya sop yang berlaku yang ditampilkan, karena ini bersifat publik
+                    is_active: 1        // hanya POS yang berlaku yang ditampilkan, karena ini bersifat publik
                 },
                 include: {
                     model: modelSopDetail,
                     attributes: [['id_sop_detail', 'id']],
                     where: {
-                        status: 1        // hanya sop yang berlaku yang ditampilkan, karena ini bersifat publik
+                        status: 1        // hanya POS yang berlaku yang ditampilkan, karena ini bersifat publik
                     },
                 }
             }
@@ -220,7 +220,7 @@ const nominalFeedbackTopSop = async (req, res, next) => {
         // Jika semua item sop_detail null, kembalikan array kosong
         if (dataFeedback.every(item => item.sop_detail === null)) {
             return res.status(200).json({
-                message: 'sop dengan organisasi yang diminta tidak ada',
+                message: 'POS dengan organisasi yang diminta tidak ada',
                 data: []
             });
         }

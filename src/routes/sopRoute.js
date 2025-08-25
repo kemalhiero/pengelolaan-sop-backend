@@ -15,7 +15,7 @@ router.route('/detail/:id')
     .patch(verifyToken, sopController.updateSopDetail)
     .delete(verifyToken, sopController.deleteSopDetail);
 
-// Konfigurasi tampilan SOP
+// Konfigurasi tampilan POS
 router.patch('/detail/display/:id/layout', verifyToken, sopController.saveSopLayout);
 
 router.route('/detail/display/:id/flowchart')
@@ -28,7 +28,7 @@ router.route('/detail/display/:id/bpmn')
 
 router.get('/detail/display/:id', sopController.getSopDisplayConfig);
 
-// ambil data versi SOP
+// ambil data versi POS
 router.get('/version/:id', sopController.getSopVersion);
 
 router.post('/step', verifyToken, sopController.addSopStep);

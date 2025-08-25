@@ -587,7 +587,7 @@ const addSopDrafter = async (req, res, next) => {
         const dataSopDetail = await modelSopDetail.findByPk(id_sop_detail);
 
         if (!dataUser || !dataSopDetail) {
-            const error = new Error('Data user atau sop tidak ditemukan');
+            const error = new Error('Data user atau POS tidak ditemukan');
             error.status = 404;
             throw error;
         };
@@ -613,7 +613,7 @@ const removeSopDrafter = async (req, res, next) => {
         });
 
         if (deletedCount === 0) {
-            return res.status(404).json({ message: 'Data user atau sop tidak ditemukan' });
+            return res.status(404).json({ message: 'Data user atau POS tidak ditemukan' });
         }
 
         return res.status(200).json({
@@ -630,7 +630,7 @@ const getDrafterByIdDetail = async (req, res, next) => {      //ambil pembuat do
         const dataSopDetail = await modelSopDetail.findByPk(id);
 
         if (!dataSopDetail) {
-            const error = new Error('Data sop tidak ditemukan');
+            const error = new Error('Data POS tidak ditemukan');
             error.status = 404;
             throw error;
         };

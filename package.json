@@ -1,7 +1,7 @@
 {
   "name": "pengelolaan-sop-backend",
   "version": "0.0.1",
-  "description": "Tugas Akhir Pengelolaan SOP di Departemen Sistem Informasi Universitas Andalas berbasis website",
+  "description": "Tugas Akhir Pengelolaan POS di Departemen Sistem Informasi Universitas Andalas berbasis website",
   "main": "index.js",
   "type": "module",
   "scripts": {

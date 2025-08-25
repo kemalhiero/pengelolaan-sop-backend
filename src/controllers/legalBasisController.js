@@ -67,7 +67,7 @@ const deleteLegal = async (req, res, next) => {
 
         const deletedCount = await modelLegal.destroy({ where: { id_legal: id } });
         if (deletedCount === 0) {
-            return res.status(404).json({ message: 'Data user atau sop tidak ditemukan' });
+            return res.status(404).json({ message: 'Data user atau POS tidak ditemukan' });
         }
 
         return res.status(200).json({
@@ -107,8 +107,8 @@ const addSopLegal = async (req, res, next) => {
         const legal = await modelLegal.findByPk(id_legal, { attributes: ['id_legal'] });
 
         if (!sopDetail || !legal) {
-            console.error('Data dasar hukum atau sop detail tidak ditemukan')
-            return res.status(400).json({ message: 'Data dasar hukum atau sop detail tidak ditemukan' })
+            console.error('Data dasar hukum atau POS detail tidak ditemukan')
+            return res.status(400).json({ message: 'Data dasar hukum atau POS detail tidak ditemukan' })
         };
 
         await modelLegalBasisSopDetail.create({
@@ -182,8 +182,8 @@ const deleteSopLegal = async (req, res, next) => {
             }
         });
         if (!deletedCount) {
-            console.error('Data dasar hukum sop tidak ditemukan!')
-            return res.status(404).json({ message: 'Data dasar hukum sop tidak ditemukan!' })
+            console.error('Data dasar hukum POS tidak ditemukan!')
+            return res.status(404).json({ message: 'Data dasar hukum POS tidak ditemukan!' })
         };
 
         return res.status(200).json({

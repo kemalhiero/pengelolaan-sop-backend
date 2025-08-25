@@ -66,8 +66,8 @@ const deleteSopRecord = async (req, res, next) => {
 
         const deletedCount = await modelRecord.destroy({ where: { id_data_record: id } });
         if (deletedCount === 0) {
-            console.error('Data pencatatan sop tidak ditemukan!')
-            return res.status(404).json({ message: 'Data pencatatan sop tidak ditemukan!' })
+            console.error('Data pencatatan POS tidak ditemukan!')
+            return res.status(404).json({ message: 'Data pencatatan POS tidak ditemukan!' })
         };
 
         return res.status(200).json({

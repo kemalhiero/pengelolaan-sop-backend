@@ -13,7 +13,7 @@ export default sequelize.define('sop_details',
             validate: {
                 isUUID: {
                     args: 4,
-                    msg: 'ID SOP Detail harus berupa UUID v4 yang valid.'
+                    msg: 'ID POS Detail harus berupa UUID v4 yang valid.'
                 }
             }
         },

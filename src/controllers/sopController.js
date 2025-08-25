@@ -31,7 +31,7 @@ const addSop = async (req, res, next) => {
         });
 
         if (existingSop) {
-            return res.status(409).json({ message: 'Nama SOP sudah digunakan di organisasi ini, gunakan nama lain!' });
+            return res.status(409).json({ message: 'Nama POS sudah digunakan di organisasi ini, gunakan nama lain!' });
         }
 
         const data = await modelSop.create({
@@ -58,12 +58,12 @@ const addSopDetail = async (req, res, next) => {
         const sop = await modelSop.findByPk(id, { attributes: ['id_sop', 'id_org'] });
         if (!sop) return res.status(404).json({ message: 'sop tidak ditemukan!' });
 
-        // Cek apakah nomor sudah ada untuk SOP ini
+        // Cek apakah nomor sudah ada untuk POS ini
         const existingSopDetail = await modelSopDetail.findOne({
             where: { number },
             attributes: ['id_sop_detail']
         });
-        if (existingSopDetail) return res.status(409).json({ message: 'Nomor SOP sudah digunakan, ganti dengan nomor lain!' });
+        if (existingSopDetail) return res.status(409).json({ message: 'Nomor POS sudah digunakan, ganti dengan nomor lain!' });
 
         const signer = await modelUser.findOne({
             where: {
@@ -105,8 +105,8 @@ const getAllSop = async (req, res, next) => {       //ambil semua sop
                 {
                     model: modelSopDetail,
                     attributes: ['id_sop_detail'],
-                    where: { status: 1 }, // Ambil hanya SOP yang sudah disetujui
-                    required: true, // Pastikan bahwa hanya SOP dengan detail yang sesuai yang diambil
+                    where: { status: 1 }, // Ambil hanya POS yang sudah disetujui
+                    required: true, // Pastikan bahwa hanya POS dengan detail yang sesuai yang diambil
                 },
                 {
                     model: modelOrganization,
@@ -116,7 +116,7 @@ const getAllSop = async (req, res, next) => {       //ambil semua sop
         });
 
         const data = dataSop.map(item => ({
-            id: item.sop_details[0].id_sop_detail, // Ambil id dari detail sop pertama
+            id: item.sop_details[0].id_sop_detail, // Ambil id dari detail POS pertama
             name: item.name,
             is_active: item.is_active,
             creation_date: dateFormat(item.createdAt), // Gunakan tanggal yang sudah diformat
@@ -263,7 +263,7 @@ const getAllSopDetail = async (req, res, next) => {    // ambil semua data tabel
     }
 };
 
-const getSopById = async (req, res, next) => {          //untuk ambil sop beserta detail-detailnya (versinya) berdasarkan id
+const getSopById = async (req, res, next) => {          //untuk ambil POS beserta detail-detailnya (versinya) berdasarkan id
     try {
         const { id } = req.params;
         if (!id) return res.status(404).json({ message: 'atribut id masih kosong!' });
@@ -362,7 +362,6 @@ const getSopVersion = async (req, res, next) => {
             organization: dataSopDetail.sop.organization
         };
 
-        // Remove nested sop object since we've flattened it
         delete transformedSopDetail.sop;
 
         return res.status(200).json({
@@ -500,7 +499,7 @@ const getAssignedSop = async (req, res, next) => {
     }
 };
 
-const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang belum disetujui
+const getAssignedSopDetail = async (req, res, next) => {      //ambil POS yang belum disetujui
     try {
         const { id } = req.params;
         if (!id) return res.status(404).json({ message: 'atribut id masih kosong!' });
@@ -577,7 +576,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil sop yang b
 const updateSopDetail = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const updateData = req.body;    // semua atribut yang ada di tabel sop detail
+        const updateData = req.body;    // semua atribut yang ada di tabel POS detail
 
         // Filter hanya field yang ada di request body
         const data_baru = Object.keys(updateData).reduce((acc, key) => {
@@ -626,7 +625,7 @@ const getSectionandWarning = async (req, res, next) => {
         });
 
         if (!dataSopDetail) {
-            const error = new Error('Data sop tidak ditemukan');
+            const error = new Error('Data POS tidak ditemukan');
             error.status = 404;
             throw error;
         };
@@ -668,7 +667,7 @@ const getSopStepbySopDetail = async (req, res, next) => {
             attributes: [['id_sop_detail', 'id']]
         });
 
-        if (!dataSopDetail) return res.status(404).json({ message: 'Data sop detail tidak ditemukan' });
+        if (!dataSopDetail) return res.status(404).json({ message: 'Data POS detail tidak ditemukan' });
 
         const dataStep = await modelSopStep.findAll({
             where: {
@@ -691,7 +690,7 @@ const updateSopStep = async (req, res, next) => {
         const { id } = req.params;
         const updateData = req.body;
         const dataSopStep = await modelSopStep.findByPk(id);
-        if (!dataSopStep) return res.status(404).json({ message: 'Data tahapan sop tidak ditemukan' });
+        if (!dataSopStep) return res.status(404).json({ message: 'Data tahapan POS tidak ditemukan' });
 
         const data_baru = Object.keys(updateData).reduce((acc, key) => {
             if (updateData[key] !== undefined) {
@@ -735,14 +734,14 @@ const confirmSopandBpmn = async (req, res, next) => {
         const { id } = req.params;
 
         const dataSopDetail = await modelSopDetail.findByPk(id, { attributes: ['id_sop_detail', 'id_sop', 'status'] });
-        if (!dataSopDetail) return res.status(404).json({ message: 'Data sop detail tidak ditemukan' });
+        if (!dataSopDetail) return res.status(404).json({ message: 'Data POS detail tidak ditemukan' });
 
         const sopUtama = await modelSop.findByPk(dataSopDetail.dataValues.id_sop, { attributes: ['id_sop', 'is_active'] });
         if (sopUtama.dataValues.is_active === 2) {
             await sopUtama.update({ is_active: 1 });
         }
 
-        // Update status menjadi 0 hanya untuk SOP detail versi yang lain
+        // Update status menjadi 0 hanya untuk POS detail versi yang lain
         await modelSopDetail.update(
             { status: 0 },
             {
@@ -760,17 +759,17 @@ const confirmSopandBpmn = async (req, res, next) => {
             effective_date: new Date()
         });
 
-        return res.status(200).json({ message: 'sukses mengkonfirmasi SOP' });
+        return res.status(200).json({ message: 'sukses mengkonfirmasi POS' });
     } catch (error) {
         next(error);
     }
 };
 
-// konfigurasi tampilan SOP
+// konfigurasi tampilan POS
 const saveSopLayout = async (req, res, next) => {           // menyimpat layout dan pagination saja
     try {
         const { id } = req.params;
-        if (!id) return res.status(400).json({ message: 'ID sop detail tidak boleh kosong' });
+        if (!id) return res.status(400).json({ message: 'ID POS detail tidak boleh kosong' });
 
         const {
             nominal_basic_page_steps,
@@ -807,7 +806,7 @@ const saveSopLayout = async (req, res, next) => {           // menyimpat layout 
 const saveFlowchartConfig = async (req, res, next) => {     // menyimpan konfigurasi panah dan label flowchart
     try {
         const { id } = req.params;
-        if (!id) return res.status(400).json({ message: 'ID sop detail tidak boleh kosong' });
+        if (!id) return res.status(400).json({ message: 'ID POS detail tidak boleh kosong' });
         const { flowchart_arrow_config, flowchart_label_config } = req.body;
         if (!flowchart_arrow_config && !flowchart_label_config) {
             return res.status(400).json({ message: 'Minimal satu konfigurasi harus diisi' });
@@ -837,7 +836,7 @@ const saveFlowchartConfig = async (req, res, next) => {     // menyimpan konfigu
 const saveBpmnConfig = async (req, res, next) => {          // menyimpan konfigurasi panah dan label BPMN
     try {
         const { id } = req.params;
-        if (!id) return res.status(400).json({ message: 'ID sop detail tidak boleh kosong' });
+        if (!id) return res.status(400).json({ message: 'ID POS detail tidak boleh kosong' });
         const { bpmn_arrow_config, bpmn_label_config } = req.body;
         if (!bpmn_arrow_config && !bpmn_label_config) {
             return res.status(400).json({ message: 'Minimal satu konfigurasi harus diisi' });
@@ -864,10 +863,10 @@ const saveBpmnConfig = async (req, res, next) => {          // menyimpan konfigu
     }
 };
 
-const getSopDisplayConfig = async (req, res, next) => {     // mengambil semua konfigurasi tampilan SOP
+const getSopDisplayConfig = async (req, res, next) => {     // mengambil semua konfigurasi tampilan POS
     try {
         const { id } = req.params;
-        if (!id) return res.status(400).json({ message: 'ID sop detail tidak boleh kosong' });
+        if (!id) return res.status(400).json({ message: 'ID POS detail tidak boleh kosong' });
 
         const config = await modelSopDetail.findOne({
             where: { id_sop_detail: id },
@@ -900,7 +899,7 @@ const getSopDisplayConfig = async (req, res, next) => {     // mengambil semua k
 const clearFlowchartConfig = async (req, res, next) => {    // menghapus konfigurasi panah dan label flowchart
     try {
         const { id } = req.params;
-        if (!id) return res.status(400).json({ message: 'ID sop detail tidak boleh kosong' });
+        if (!id) return res.status(400).json({ message: 'ID POS detail tidak boleh kosong' });
 
         const [updated] = await modelSopDetail.update(
             { flowchart_arrow_config: null, flowchart_label_config: null },
@@ -918,7 +917,7 @@ const clearFlowchartConfig = async (req, res, next) => {    // menghapus konfigu
 const clearBpmnConfig = async (req, res, next) => {         // menghapus konfigurasi panah dan label BPMN
     try {
         const { id } = req.params;
-        if (!id) return res.status(400).json({ message: 'ID sop detail tidak boleh kosong' });
+        if (!id) return res.status(400).json({ message: 'ID POS detail tidak boleh kosong' });
 
         const [updated] = await modelSopDetail.update(
             { bpmn_arrow_config: null, bpmn_label_config: null },

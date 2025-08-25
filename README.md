@@ -1,6 +1,6 @@
 # pengelolaan-sop-backend
 
-Back-End Tugas Akhir "Sistem Informasi Pengelolaan SOP di Departemen Sistem Informasi Universitas Andalas berbasis web".
+Back-End Tugas Akhir "Sistem Informasi Pengelolaan POS di Departemen Sistem Informasi Universitas Andalas berbasis web".
 
 - NodeJS 22.11.0
 - MariaDB 11.4.3

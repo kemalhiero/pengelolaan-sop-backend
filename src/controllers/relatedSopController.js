@@ -6,8 +6,8 @@ const addRelatedSop = async (req, res, next) => {
         const { id_sop_detail, related_sop } = req.body;
 
         if (!related_sop || !id_sop_detail) {
-            console.error('id sop detail harus berupa uuid dan ID related sop harus berupa angka')
-            return res.status(400).json({ message: 'id sop detail harus berupa uuid dan ID related sop harus berupa angka' })
+            console.error('id POS detail harus berupa uuid dan ID related POS harus berupa angka')
+            return res.status(400).json({ message: 'id POS detail harus berupa uuid dan ID related POS harus berupa angka' })
         };
 
         if (!validateText(related_sop)) {
@@ -61,8 +61,8 @@ const deleteRelatedSop = async (req, res, next) => {
 
         const deletedCount = await modelRelatedSop.destroy({ where: { id_relation_sop: id } });
         if (deletedCount === 0) {
-            console.error('Data sop terkait tidak ditemukan!')
-            return res.status(404).json({ message: 'Data sop terkait tidak ditemukan!' })
+            console.error('Data POS terkait tidak ditemukan!')
+            return res.status(404).json({ message: 'Data POS terkait tidak ditemukan!' })
         };
 
         return res.status(200).json({
