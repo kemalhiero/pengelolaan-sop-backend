@@ -21,6 +21,15 @@ export default sequelize.define('sop_details',
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false
         },
+        copy_from: {
+            type: DataTypes.UUID,
+            validate: {
+                isUUID: {
+                    args: 4,
+                    msg: 'ID salinan harus berupa UUID v4 yang valid.'
+                }
+            }
+        },
         number: {
             type: DataTypes.STRING(50),
             allowNull: false,

@@ -52,7 +52,7 @@ const addSopDetail = async (req, res, next) => {
         const { id } = req.params;
         if (!id) return res.status(404).json({ message: 'atribut id masih kosong!' });
 
-        const { number, description, version } = req.body;
+        const { number, description, version, copy_from = null } = req.body;
         if (!number || !description || !version) return res.status(404).json({ message: 'pastikan data tidak kosong!' });
 
         const sop = await modelSop.findByPk(id, { attributes: ['id_sop', 'id_org'] });
@@ -82,7 +82,7 @@ const addSopDetail = async (req, res, next) => {
         });
 
         const dataSopDetail = await modelSopDetail.create({
-            number, description, id_sop: id, version, status: 2,
+            number, copy_from, description, id_sop: id, version, status: 2,
             signer_id: signer ? signer.dataValues.id_user : null,
             pic_position: signer ? signer.dataValues.role.role_name : null
         });
@@ -507,8 +507,8 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil POS yang b
 
         const dataSop = await modelSopDetail.findByPk(id, {
             attributes: [
-                'number', 'version', 'status', 'description', 'pic_position',
-                'effective_date', 'createdAt', 'updatedAt',
+                'copy_from', 'number', 'version', 'status', 'description', 'pic_position',
+                'effective_date', 'createdAt', 'updatedAt'
             ],
             include: [
                 {
@@ -540,23 +540,8 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil POS yang b
         });
         if (!dataSop) return res.status(404).json({ message: 'data tidak ditemukan!' });
 
-        // Cek versi sebelumnya jika versi saat ini > 1
-        let previous_version_id = null;
-        if (dataSop.version > 1) {
-            const previousSop = await modelSopDetail.findOne({
-                where: {
-                    id_sop: dataSop.sop.id_sop,
-                    version: dataSop.version - 1
-                },
-                attributes: ['id_sop_detail']
-            });
-            if (previousSop) {
-                previous_version_id = previousSop.id_sop_detail;
-            }
-        }
-
         // Transform data untuk menghapus struktur nested yang tidak diinginkan
-        const { sop, users, number, version, status, description, pic_position, createdAt, updatedAt } = dataSop;
+        const { sop, users, copy_from, number, version, status, description, pic_position, createdAt, updatedAt } = dataSop;
         const data = {
             name: sop.name,
             creation_date: dateFormat(createdAt),
@@ -570,6 +555,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil POS yang b
                 name: sop.organization.user.name,
                 role: sop.organization.user.role?.role_name || null
             },
+            copy_from,
             number,
             version,
             status,
@@ -579,7 +565,6 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil POS yang b
                 id_number: identity_number,
                 name
             })),
-            previous_version_id,
         };
 
         return res.status(200).json({
