@@ -104,7 +104,7 @@ const getAllSop = async (req, res, next) => {       //ambil semua sop
             include: [
                 {
                     model: modelSopDetail,
-                    attributes: ['id_sop_detail'],
+                    attributes: ['id_sop_detail', 'effective_date'],
                     where: { status: 1 }, // Ambil hanya POS yang sudah disetujui
                     required: true, // Pastikan bahwa hanya POS dengan detail yang sesuai yang diambil
                 },
@@ -119,7 +119,7 @@ const getAllSop = async (req, res, next) => {       //ambil semua sop
             id: item.sop_details[0].id_sop_detail, // Ambil id dari detail POS pertama
             name: item.name,
             is_active: item.is_active,
-            creation_date: dateFormat(item.createdAt), // Gunakan tanggal yang sudah diformat
+            effective_date: dateFormat(item.sop_details[0].effective_date), // Gunakan tanggal yang sudah diformat
             org_name: item.organization.name,
         }));
 
@@ -279,7 +279,6 @@ const getSopById = async (req, res, next) => {          //untuk ambil POS besert
         });
 
         if (!dataSop) return res.status(404).json({ message: 'data tidak ditemukan!' });
-
         const dataSopDetail = await modelSopDetail.findAll({
             where: { id_sop: id },
             attributes: [
@@ -292,7 +291,8 @@ const getSopById = async (req, res, next) => {          //untuk ambil POS besert
                 model: modelUser,
                 attributes: ['identity_number', 'name'],
                 through: { attributes: [] }
-            }
+            },
+            order: [['version', 'ASC']]
         });
         // Transform data untuk menghapus struktur nested yang tidak diinginkan
         const transformedSopDetail = dataSopDetail.map(detail => ({
@@ -395,7 +395,7 @@ const getLatestSopInYear = async (req, res, next) => {
         let latestSop = await modelSopDetail.findOne({
             where: literal(`YEAR(sop_details.createdAt) = ${year}`),
             order: [['createdAt', 'DESC']],
-            attributes: ['number', 'version'],
+            attributes: ['number'],
             include: {
                 model: modelSop,
                 attributes: ['id_org'],
@@ -435,11 +435,11 @@ const getAssignedSop = async (req, res, next) => {
         // Query sebagai penyusun (berdasarkan email)
         sopQueries.push(
             modelSopDetail.findAll({
-                attributes: ['id_sop_detail', 'number', 'status'],
+                attributes: ['id_sop_detail', 'number', 'version', 'status', 'createdAt'],
                 include: [
                     {
                         model: modelSop,
-                        attributes: ['name', 'createdAt'],
+                        attributes: ['name'],
                         include: {
                             model: modelOrganization,
                             attributes: ['name']
@@ -459,10 +459,10 @@ const getAssignedSop = async (req, res, next) => {
         if (req.user.role === 'pj' || req.user.role === 'kadep') {
             sopQueries.push(
                 modelSopDetail.findAll({
-                    attributes: ['id_sop_detail', 'number', 'status'],
+                    attributes: ['id_sop_detail', 'number', 'version', 'status', 'createdAt'],
                     include: {
                         model: modelSop,
-                        attributes: ['name', 'createdAt'],
+                        attributes: ['name'],
                         where: { id_org: req.user.id_org_pic },
                         include: {
                             model: modelOrganization,
@@ -485,7 +485,8 @@ const getAssignedSop = async (req, res, next) => {
             id: item.id_sop_detail,
             name: item.sop.name,
             number: item.number,
-            creation_date: dateFormat(item.sop.createdAt),
+            version: item.version,
+            creation_date: dateFormat(item.createdAt),
             status: item.status,
             org_name: item.sop.organization.name,
         }));
@@ -506,13 +507,13 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil POS yang b
 
         const dataSop = await modelSopDetail.findByPk(id, {
             attributes: [
-                'number', 'status', 'description', 'pic_position',
+                'number', 'version', 'status', 'description', 'pic_position',
                 'effective_date', 'createdAt', 'updatedAt',
             ],
             include: [
                 {
                     model: modelSop,
-                    attributes: ['name'],
+                    attributes: ['id_sop', 'name'],
                     include: {
                         model: modelOrganization,
                         attributes: ['id_org', 'name'],
@@ -539,8 +540,23 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil POS yang b
         });
         if (!dataSop) return res.status(404).json({ message: 'data tidak ditemukan!' });
 
+        // Cek versi sebelumnya jika versi saat ini > 1
+        let previous_version_id = null;
+        if (dataSop.version > 1) {
+            const previousSop = await modelSopDetail.findOne({
+                where: {
+                    id_sop: dataSop.sop.id_sop,
+                    version: dataSop.version - 1
+                },
+                attributes: ['id_sop_detail']
+            });
+            if (previousSop) {
+                previous_version_id = previousSop.id_sop_detail;
+            }
+        }
+
         // Transform data untuk menghapus struktur nested yang tidak diinginkan
-        const { sop, users, number, status, description, pic_position, createdAt, updatedAt } = dataSop;
+        const { sop, users, number, version, status, description, pic_position, createdAt, updatedAt } = dataSop;
         const data = {
             name: sop.name,
             creation_date: dateFormat(createdAt),
@@ -555,6 +571,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil POS yang b
                 role: sop.organization.user.role?.role_name || null
             },
             number,
+            version,
             status,
             description,
             pic_position,
@@ -562,6 +579,7 @@ const getAssignedSopDetail = async (req, res, next) => {      //ambil POS yang b
                 id_number: identity_number,
                 name
             })),
+            previous_version_id,
         };
 
         return res.status(200).json({
