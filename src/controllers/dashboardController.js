@@ -197,6 +197,7 @@ const nominalFeedbackTopSop = async (req, res, next) => {
             include: {
                 model: modelSopDetail,
                 attributes: ['id_sop'],
+                required: true,
                 include: {
                     model: modelSop,
                     attributes: ['name'],

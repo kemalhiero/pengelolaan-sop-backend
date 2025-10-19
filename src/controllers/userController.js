@@ -891,7 +891,7 @@ const downgradeUserRole = async (req, res, next) => {
 const changeUserOrganization = async (req, res, next) => {
     try {
         const { id, org } = req.body;
-        if (!id || org === null) return res.status(400).json({ message: 'ID dan organisasi harus disertakan' });
+        if (!id) return res.status(400).json({ message: 'ID user harus disertakan' });
 
         const user = await modelUser.findByPk(id, {
             attributes: ['id_user', 'id_org_pic', 'id_role'],
@@ -904,8 +904,10 @@ const changeUserOrganization = async (req, res, next) => {
         if (user.id_user === req.user.id_user) return res.status(400).json({ message: 'Anda tidak dapat mengubah organisasi Anda sendiri!' });
         if (user.id_org_pic === org) return res.status(400).json({ message: 'User ini sudah berada di organisasi tersebut!' });
 
-        const organization = await modelOrg.findByPk(org, { attributes: ['id_org'] });
-        if (!organization) return res.status(404).json({ message: 'Organisasi tidak ditemukan!' });
+        if (org) {
+            const organization = await modelOrg.findByPk(org, { attributes: ['id_org'] });
+            if (!organization) return res.status(404).json({ message: 'Organisasi tidak ditemukan!' });
+        }
 
         // Jika user yang diubah adalah 'pj', cari user lain dengan role 'pj' di organisasi tujuan dan ubah jadi 'penyusun'
         if (user.role.role_name === 'pj') {

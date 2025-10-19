@@ -130,9 +130,10 @@ const getAllFeedback = async (req, res, next) => {
                 {
                     model: modelSopDetail,
                     attributes: ['id_sop_detail'],
+                    required: true,
                     include: {
                         model: modelSop,
-                        attributes: ['name'],
+                        attributes: ['id_org', 'name'],
                         where
                     }
                 }
