@@ -3,11 +3,9 @@ import { verifyToken } from '../middlewares/auth.js';
 import { addRelatedSop, deleteRelatedSop, getRelatedSop } from '../controllers/relatedSopController.js';
 
 const router = Router();
-router.route('/')
-    .post(verifyToken, addRelatedSop);
 
-router.route('/:id')
-    .get(getRelatedSop)
-    .delete(verifyToken, deleteRelatedSop);
+router.post('/', verifyToken, addRelatedSop);
+router.get('/:id', verifyToken, getRelatedSop);
+router.delete('/:id_sop_detail/:id_sop', verifyToken, deleteRelatedSop);
 
 export default router;

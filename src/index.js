@@ -62,5 +62,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(port, () => {
-  console.log(`Aplikasi berjalan di http://localhost:${port}`)
+  console.log(`Backend berjalan di http://localhost:${port}`)
 });

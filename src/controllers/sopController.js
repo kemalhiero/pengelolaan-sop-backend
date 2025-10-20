@@ -96,10 +96,10 @@ const addSopDetail = async (req, res, next) => {
     }
 };
 
-const getAllSop = async (req, res, next) => {       //ambil semua sop
+const getAllSop = async (req, res, next) => {       //ambil semua sop (detail) yang aktif saja
     try {
         const dataSop = await modelSop.findAll({
-            attributes: ['name', 'createdAt'],
+            attributes: ['id_sop', 'name', 'createdAt'],
             where: { is_active: 1 },
             include: [
                 {
@@ -117,6 +117,7 @@ const getAllSop = async (req, res, next) => {       //ambil semua sop
 
         const data = dataSop.map(item => ({
             id: item.sop_details[0].id_sop_detail, // Ambil id dari detail POS pertama
+            id_sop: item.id_sop,
             name: item.name,
             effective_date: dateFormat(item.sop_details[0].effective_date), // Gunakan tanggal yang sudah diformat
             version: item.sop_details[0].version,

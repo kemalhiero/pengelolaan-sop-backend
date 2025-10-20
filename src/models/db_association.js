@@ -62,13 +62,28 @@ modelEquipment.belongsTo(modelSopDetails, { foreignKey: 'id_sop_detail' });
 modelSopDetails.hasMany(modelDataRecord, { foreignKey: 'id_sop_detail' });
 modelDataRecord.belongsTo(modelSopDetails, { foreignKey: 'id_sop_detail' });
 
-modelSopDetails.hasMany(modelRelationOtherSop, { foreignKey: 'id_sop_detail' });
-modelRelationOtherSop.belongsTo(modelSopDetails, { foreignKey: 'id_sop_detail' });
 
 modelSopDetails.hasMany(modelImplementQualification, { foreignKey: 'id_sop_detail' });
 modelImplementQualification.belongsTo(modelSopDetails, { foreignKey: 'id_sop_detail' });
 
 // relasi many to many
+modelSopDetails.belongsToMany(modelSop, { 
+  through: modelRelationOtherSop, 
+  sourceKey: 'id_sop_detail',
+  foreignKey: 'id_sop_detail', 
+  targetKey: 'id_sop',
+  otherKey: 'id_sop',
+  as: 'RelatedSop' 
+});
+modelSop.belongsToMany(modelSopDetails, { 
+  through: modelRelationOtherSop, 
+  sourceKey: 'id_sop',
+  foreignKey: 'id_sop', 
+  targetKey: 'id_sop_detail',
+  otherKey: 'id_sop_detail',
+  as: 'RelatedSopDetail' 
+});
+
 modelUser.belongsToMany(modelSopDetails, { through: modelDrafter, foreignKey: 'id_user' });
 modelSopDetails.belongsToMany(modelUser, { through: modelDrafter, foreignKey: 'id_sop_detail' });
 

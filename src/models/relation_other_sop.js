@@ -1,21 +1,27 @@
 import sequelize from "../config/db.js";
 import { DataTypes } from 'sequelize';
+import modelSopDetail from './sop_details.js';
+import modelSop from './sop.js';
 
 export default sequelize.define('relation_other_sop',
     {
-        id_relation_sop: {
-            type: DataTypes.INTEGER.UNSIGNED,
-            primaryKey: true,
-            autoIncrement: true,
-            allowNull: false
-        },
         id_sop_detail: {
             type: DataTypes.UUID,
-            allowNull: false
+            primaryKey: true,
+            allowNull: false,
+            references: {
+                model: modelSopDetail,
+                key: 'id_sop_detail'
+            }
         },
-        related_sop: {
-            type: DataTypes.STRING(200),
-            allowNull: false
+        id_sop: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            primaryKey: true,
+            allowNull: false,
+            references: {
+                model: modelSop,
+                key: 'id_sop'
+            }
         },
     }, {
     freezeTableName: true,

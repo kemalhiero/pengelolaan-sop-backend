@@ -583,13 +583,14 @@ const addSopDrafter = async (req, res, next) => {
     try {
         const { id_user, id_sop_detail } = req.body;
 
-        const dataUser = await modelUser.findByPk(id_user);
-        const dataSopDetail = await modelSopDetail.findByPk(id_sop_detail);
+        const [dataUser, dataSopDetail] = await Promise.all([
+            modelUser.findByPk(id_user, { attributes: ['id_user'] }),
+            modelSopDetail.findByPk(id_sop_detail, { attributes: ['id_sop_detail'] })
+        ]);
 
         if (!dataUser || !dataSopDetail) {
-            const error = new Error('Data user atau POS tidak ditemukan');
-            error.status = 404;
-            throw error;
+            console.error('Data user atau SOP Detail tidak ditemukan!')
+            return res.status(404).json({ message: 'Data user atau SOP Detail tidak ditemukan!' })
         };
 
         await modelDrafter.create({
