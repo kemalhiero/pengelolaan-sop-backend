@@ -77,7 +77,7 @@ const getRelatedSop = async (req, res, next) => {
             data = sopDetailWithRelations.RelatedSop.map(item => ({
                 id: item.id_sop,
                 name: item.name,
-                organization: item.organization.name
+                org_name: item.organization.name
             }));
         }
 
