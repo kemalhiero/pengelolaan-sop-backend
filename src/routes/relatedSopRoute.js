@@ -5,7 +5,7 @@ import { addRelatedSop, deleteRelatedSop, getRelatedSop } from '../controllers/r
 const router = Router();
 
 router.post('/', verifyToken, addRelatedSop);
-router.get('/:id', verifyToken, getRelatedSop);
+router.get('/:id', getRelatedSop);
 router.delete('/:id_sop_detail/:id_sop', verifyToken, deleteRelatedSop);
 
 export default router;
