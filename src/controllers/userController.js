@@ -32,7 +32,7 @@ const getUserByRole = async (req, res, next) => {
         const where = (req.user.role === 'pj' && !isSivitas) ? { id_org_pic: req.user.id_org_pic } : {};
 
         const user = await modelUser.findAll({
-            attributes: ['id_user', 'identity_number', 'name'],
+            attributes: ['id_user', 'identity_number', 'name', 'id_org_pic'],
             include: {
                 model: modelRole,
                 where: {
@@ -48,7 +48,8 @@ const getUserByRole = async (req, res, next) => {
         const data = user.map(item => ({
             id: item.id_user,
             id_number: item.identity_number,
-            name: item.name
+            name: item.name,
+            id_org: item.id_org_pic,
         })) || [];
 
         res.status(200).json({
