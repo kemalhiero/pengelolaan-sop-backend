@@ -6,7 +6,7 @@ import modelFeedback from '../models/feedback.js';
 import modelRole from '../models/roles.js';
 import modelSopDetail from '../models/sop_details.js';
 import modelSop from '../models/sop.js';
-import dateFormat from '../utils/dateFormat.js';
+import { dateFormat } from '../utils/dateFormat.js';
 import { validateUUID } from '../utils/validation.js';
 
 const addDraftFeedback = async (req, res, next) => {

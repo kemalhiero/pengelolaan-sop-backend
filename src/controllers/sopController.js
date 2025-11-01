@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 import { literal, Op } from 'sequelize'; // Tambahkan Op di sini
-import dateFormat from '../utils/dateFormat.js';
+import { dateFormat, dateOnlyFormat } from '../utils/dateFormat.js';
 
 import modelSop from '../models/sop.js';
 import modelRole from '../models/roles.js';
@@ -354,9 +354,9 @@ const getSopVersion = async (req, res, next) => {
         // Transform data untuk menghapus struktur nested yang tidak diinginkan
         const transformedSopDetail = {
             ...dataSopDetail.get({ plain: true }),
-            creation_date: dateFormat(dataSopDetail.createdAt),
-            revision_date: dateFormat(dataSopDetail.updatedAt),
-            effective_date: dateFormat(dataSopDetail.effective_date),
+            creation_date: dateOnlyFormat(dataSopDetail.createdAt),
+            revision_date: dateOnlyFormat(dataSopDetail.updatedAt),
+            effective_date: dateOnlyFormat(dataSopDetail.effective_date),
             name: dataSopDetail.sop.name,
             id_sop: dataSopDetail.sop.id_sop,
             is_active: dataSopDetail.sop.is_active,
@@ -394,7 +394,8 @@ const getLatestSopInYear = async (req, res, next) => {
         }
 
         let latestSop = await modelSopDetail.findOne({
-            where: literal(`YEAR(sop_details.createdAt) = ${year}`),
+            // Ambil tahun dari bagian terakhir atribut "number" (format: T/002/UN16.15.3/OT.01.00/2025)
+            where: literal(`RIGHT(number, 4) = '${year}'`),
             order: [['createdAt', 'DESC']],
             attributes: ['number'],
             include: {
@@ -437,6 +438,7 @@ const getAssignedSop = async (req, res, next) => {
         sopQueries.push(
             modelSopDetail.findAll({
                 attributes: ['id_sop_detail', 'number', 'version', 'status', 'createdAt'],
+                order: [['status', 'DESC']],
                 include: [
                     {
                         model: modelSop,
