@@ -47,7 +47,7 @@ export default sequelize.define('sop_step',
             allowNull: false,
         },
         output: {
-            type: DataTypes.STRING(100)
+            type: DataTypes.STRING(200)
         },
         description: {
             type: DataTypes.STRING(300)

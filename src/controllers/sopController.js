@@ -330,7 +330,7 @@ const getSopVersion = async (req, res, next) => {
                 ['id_sop_detail', 'id'],
                 'number', 'version', 'effective_date',
                 'status', 'warning', 'section',
-                'description', 'pic_position', 'signer_id', 'signature_url', 'createdAt', 'updatedAt'
+                'description', 'pic_position', 'signer_id', 'signature_url', 'updatedAt'
             ],
             include: [
                 {
@@ -340,7 +340,7 @@ const getSopVersion = async (req, res, next) => {
                 },
                 {
                     model: modelSop,
-                    attributes: ['id_sop', 'name', 'is_active'],
+                    attributes: ['id_sop', 'name', 'is_active', 'createdAt'],
                     include: {
                         model: modelOrganization,
                         attributes: [['id_org', 'id'], 'name']
@@ -354,7 +354,7 @@ const getSopVersion = async (req, res, next) => {
         // Transform data untuk menghapus struktur nested yang tidak diinginkan
         const transformedSopDetail = {
             ...dataSopDetail.get({ plain: true }),
-            creation_date: dateOnlyFormat(dataSopDetail.createdAt),
+            creation_date: dateOnlyFormat(dataSopDetail.sop.createdAt),
             revision_date: dateOnlyFormat(dataSopDetail.updatedAt),
             effective_date: dateOnlyFormat(dataSopDetail.effective_date),
             name: dataSopDetail.sop.name,
